@@ -32,15 +32,22 @@ def get_surefire_files(repo_dir):
                 surefire_files.append(os.path.join(root, name))
     return surefire_files
 
-if __name__ == "__main__":	
-	commits = map(lambda x: x[0], filter(lambda x: x[1] != '0',list(csv.reader(open(r"C:\Temp\commits2.csv")))))
+def run_mvn_on_commits(commits, git_path):
 	for commit in commits:
-		GIT_PATH = r'C:\Temp\example\airavata'
-		GIT_COMMIT_PATH = r'C:\Temp\example\airavata_{0}'.format(commit)
-		Popen(['git', 'clone', GIT_PATH, GIT_COMMIT_PATH]).communicate()
-		Popen(['git', 'checkout', '-f', '{0}~1'.format(commit)], cwd=GIT_COMMIT_PATH).communicate()
-		os.system(r'mvn install -fn  -f {0}'.format(GIT_COMMIT_PATH))
-		res = get_tests_results(GIT_COMMIT_PATH)
+		git_commit_path = r'{0}_{1}'.format(git_path, commit)
+		Popen(['git', 'clone', git_path, git_commit_path]).communicate()
+		Popen(['git', 'checkout', '-f', '{0}~1'.format(commit)], cwd=git_commit_path).communicate()
+		os.system(r'mvn install -fn  -f {0}'.format(git_commit_path))
+		res = get_tests_results(git_commit_path)
 		failed_tests = map(lambda x: x[0], filter(lambda x: x[1] != 'pass' and x[1] != 'error', res.items()))
 		with open(r'C:\Temp\example\failed_tests_{0}.txt'.format(commit), 'wb') as f:
 			f.writelines(failed_tests)
+
+
+if __name__ == "__main__":
+	import fixing_issues
+	commits_file = r"C:\Temp\commits3.csv"
+	git_path = r"C:\Temp\example\airavata"
+	fixing_issues.main(commits_file, git_path, r"http://issues.apache.org/jira", r"AIRAVATA")
+	commits = map(lambda x: x[0], filter(lambda x: x[1] != '0', list(csv.reader(open(commits_file)))))
+	run_mvn_on_commits(commits[4], git_path)
