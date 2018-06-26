@@ -28,7 +28,7 @@ def commits_and_issues(repo, issues):
 def get_data(gitPath, jira_url, jira_project_name):
     repo = git.Repo(gitPath)
     issues = get_jira_issues(jira_url, jira_project_name)
-    return commits_and_issues(repo, issues)
+    return commits_and_issues(repo, filter(lambda issue : issue.fields.issuetype.name.lower() == 'bug', issues))
 
 
 def main(out_file, gitPath, jira_url, jira_project_name):
@@ -40,4 +40,4 @@ def main(out_file, gitPath, jira_url, jira_project_name):
 if __name__ == "__main__":
     import sys
     csv.field_size_limit(sys.maxsize)
-    main(r"C:\Temp\commits.csv", r"C:\Temp\example\airavata", r"http://issues.apache.org/jira", r"AIRAVATA")
+    main(r"C:\Temp\commits2.csv", r"C:\Temp\example\airavata", r"http://issues.apache.org/jira", r"AIRAVATA")
