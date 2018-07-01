@@ -50,4 +50,4 @@ if __name__ == "__main__":
 	git_path = r"C:\Temp\example\airavata"
 	fixing_issues.main(commits_file, git_path, r"http://issues.apache.org/jira", r"AIRAVATA")
 	commits = map(lambda x: x[0], filter(lambda x: x[1] != '0', list(csv.reader(open(commits_file)))))
-	run_mvn_on_commits(commits[4], git_path)
+	run_mvn_on_commits(commits, git_path)
