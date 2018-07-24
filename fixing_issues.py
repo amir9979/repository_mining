@@ -31,7 +31,7 @@ def commits_and_issues(repo, issues):
 def get_data(gitPath, jira_url, jira_project_name):
     repo = git.Repo(gitPath)
     issues = get_jira_issues(jira_url, jira_project_name)
-    return commits_and_issues(repo, filter(lambda issue : issue.fields.issuetype.name.lower() == 'bug', issues))
+    return commits_and_issues(repo, issues)
 
 
 def get_commits_between_versions(commits, versions):
@@ -52,7 +52,7 @@ def get_bugged_files_between_versions(gitPath, jira_url, jira_project_name, vers
     tags_commits = get_commits_between_versions(filter(lambda commit: commit._bug_id != "0", commits), versions)
     tags_bugs = {}
     for tag in tags_commits:
-        tags_bugs[tag._name] = set(reduce(list.__add__, map(lambda commit: commit._files, tags_commits[tag]), []))
+        tags_bugs[tag] = set(reduce(list.__add__, map(lambda commit: commit._files, tags_commits[tag]), []))
     return tags_bugs
 
 
@@ -60,7 +60,8 @@ def save_bugs(out_file, gitPath, jira_url, jira_project_name, versions):
     tags_bugs = get_bugged_files_between_versions(gitPath, jira_url, jira_project_name, versions)
     with open(out_file, "wb") as f:
         writer = csv.writer(f)
-        writer.writerows([[tag, ";".join(files)] for tag, files in tags_bugs.items()])
+        writer.writerow(["version_name", "#files in version", "#bugged files in version", "version_date"])
+        writer.writerows([[tag._name, len(filter(lambda x: "java" in x, tag.version_files)), len(filter(lambda x: "java" in x,  files)), tag._commit._commit_date.strftime("%Y-%m-%d")] for tag, files in tags_bugs.items()])
 
 
 def main(out_file, gitPath, jira_url, jira_project_name):
@@ -70,9 +71,10 @@ def main(out_file, gitPath, jira_url, jira_project_name):
         writer.writerows([c.to_list() for c in commits])
 
 if __name__ == "__main__":
-    main(r"C:\Temp\commits2.csv", r"C:\Temp\example\airavata", r"http://issues.apache.org/jira", r"AIRAVATA")
-    versions = map(lambda version: get_tag_by_name(r"C:\Temp\tika", version), ['1.7', '1.7-rc2', '1.8', '1.8-rc2', '1.9-rc2'])
+    # main(r"C:\Temp\commits2.csv", r"C:\Temp\example\airavata", r"http://issues.apache.org/jira", r"AIRAVATA")
+    versions = map(lambda version: get_tag_by_name(r"C:\Temp\tika", version), ['1.8', '1.9-rc1', '1.10-rc1', '1.12-rc1', '1.13-rc1', '1.14-rc1'])
     # tags_bugged = get_bugged_files_between_versions(r"C:\Temp\tika", r"http://issues.apache.org/jira", r"TIKA", versions)
-    save_bugs(r"C:\Temp\bugs2.csv", r"C:\Temp\tika", r"http://issues.apache.org/jira", r"TIKA", versions)
+    # save_bugs(r"C:\Temp\bugs_tika4.csv", r"C:\Temp\tika", r"http://issues.apache.org/jira", r"TIKA", get_repo_versions(r"C:\Temp\tika"))
+    save_bugs(r"C:\Temp\bugs_tika_versions_2.csv", r"C:\Temp\tika", r"http://issues.apache.org/jira", r"TIKA", versions)
     exit()
     # print tags_bugged

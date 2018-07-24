@@ -2,14 +2,17 @@ import git
 from commit import Commit
 
 class Version(object):
-    def __init__(self, git_tag):
+    def __init__(self, repo, git_tag):
         self._commit = Commit(git_tag.commit, 0)
         self._name = git_tag.name
+        self.version_files = version_files(repo, git_tag)
 
+def version_files(repo, tag):
+    return map(lambda diff: diff.b_path, repo.head.commit.tree.diff(tag.commit.tree))
 
 def get_repo_versions(repo_path):
     repo = git.Repo(repo_path)
-    return map(lambda tag: Version(tag), repo.tags)
+    return map(lambda tag: Version(repo, tag), repo.tags)
 
 
 def get_tag_by_name(repo_path, tag_name):
