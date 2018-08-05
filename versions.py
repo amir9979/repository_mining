@@ -1,11 +1,13 @@
 import git
 from commit import Commit
+from diff import Diff
 
 class Version(object):
     def __init__(self, repo, git_tag):
         self._commit = Commit(git_tag.commit, 0)
         self._name = git_tag.name
         self.version_files = version_files(repo, git_tag)
+        # self.diffs = map(Diff, repo.head.commit.tree.diff(git_tag.commit.tree))
 
 def version_files(repo, tag):
     return map(lambda diff: diff.b_path, repo.head.commit.tree.diff(tag.commit.tree))
