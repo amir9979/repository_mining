@@ -1,12 +1,20 @@
 import re
+import time
+
 
 class Commit(object):
-    def __init__(self, git_commit, bug_id):
-        self._git_commit = git_commit
+    def __init__(self, hexsha, files, committed_datetime, bug_id):
+        # self._git_commit = git_commit
         self._bug_id = bug_id
-        self._commit_id = self._git_commit.hexsha
-        self._files = Commit.fix_renamed_files(self._git_commit.stats.files.keys())
-        self._commit_date = self._git_commit .committed_datetime
+        self._commit_id = hexsha
+        self._files = files
+        self._commit_date = time.mktime(committed_datetime.timetuple())
+
+
+    @classmethod
+    def init_commit_by_git_commit(cls, git_commit, bug_id):
+        return Commit(git_commit.hexsha, Commit.fix_renamed_files(git_commit.stats.files.keys()),
+                      git_commit.committed_datetime, bug_id)
 
     def to_list(self):
         return [self._commit_id, str(self._bug_id), ";".join(self._files)]

@@ -3,6 +3,7 @@ import csv
 import sys
 import os
 csv.field_size_limit(sys.maxsize)
+from datetime import datetime
 from commit import Commit
 from versions import get_repo_versions, get_tag_by_name
 from issues import get_jira_issues
@@ -22,35 +23,30 @@ def commits_and_issues(repo, issues):
                 if word in issues_ids:
                     return word
         return "0"
-    commits= []
+    commits = []
     issues_ids = map(lambda issue: issue.split("-")[1], issues)
     for git_commit in repo.iter_commits():
         commit_text = clean_commit_message(git_commit.message)
-        commits.append(Commit(git_commit, get_bug_num_from_comit_text(commit_text, issues_ids)))
+        commits.append(Commit.init_commit_by_git_commit(git_commit, get_bug_num_from_comit_text(commit_text, issues_ids)))
     return commits
 
 @cached(r"apache_commits_data")
-def get_data(jira_url, jira_project_name, gitPath):
+def get_data(jira_project_name, jira_url, gitPath):
     repo = git.Repo(gitPath)
-    issues = get_jira_issues(jira_url, jira_project_name)
+    issues = map(lambda x: x.strip(), get_jira_issues(jira_project_name, jira_url))
     return commits_and_issues(repo, issues)
 
 
 def get_commits_between_versions(commits, versions):
-    tags_commits = {}
     sorted_versions = sorted(versions, key=lambda version: version._commit._commit_date)
-    for git_commit in commits:
-        for current_version, next_version in zip(sorted_versions, sorted_versions[1:]):
-            current_version_date = current_version._commit._commit_date
-            next_version_date = next_version._commit._commit_date
-            if git_commit._commit_date > current_version_date and git_commit._commit_date < next_version_date:
-                tags_commits.setdefault(current_version, []).append(git_commit)
-                break
-    return tags_commits
+    sorted_commits_and_versions = sorted(versions + commits, key=lambda version: version._commit._commit_date if hasattr(version, "_commit") else version._commit_date)
+    versions_indices = map(lambda version: (version, sorted_commits_and_versions.index(version)), sorted_versions)
+    selected_versions = filter(lambda vers: vers[0][1] < vers[1][1], zip(versions_indices, versions_indices[1:]))
+    return dict(map(lambda vers: (vers[0][0], sorted_commits_and_versions[vers[0][1] + 1: vers[1][1]]), selected_versions))
 
 
 def get_bugged_files_between_versions(gitPath, jira_url, jira_project_name, versions):
-    commits = get_data(jira_url, jira_project_name, gitPath)
+    commits = get_data(jira_project_name, jira_url, gitPath)
     tags_commits = get_commits_between_versions(filter(lambda commit: commit._bug_id != "0", commits), versions)
     tags_bugs = {}
     for tag in tags_commits:
@@ -67,11 +63,11 @@ def save_bugs(out_file, gitPath, jira_url, jira_project_name, versions):
             java_files = len(filter(lambda x: "java" in x, tag.version_files))
             bugged_fies = len(filter(lambda x: "java" in x,  files))
             bugged_ratio = 1.0 * bugged_fies / java_files
-            writer.writerow([tag._name, java_files, bugged_fies, bugged_ratio, tag._commit._commit_date.strftime("%Y-%m-%d")])
+            writer.writerow([tag._name, java_files, bugged_fies, bugged_ratio, datetime.fromtimestamp(tag._commit._commit_date).strftime("%Y-%m-%d")])
 
 
 def main(out_file, gitPath, jira_url, jira_project_name):
-    commits = get_data(jira_url, jira_project_name, gitPath)
+    commits = get_data(jira_project_name, jira_url, gitPath)
     with open(out_file, "wb") as f:
         writer = csv.writer(f)
         writer.writerows([c.to_list() for c in commits])
