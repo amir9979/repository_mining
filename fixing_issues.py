@@ -101,5 +101,4 @@ if __name__ == "__main__":
             print repo
         except:
             pass
-    exit()
     # print tags_bugged
