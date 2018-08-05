@@ -1,7 +1,7 @@
 import os
 import pickle
 
-REPOSIROTY_DATA_DIR = os.path.join(os.path.dirname(__name__), "repository_data")
+REPOSIROTY_DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "repository_data")
 assert os.path.exists(REPOSIROTY_DATA_DIR)
 
 def cached(cache_name):
