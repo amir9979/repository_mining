@@ -18,13 +18,14 @@ def cached(cache_name):
     def decorator(fn):  # define a decorator for a function "fn"
         def wrapped(key='KEY', *args, **kwargs):   # define a wrapper that will finally call "fn" with all arguments
             # if cache exists -> load it and return its content
-            cachefile = os.path.abspath(os.path.join(cache_dir, key))
+            # cachefile = os.path.abspath(os.path.join(cache_dir, key))
             gzip_cachefile = os.path.abspath(os.path.join(cache_dir, key + ".gzip"))
-            assert_dir_exists(os.path.dirname(cachefile))
-            if os.path.exists(cachefile):
-                    with open(cachefile, 'rb') as cachehandle:
-                        return pickle.load(cachehandle)
-            elif os.path.exists(gzip_cachefile):
+            # assert_dir_exists(os.path.dirname(cachefile))
+            assert_dir_exists(os.path.dirname(gzip_cachefile))
+            # if os.path.exists(cachefile):
+            #         with open(cachefile, 'rb') as cachehandle:
+            #             return pickle.load(cachehandle)
+            if os.path.exists(gzip_cachefile):
                 with gzip.GzipFile(gzip_cachefile, 'rb') as cachehandle:
                     return pickle.load(cachehandle)
 
