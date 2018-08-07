@@ -1,5 +1,6 @@
 import os
 import pickle
+import gzip
 
 REPOSIROTY_DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "repository_data")
 assert os.path.exists(REPOSIROTY_DATA_DIR)
@@ -18,10 +19,15 @@ def cached(cache_name):
         def wrapped(key='KEY', *args, **kwargs):   # define a wrapper that will finally call "fn" with all arguments
             # if cache exists -> load it and return its content
             cachefile = os.path.abspath(os.path.join(cache_dir, key))
+            gzip_cachefile = os.path.abspath(os.path.join(cache_dir, key + ".gzip"))
             assert_dir_exists(os.path.dirname(cachefile))
             if os.path.exists(cachefile):
                     with open(cachefile, 'rb') as cachehandle:
                         return pickle.load(cachehandle)
+            elif os.path.exists(gzip_cachefile):
+                with gzip.GzipFile(gzip_cachefile, 'rb') as cachehandle:
+                    return pickle.load(cachehandle)
+
 
             # execute the function with all arguments passed
             if fn.func_code.co_argcount == 0:
@@ -30,7 +36,7 @@ def cached(cache_name):
                 res = fn(key, *args, **kwargs)
 
             # write to cache file
-            with open(cachefile, 'wb') as cachehandle:
+            with gzip.GzipFile(gzip_cachefile, 'wb') as cachehandle:
                 pickle.dump(res, cachehandle, pickle.HIGHEST_PROTOCOL)
 
             return res
