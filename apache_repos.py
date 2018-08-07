@@ -85,6 +85,7 @@ def choose_versions(repo, jira_key):
 
 
 if __name__ == "__main__":
+    get_apache_repos_data()
     if len(sys.argv) == 3:
         repo, jira_key = sys.argv[1:]
         sava_bugs_for_project(repo, jira_key)

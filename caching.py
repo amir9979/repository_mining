@@ -3,17 +3,21 @@ import pickle
 import gzip
 
 REPOSIROTY_DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "repository_data")
+REPOSIROTY_CACHING_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "repository_caching")
 assert os.path.exists(REPOSIROTY_DATA_DIR)
+assert os.path.exists(REPOSIROTY_CACHING_DIR)
+
 
 def assert_dir_exists(cache_dir):
     if not os.path.exists(cache_dir):
         os.mkdir(cache_dir)
 
-def cached(cache_name):
+
+def cached(cache_name, cache_dir=REPOSIROTY_CACHING_DIR):
     """
     A function that creates a decorator which will use "cachefile" for caching the results of the decorated function "fn".
     """
-    cache_dir = os.path.join(REPOSIROTY_DATA_DIR, cache_name)
+    cache_dir = os.path.join(cache_dir, cache_name)
     assert_dir_exists(cache_dir)
     def decorator(fn):  # define a decorator for a function "fn"
         def wrapped(key='KEY', *args, **kwargs):   # define a wrapper that will finally call "fn" with all arguments
