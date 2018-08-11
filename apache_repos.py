@@ -57,26 +57,27 @@ def create_apache_data():
         sava_bugs_for_project(repo, jira_key)
 
 
-def choose_versions(repo, jira_key):
+def choose_versions(repo, jira_key, ind=3):
     versions_file = os.path.join(VERSIONS, jira_key) + ".csv"
     if not os.path.exists(versions_file):
         return
     with open(versions_file) as f:
-        version_names = map(lambda x: x[0], filter(lambda x: 0.3 > float(x[3]) > 0.07, list(csv.reader(f))[1:]))
-        if len(version_names) < 6:
+        lines = list(csv.reader(f))[1:]
+        if len(lines) < 6:
             return
+        version_names = map(lambda x: x[0], filter(lambda x: 0.3 > float(x[ind]) > 0.07, lines))
         selected_versions = map(lambda vers: get_tags_by_name(repo, vers), map(lambda i: version_names[i:i + 6], range(len(version_names) - 6)))
         for ind, versions in enumerate(selected_versions):
-            tags_bugs = get_bugged_files_between_versions(repo, r"http://issues.apache.org/jira", jira_key, versions)
+            tags = get_bugged_files_between_versions(repo, r"http://issues.apache.org/jira", jira_key, versions)
             ratios = []
-            for tag, files in sorted(tags_bugs.items(), key=lambda x: x[0]._commit._commit_date):
-                java_files = len(filter(lambda x: "java" in x, tag.version_files))
-                bugged_fies = len(filter(lambda x: "java" in x, files))
-                bugged_ratio = 1.0 * bugged_fies / java_files
+            for tag in tags:
+                bugged_flies = len(filter(lambda x: "java" in x, tag.bugged_files))
+                java_files = len(filter(lambda x: "java" in x, tag.commited_files))
+                bugged_ratio = 1.0 * bugged_flies / java_files
                 ratios.append(bugged_ratio)
             if all(map(lambda x: 0.35 > x > 0.07, ratios)):
                 with open(os.path.join(CONFIGRATION_PATH, "{0}_{1}".format(jira_key, ind)), "wb") as f:
-                    tags_names = map(lambda x: x[0]._name, sorted(tags_bugs.items(), key=lambda x: x[0]._commit._commit_date))
+                    tags_names = map(lambda x: x.tag._name, tags)
                     if len(tags_names) < 5:
                         continue
                     f.write(CONFIGRATION.format(WORKING_DIR="{0}_{1}".format(jira_key, ind), PRODUCT_NAME=jira_key,
@@ -85,8 +86,14 @@ def choose_versions(repo, jira_key):
 
 
 if __name__ == "__main__":
-    get_apache_repos_data()
     if len(sys.argv) == 3:
         repo, jira_key = sys.argv[1:]
         sava_bugs_for_project(repo, jira_key)
-        choose_versions(repo, jira_key)
+        # choose_versions(repo, jira_key)
+    else:
+        for repo, jira_key in get_apache_repos_data():
+            sava_bugs_for_project(repo, jira_key)
+            choose_versions(repo, jira_key)
+
+
+
