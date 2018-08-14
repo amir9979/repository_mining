@@ -33,7 +33,7 @@ def commits_and_issues(repo, issues):
 @cached(r"apache_commits_data")
 def get_data(jira_project_name, jira_url, gitPath):
     repo = git.Repo(gitPath)
-    issues = map(lambda x: x.strip(), get_jira_issues(jira_project_name, jira_url))
+    issues = map(lambda x: x.key.strip(), filter(lambda issue: issue.type == 'bug', get_jira_issues(jira_project_name, jira_url)))
     return commits_and_issues(repo, issues)
 
 
@@ -45,25 +45,49 @@ def get_commits_between_versions(commits, versions):
     return dict(map(lambda vers: (vers[0][0], sorted_commits_and_versions[vers[0][1] + 1: vers[1][1]]), selected_versions))
 
 
+class Version_Info(object):
+    def __init__(self, tag, commits):
+        self.tag = tag
+        self.tag_files = tag._commit._files
+        self.num_commits = len(commits)
+        bugged_commits = filter(lambda commit: commit._bug_id != "0", commits)
+        self.num_bugged_commits = len(bugged_commits)
+        self.commited_files = self.get_commits_files(commits)
+        self.bugged_files = self.get_commits_files(bugged_commits)
+
+    @staticmethod
+    def get_commits_files(commits):
+        return set(reduce(list.__add__, map(lambda commit: commit._files, commits), []))
+
+
 def get_bugged_files_between_versions(gitPath, jira_url, jira_project_name, versions):
     commits = get_data(jira_project_name, jira_url, gitPath)
-    tags_commits = get_commits_between_versions(filter(lambda commit: commit._bug_id != "0", commits), versions)
-    tags_bugs = {}
+    tags_commits = get_commits_between_versions(commits, versions)
+    tags = []
     for tag in tags_commits:
-        tags_bugs[tag] = set(reduce(list.__add__, map(lambda commit: commit._files, tags_commits[tag]), []))
-    return tags_bugs
+        tags.append(Version_Info(tag, tags_commits[tag]))
+    return sorted(tags, key=lambda x: x.tag._commit._commit_date)
 
 
 def save_bugs(out_file, gitPath, jira_url, jira_project_name, versions):
-    tags_bugs = get_bugged_files_between_versions(gitPath, jira_url, jira_project_name, versions)
+    tags = get_bugged_files_between_versions(gitPath, jira_url, jira_project_name, versions)
     with open(out_file, "wb") as f:
         writer = csv.writer(f)
-        writer.writerow(["version_name", "#files in version", "#bugged files in version", "bugged_ratio", "version_date"])
-        for tag, files in sorted(tags_bugs.items(), key=lambda x: x[0]._commit._commit_date):
-            java_files = len(filter(lambda x: "java" in x, tag.version_files))
-            bugged_fies = len(filter(lambda x: "java" in x,  files))
-            bugged_ratio = 1.0 * bugged_fies / java_files
-            writer.writerow([tag._name, java_files, bugged_fies, bugged_ratio, datetime.fromtimestamp(tag._commit._commit_date).strftime("%Y-%m-%d")])
+        writer.writerow(["version_name", "#commited files in version", "#bugged files in version", "bugged_ratio",
+                         "#commits", "#bugged_commits", "#ratio_bugged_commits", "version_date"])
+        for tag in tags:
+            commited_java_files = filter(lambda x: "java" in x, tag.commited_files)
+            num_commited_java_files = len(commited_java_files)
+            bugged_flies = len(filter(lambda x: "java" in x,  tag.bugged_files))
+            bugged_ratio = 0
+            if num_commited_java_files != 0:
+                bugged_ratio = 1.0 * bugged_flies / num_commited_java_files
+            ratio_bugged_commits = 0
+            if tag.num_commits:
+                ratio_bugged_commits = 1.0 * tag.num_bugged_commits / tag.num_commits
+            writer.writerow([tag.tag._name, num_commited_java_files, bugged_flies, bugged_ratio, tag.num_commits,
+                             tag.num_bugged_commits, ratio_bugged_commits,
+                             datetime.fromtimestamp(tag.tag._commit._commit_date).strftime("%Y-%m-%d")])
 
 
 def main(out_file, gitPath, jira_url, jira_project_name):
@@ -72,13 +96,8 @@ def main(out_file, gitPath, jira_url, jira_project_name):
         writer = csv.writer(f)
         writer.writerows([c.to_list() for c in commits])
 
+
 if __name__ == "__main__":
-    # main(r"C:\Temp\commits2.csv", r"C:\Temp\example\airavata", r"http://issues.apache.org/jira", r"AIRAVATA")
-    # versions = map(lambda version: get_tag_by_name(r"C:\Temp\tika", version), ['1.8', '1.9-rc1', '1.10-rc1', '1.12-rc1', '1.13-rc1', '1.14-rc1'])
-    # version = get_repo_versions(r"C:\Temp\tika")
-    # tags_bugged = get_bugged_files_between_versions(r"C:\Temp\tika", r"http://issues.apache.org/jira", r"TIKA", versions)
-    # save_bugs(r"C:\Temp\bugs_tika4.csv", r"C:\Temp\tika", r"http://issues.apache.org/jira", r"TIKA", get_repo_versions(r"C:\Temp\tika"))
-    # save_bugs(r"C:\Temp\bugs_tika_versions_2.csv", r"C:\Temp\tika", r"http://issues.apache.org/jira", r"TIKA", versions)
     import apache_repos
     from caching import REPOSIROTY_DATA_DIR
     VERSIONS = os.path.join(REPOSIROTY_DATA_DIR, r"apache_versions")
