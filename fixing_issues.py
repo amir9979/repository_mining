@@ -8,6 +8,7 @@ from commit import Commit
 from versions import get_repo_versions, get_tag_by_name
 from issues import get_jira_issues
 from caching import cached
+from diff import CommitsDiff
 
 def clean_commit_message(commit_message):
     if "git-svn-id" in commit_message:
@@ -54,6 +55,11 @@ class Version_Info(object):
         self.num_bugged_commits = len(bugged_commits)
         self.commited_files = self.get_commits_files(commits)
         self.bugged_files = self.get_commits_files(bugged_commits)
+        self.commits_diff = self.get_commit_diffs(commits)
+
+    @staticmethod
+    def get_commit_diffs(commits):
+        return map(lambda commits: CommitsDiff(commits[0], commits[1]), zip(commits, commits[1:]))
 
     @staticmethod
     def get_commits_files(commits):

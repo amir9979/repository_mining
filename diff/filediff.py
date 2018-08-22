@@ -1,6 +1,7 @@
 import difflib
 
-class Diff(object):
+
+class FileDiff(object):
     REMOVED = '- '
     ADDED = '+ '
     UNCHANGED = '  '
