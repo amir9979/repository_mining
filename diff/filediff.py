@@ -1,6 +1,7 @@
 import difflib
 from subprocess import Popen, PIPE
 import tempfile
+import gc
 
 
 class FileDiff(object):
@@ -13,13 +14,24 @@ class FileDiff(object):
 
     def __init__(self, diff):
         self.file_name = diff.b_path
-        self.before_contents = diff.a_blob.data_stream[3].readlines()
-        self.after_contents = diff.a_blob.data_stream[3].readlines()
+        if not self.file_name.endswith(".java"):
+            return
+        self.before_contents = ['']
+        if diff.new_file:
+            assert diff.a_blob is None
+        else:
+            self.before_contents = diff.a_blob.data_stream.stream.readlines()
+        self.after_contents = ['']
+        if diff.deleted_file:
+            assert diff.b_blob is None
+        else:
+            self.after_contents = diff.b_blob.data_stream.stream.readlines()
+        assert self.before_contents != self.after_contents
         self.before_indices, self.after_indices = self.get_changed_indices()
 
     def get_changed_indices(self):
         def get_lines_by_prefixes(lines, prefixes):
-            return  filter(lambda x: any(map(lambda p: x.startswith(p), prefixes)), lines)
+            return filter(lambda x: any(map(lambda p: x.startswith(p), prefixes)), lines)
 
         def get_indices_by_prefix(lines, prefix):
             return map(lambda x: x[0], filter(lambda x: x[1].startswith(prefix), enumerate(lines)))
