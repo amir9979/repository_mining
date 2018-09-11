@@ -8,7 +8,7 @@ from commit import Commit
 from versions import get_repo_versions, get_tag_by_name
 from issues import get_jira_issues
 from caching import cached
-from diff import CommitsDiff
+from diff.commitsdiff import CommitsDiff
 
 def clean_commit_message(commit_message):
     if "git-svn-id" in commit_message:
@@ -104,6 +104,12 @@ def main(out_file, gitPath, jira_url, jira_project_name):
 
 
 if __name__ == "__main__":
+    repo = git.Repo(r"c:\temp\tika")
+    versions = get_repo_versions(r"c:\temp\tika")
+    tags_commits = get_commits_between_versions(map(lambda c: Commit.init_commit_by_git_commit(c, 0), list(repo.iter_commits())[:1000]), versions)
+    tags = []
+    for tag in tags_commits:
+        tags.append(Version_Info(tag, tags_commits[tag]))
     import apache_repos
     from caching import REPOSIROTY_DATA_DIR
     VERSIONS = os.path.join(REPOSIROTY_DATA_DIR, r"apache_versions")

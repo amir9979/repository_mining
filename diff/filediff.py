@@ -1,4 +1,6 @@
 import difflib
+from subprocess import Popen, PIPE
+import tempfile
 
 
 class FileDiff(object):
@@ -33,3 +35,16 @@ class FileDiff(object):
         after_indices = get_indices_by_prefix(diff_before_lines, self.ADDED)
 
         return before_indices, after_indices
+
+    def get_changed_methods(self):
+        pass
+
+
+def get_methods_lines(contents):
+    with tempfile.TemporaryFile() as f:
+        f.writelines(contents)
+        run_commands = ["java", "-jar", checkStyle68, "-c", methodNameLines, "javaFile", "-o", outPath, workingDir]
+        proc = Popen(run_commands, stdout=PIPE, stderr=PIPE, shell=True)
+        (out, err) = proc.communicate()
+
+

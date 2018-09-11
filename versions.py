@@ -1,7 +1,7 @@
 import git
 import os
 from commit import Commit
-from diff import FileDiff
+from diff.filediff import FileDiff
 from caching import cached
 
 class Version(object):
