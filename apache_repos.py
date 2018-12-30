@@ -40,6 +40,16 @@ def get_apache_repos_data():
     return map(lambda key: find_repo_and_jira(key, repos, jira_projects), jira_and_github)
 
 
+def search_for_pom(repo):
+    for _, _, files in os.walk(repo):
+        if any(map(lambda f: 'pom.xml' in f.lower(), files)):
+            return True
+        elif any(map(lambda f: 'build.xml' in f.lower(), files)):
+            return False
+        elif any(map(lambda f: 'gradle' in f.lower(), files)):
+            return False
+    return False
+
 def sava_bugs_for_project(repo, jira_key):
     if not os.path.exists(repo):
         print "start git clone https://github.com/apache/{0}.git".format(os.path.basename(repo))
@@ -86,6 +96,10 @@ def choose_versions(repo, jira_key, ind=3):
 
 
 if __name__ == "__main__":
+    repos = filter(lambda x: search_for_pom(x[0]), get_apache_repos_data())
+    print "\n".join(map(lambda x: "{0}, {1}".format(x[0], x[1]), map(lambda x: (
+    os.path.normpath(os.path.join(r'https://github.com/apache', os.path.basename(x[0]))),
+    os.path.normpath(os.path.join(r"http://issues.apache.org/jira/projects", x[1]))), repos)))
     if len(sys.argv) == 3:
         repo, jira_key = sys.argv[1:]
         sava_bugs_for_project(repo, jira_key)
