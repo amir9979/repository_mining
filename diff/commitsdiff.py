@@ -11,5 +11,6 @@ if __name__ == "__main__":
     repo = git.Repo(r'c:\temp\tika')
     commits = list(repo.iter_commits())
     for i in range(100, 2000):
-        CommitsDiff(commits[i], commits[i+1])
+        diff = CommitsDiff(commits[i], commits[i+1])
+        print map(lambda d: (d.file_name, map(lambda m: m.method_name, d.changed_methods)),filter(lambda x: x.is_source_file(), diff.diffs))
     pass

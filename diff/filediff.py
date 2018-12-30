@@ -87,3 +87,6 @@ class FileDiff(object):
         shutil.rmtree(out_dir)
         return filter(lambda method: method.is_changed(indices), methods)
 
+    def __repr__(self):
+        return self.file_name
+
