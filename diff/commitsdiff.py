@@ -1,5 +1,5 @@
-from diff.filediff import FileDiff
-from diff.filediff import SourceFile
+from .filediff import FileDiff
+from .filediff import SourceFile
 from subprocess import Popen, PIPE
 import os
 
