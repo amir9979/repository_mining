@@ -18,7 +18,7 @@ git={GIT_PATH}
 issue_tracker_product_name={PRODUCT_NAME}
 issue_tracker_url=https://issues.apache.org/jira
 issue_tracker=jira
-vers=({TAG_1},{TAG_2}, {TAG_3}, {TAG_4},{TAG_5})
+vers={VERSIONS}
 """
 
 def find_repo_and_jira(key, repos, jira_projects):
@@ -50,9 +50,11 @@ def search_for_pom(repo):
             return False
     return False
 
+
 def sava_bugs_for_project(repo, jira_key):
     if not os.path.exists(repo):
         print "start git clone https://github.com/apache/{0}.git".format(os.path.basename(repo))
+        return
     if not "pom.xml" in os.listdir(repo):
         return
     versions = get_repo_versions(repo)
@@ -67,47 +69,80 @@ def create_apache_data():
         sava_bugs_for_project(repo, jira_key)
 
 
-def choose_versions(repo, jira_key, ind=3):
-    versions_file = os.path.join(VERSIONS, jira_key) + ".csv"
-    if not os.path.exists(versions_file):
-        return
-    with open(versions_file) as f:
-        lines = list(csv.reader(f))[1:]
-        if len(lines) < 6:
-            return
-        version_names = map(lambda x: x[0], filter(lambda x: 0.3 > float(x[ind]) > 0.07, lines))
-        selected_versions = map(lambda vers: get_tags_by_name(repo, vers), map(lambda i: version_names[i:i + 6], range(len(version_names) - 6)))
-        for ind, versions in enumerate(selected_versions):
-            tags = get_bugged_files_between_versions(repo, r"http://issues.apache.org/jira", jira_key, versions)
-            ratios = []
-            for tag in tags:
-                bugged_flies = len(filter(lambda x: "java" in x, tag.bugged_files))
-                java_files = len(filter(lambda x: "java" in x, tag.commited_files))
-                bugged_ratio = 1.0 * bugged_flies / java_files
-                ratios.append(bugged_ratio)
-            if all(map(lambda x: 0.35 > x > 0.07, ratios)):
-                with open(os.path.join(CONFIGRATION_PATH, "{0}_{1}".format(jira_key, ind)), "wb") as f:
-                    tags_names = map(lambda x: x.tag._name, tags)
-                    if len(tags_names) < 5:
-                        continue
-                    f.write(CONFIGRATION.format(WORKING_DIR="{0}_{1}".format(jira_key, ind), PRODUCT_NAME=jira_key,
-                                                GIT_PATH=repo, TAG_1=tags_names[0], TAG_2=tags_names[1],
-                                                TAG_3=tags_names[2], TAG_4=tags_names[3], TAG_5=tags_names[4]))
+def get_versions_by_type(repo):
+    import re
+    all_versions = get_repo_versions(repo)
+    majors = []
+    minors = []
+    micros = []
+    SEPERATORS = ['\.', '\-', '\_']
+    template_base = [['([0-9])', '([0-9])([0-9])', '([0-9])$'], ['([0-9])', '([0-9])([0-9])$'], ['([0-9])', '([0-9])', '([0-9])([0-9])$'], ['([0-9])([0-9])', '([0-9])$'], ['([0-9])', '([0-9])', '([0-9])$'], ['([0-9])', '([0-9])$']]
+    templates = []
+    for base in template_base:
+        templates.extend(map(lambda sep: sep.join(base), SEPERATORS))
+    templates.extend(['([0-9])([0-9])([0-9])$', '([0-9])([0-9])$'])
+    for version in all_versions:
+        for template in templates:
+            values = re.findall(template, version._name)
+            if values:
+                values = map(int, values[0])
+                if len(values) == 4:
+                    micros.append(version)
+                    major, minor1, minor2, micro = values
+                    minor = 10 * minor1 + minor2
+                elif len(values) == 3:
+                    micros.append(version)
+                    major, minor, micro = values
+                else:
+                    major, minor = values
+                    micro = 0
+                if micro == 0:
+                    minors.append(version)
+                if minor == 0 and micro == 0:
+                    majors.append(version)
+                break
+    return {"all": all_versions, "majors": majors, "minors": minors, "micros": micros}.items()
+
+
+def choose_versions(repo, jira_key):
+    from itertools import product
+    for start, stop, step, versions in product([1, 5, 10], [100], [5, 10, 20], get_versions_by_type(repo)):
+        bins = map(lambda x: list(), range(start, stop, step))
+        tags = get_bugged_files_between_versions(repo, r"http://issues.apache.org/jira", jira_key, versions[1])
+        for tag in tags:
+            bugged_flies = len(filter(lambda x: "java" in x, tag.bugged_files))
+            java_files = len(filter(lambda x: "java" in x, tag.commited_files))
+            if bugged_flies*java_files == 0:
+                continue
+            bugged_ratio = 1.0 * bugged_flies / java_files
+            bins[int(((bugged_ratio * 100) - start)/step) - 1].append(tag.tag._name)
+        for ind, bin in enumerate(bins):
+            if len(bin) < 5:
+                continue
+            id = "{0}_{1}_{2}_{3}_{4}_{5}".format(jira_key, start, stop, step, versions[0], ind)
+            with open(os.path.join(CONFIGRATION_PATH, id), "wb") as f:
+                f.write(CONFIGRATION.format(WORKING_DIR=id, PRODUCT_NAME=jira_key, GIT_PATH=repo, VERSIONS=repr(tuple(bin)).replace("'", "")))
 
 
 if __name__ == "__main__":
     repos = filter(lambda x: search_for_pom(x[0]), get_apache_repos_data())
-    print "\n".join(map(lambda x: "{0}, {1}".format(x[0], x[1]), map(lambda x: (
-    os.path.normpath(os.path.join(r'https://github.com/apache', os.path.basename(x[0]))),
-    os.path.normpath(os.path.join(r"http://issues.apache.org/jira/projects", x[1]))), repos)))
+    # print "\n".join(map(lambda x: "{0}, {1}".format(x[0], x[1]), map(lambda x: (
+    # os.path.normpath(os.path.join(r'https://github.com/apache', os.path.basename(x[0]))),
+    # os.path.normpath(os.path.join(r"http://issues.apache.org/jira/projects", x[1]))), repos)))
     if len(sys.argv) == 3:
         repo, jira_key = sys.argv[1:]
         sava_bugs_for_project(repo, jira_key)
-        # choose_versions(repo, jira_key)
+        choose_versions(repo, jira_key)
     else:
         for repo, jira_key in get_apache_repos_data():
-            sava_bugs_for_project(repo, jira_key)
-            choose_versions(repo, jira_key)
+            print jira_key
+            try:
+                import gc
+                gc.collect()
+                # sava_bugs_for_project(repo, jira_key)
+                choose_versions(repo, jira_key)
+            except:
+                raise
 
 
 

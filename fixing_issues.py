@@ -9,6 +9,7 @@ from versions import get_repo_versions, get_tag_by_name
 from issues import get_jira_issues
 from caching import cached
 from diff.commitsdiff import CommitsDiff
+import re
 
 def clean_commit_message(commit_message):
     if "git-svn-id" in commit_message:
@@ -17,9 +18,16 @@ def clean_commit_message(commit_message):
 
 
 def commits_and_issues(repo, issues):
+    def replace(chars_to_replace, replacement, s):
+        temp_s = s
+        for c in chars_to_replace:
+            temp_s = temp_s.replace(c, replacement)
+        return temp_s
+
     def get_bug_num_from_comit_text(commit_text, issues_ids):
-        s = commit_text.lower().replace(":", "").replace("#", "").replace("-", " ").replace("_", " ").split()
-        for word in s:
+        text = replace("[]?#,:", "", commit_text.lower())
+        text = replace("-_", " ", text)
+        for word in text.split():
             if word.isdigit():
                 if word in issues_ids:
                     return word
@@ -27,7 +35,7 @@ def commits_and_issues(repo, issues):
     commits = []
     issues_ids = map(lambda issue: issue.split("-")[1], issues)
     for git_commit in repo.iter_commits():
-        commit_text = clean_commit_message(git_commit.message)
+        commit_text = clean_commit_message(git_commit.summary)
         commits.append(Commit.init_commit_by_git_commit(git_commit, get_bug_num_from_comit_text(commit_text, issues_ids)))
     return commits
 
@@ -35,7 +43,9 @@ def commits_and_issues(repo, issues):
 def get_data(jira_project_name, jira_url, gitPath):
     repo = git.Repo(gitPath)
     issues = map(lambda x: x.key.strip(), filter(lambda issue: issue.type == 'bug', get_jira_issues(jira_project_name, jira_url)))
-    return commits_and_issues(repo, issues)
+    commits = commits_and_issues(repo, issues)
+    print jira_project_name, len(issues), len(filter(lambda c: c.is_bug(), commits))
+    return commits
 
 
 def get_commits_between_versions(commits, versions):
@@ -55,7 +65,7 @@ class Version_Info(object):
         self.num_bugged_commits = len(bugged_commits)
         self.commited_files = self.get_commits_files(commits)
         self.bugged_files = self.get_commits_files(bugged_commits)
-        self.commits_diff = self.get_commit_diffs(commits)
+        # self.commits_diff = self.get_commit_diffs(commits)
 
     @staticmethod
     def get_commit_diffs(commits):

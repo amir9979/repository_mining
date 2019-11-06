@@ -9,8 +9,10 @@ class Commit(object):
         self._commit_id = hexsha
         self._files = files
         self._commit_date = time.mktime(committed_datetime.timetuple())
-        self._git_commit = git_commit
+        # self._git_commit = git_commit
 
+    def is_bug(self):
+        return self._bug_id != '0'
 
     @classmethod
     def init_commit_by_git_commit(cls, git_commit, bug_id):
