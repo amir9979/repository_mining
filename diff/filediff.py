@@ -34,14 +34,14 @@ class SourceFile(object):
         self.changed_indices = indices
         self.file_name = file_name
         if file_name.endswith(".java"):
-            self.tokens = list(javalang.tokenizer.tokenize("".join(self.contents)))
-            self.parser = javalang.parser.Parser(self.tokens)
-            self.parsed_data = self.parser.parse()
-            packages = map(operator.itemgetter(1), self.parsed_data.filter(javalang.tree.PackageDeclaration))
+            tokens = list(javalang.tokenizer.tokenize("".join(self.contents)))
+            parser = javalang.parser.Parser(tokens)
+            parsed_data = parser.parse()
+            packages = map(operator.itemgetter(1), parsed_data.filter(javalang.tree.PackageDeclaration))
             self.package_name = ''
             if packages:
                 self.package_name = packages[0].name
-            self.methods = self.get_methods_by_javalang()
+            self.methods = self.get_methods_by_javalang(tokens, parsed_data)
 
     def _get_methods(self):
         out_dir = tempfile.mkdtemp()
@@ -61,7 +61,7 @@ class SourceFile(object):
         shutil.rmtree(out_dir)
         return methods
 
-    def get_methods_by_javalang(self):
+    def get_methods_by_javalang(self, tokens, parsed_data):
         def get_method_end_position(method, seperators):
             method_seperators = seperators[map(id, sorted(seperators + [method], key=lambda x: (x.position.line, x.position.column))).index(id(method)):]
             assert method_seperators[0].value == "{"
@@ -74,12 +74,12 @@ class SourceFile(object):
                 if counter == 0:
                     return seperator.position
 
-        seperators = filter(lambda token: isinstance(token, javalang.tokenizer.Separator) and token.value in "{}", self.tokens)
+        seperators = filter(lambda token: isinstance(token, javalang.tokenizer.Separator) and token.value in "{}", tokens)
         methods_dict = dict()
-        for class_declaration in map(operator.itemgetter(1), self.parsed_data.filter(javalang.tree.ClassDeclaration)):
+        for class_declaration in map(operator.itemgetter(1), parsed_data.filter(javalang.tree.ClassDeclaration)):
             class_name = class_declaration.name
-            methods = map(operator.itemgetter(1), self.parsed_data.filter(javalang.tree.MethodDeclaration))
-            constructors = map(operator.itemgetter(1), self.parsed_data.filter(javalang.tree.ConstructorDeclaration))
+            methods = map(operator.itemgetter(1), parsed_data.filter(javalang.tree.MethodDeclaration))
+            constructors = map(operator.itemgetter(1), parsed_data.filter(javalang.tree.ConstructorDeclaration))
             for method in methods + constructors:
                 if not method.body:
                     # skip abstract methods
