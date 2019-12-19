@@ -4,6 +4,7 @@ from commit import Commit
 from diff.filediff import FileDiff
 from caching import cached
 
+
 class Version(object):
     def __init__(self, repo, git_tag):
         self._commit = Commit.init_commit_by_git_commit(git_tag.commit, 0)
