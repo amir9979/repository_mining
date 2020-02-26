@@ -8,7 +8,7 @@ class Issue(object):
         self.type = issue.fields.issuetype.name.lower()
 
 @cached("apache_jira")
-def get_jira_issues(project_name, url, bunch = 100):
+def get_jira_issues(project_name, url, bunch=100):
     jira_conn = jira.JIRA(url)
     all_issues=[]
     extracted_issues = 0

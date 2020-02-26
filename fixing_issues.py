@@ -2,7 +2,7 @@ import git
 import csv
 import sys
 import os
-csv.field_size_limit(sys.maxsize)
+# csv.field_size_limit(sys.maxsize)
 from datetime import datetime
 from commit import Commit
 from versions import get_repo_versions, get_tag_by_name
