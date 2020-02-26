@@ -57,14 +57,14 @@ def get_commits_between_versions(commits, versions):
 
 
 class VersionInfo(object):
-    def __init__(self, tag, commits):
-        self.tag = tag
-        self.tag_files = tag._commit._files
+    def __init__(self, version, commits):
+        self.version = version
         self.num_commits = len(commits)
         bugged_commits = filter(lambda commit: commit._bug_id != "0", commits)
         self.num_bugged_commits = len(bugged_commits)
-        self.commited_files = self.get_commits_files(commits)
-        self.bugged_files = self.get_commits_files(bugged_commits)
+        self.version_files = set(VersionInfo.filter_java_files(self.version.files))
+        #self.committed_files = self.version_files.intersection(self.get_commits_files(commits))
+        self.bugged_files = self.version_files.intersection(self.get_commits_files(bugged_commits))
         # self.commits_diff = self.get_commit_diffs(commits)
 
     @staticmethod
@@ -73,7 +73,11 @@ class VersionInfo(object):
 
     @staticmethod
     def get_commits_files(commits):
-        return set(reduce(list.__add__, map(lambda commit: commit._files, commits), []))
+        return set(VersionInfo.filter_java_files(reduce(list.__add__, map(lambda commit: commit._files, commits), [])))
+
+    @staticmethod
+    def filter_java_files(files):
+        return filter(lambda x: x.endswith(".java"), files)
 
 
 def get_bugged_files_between_versions(gitPath, jira_url, jira_project_name, versions):
@@ -81,8 +85,9 @@ def get_bugged_files_between_versions(gitPath, jira_url, jira_project_name, vers
     tags_commits = get_commits_between_versions(commits, versions)
     tags = []
     for tag in tags_commits:
-        tags.append(VersionInfo(tag, tags_commits[tag]))
-    return sorted(tags, key=lambda x: x.tag._commit._commit_date)
+        if tags_commits[tag]:
+            tags.append(VersionInfo(tag, tags_commits[tag]))
+    return sorted(tags, key=lambda x: x.version._commit._commit_date)
 
 
 def save_bugs(out_file, gitPath, jira_url, jira_project_name, versions):
@@ -92,7 +97,7 @@ def save_bugs(out_file, gitPath, jira_url, jira_project_name, versions):
         writer.writerow(["version_name", "#commited files in version", "#bugged files in version", "bugged_ratio",
                          "#commits", "#bugged_commits", "#ratio_bugged_commits", "version_date"])
         for tag in tags:
-            commited_java_files = filter(lambda x: "java" in x, tag.commited_files)
+            commited_java_files = filter(lambda x: "java" in x, tag.version_files)
             num_commited_java_files = len(commited_java_files)
             bugged_flies = len(filter(lambda x: "java" in x,  tag.bugged_files))
             bugged_ratio = 0
@@ -101,9 +106,9 @@ def save_bugs(out_file, gitPath, jira_url, jira_project_name, versions):
             ratio_bugged_commits = 0
             if tag.num_commits:
                 ratio_bugged_commits = 1.0 * tag.num_bugged_commits / tag.num_commits
-            writer.writerow([tag.tag._name, num_commited_java_files, bugged_flies, bugged_ratio, tag.num_commits,
+            writer.writerow([tag.version._name, num_commited_java_files, bugged_flies, bugged_ratio, tag.num_commits,
                              tag.num_bugged_commits, ratio_bugged_commits,
-                             datetime.fromtimestamp(tag.tag._commit._commit_date).strftime("%Y-%m-%d")])
+                             datetime.fromtimestamp(tag.version._commit._commit_date).strftime("%Y-%m-%d")])
 
 
 def main(out_file, gitPath, jira_url, jira_project_name):
