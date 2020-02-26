@@ -14,13 +14,13 @@ class Version(object):
 
 
 @cached("version_files")
-def version_files(new_tag, prev_tag):
+def version_files(key, new_tag, prev_tag):
     return map(lambda diff: diff.b_path, new_tag.commit.tree.diff(prev_tag.commit.tree))
 
 
 def get_repo_versions(repo_path):
     repo = git.Repo(repo_path)
-    return map(lambda tag: Version(tag[0], version_files(*tag)), zip(repo.tags[1:], repo.tags))
+    return map(lambda tag: Version(tag[0], version_files(tag[0].name, tag[0], tag[1])), zip(repo.tags[1:], repo.tags))
 
 
 def get_tags_by_name(repo_path, tags_names):
