@@ -25,7 +25,7 @@ def commits_and_issues(repo, issues):
         return temp_s
 
     def get_bug_num_from_comit_text(commit_text, issues_ids):
-        text = replace("[]?#,:", "", commit_text.lower())
+        text = replace("[]?#,:(){}", "", commit_text.lower())
         text = replace("-_", " ", text)
         for word in text.split():
             if word.isdigit():
@@ -56,7 +56,7 @@ def get_commits_between_versions(commits, versions):
     return dict(map(lambda vers: (vers[0][0], sorted_commits_and_versions[vers[0][1] + 1: vers[1][1]]), selected_versions))
 
 
-class Version_Info(object):
+class VersionInfo(object):
     def __init__(self, tag, commits):
         self.tag = tag
         self.tag_files = tag._commit._files
@@ -81,7 +81,7 @@ def get_bugged_files_between_versions(gitPath, jira_url, jira_project_name, vers
     tags_commits = get_commits_between_versions(commits, versions)
     tags = []
     for tag in tags_commits:
-        tags.append(Version_Info(tag, tags_commits[tag]))
+        tags.append(VersionInfo(tag, tags_commits[tag]))
     return sorted(tags, key=lambda x: x.tag._commit._commit_date)
 
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     tags_commits = get_commits_between_versions(map(lambda c: Commit.init_commit_by_git_commit(c, 0), list(repo.iter_commits())[:1000]), versions)
     tags = []
     for tag in tags_commits:
-        tags.append(Version_Info(tag, tags_commits[tag]))
+        tags.append(VersionInfo(tag, tags_commits[tag]))
     import apache_repos
     from caching import REPOSIROTY_DATA_DIR
     VERSIONS = os.path.join(REPOSIROTY_DATA_DIR, r"apache_versions")
