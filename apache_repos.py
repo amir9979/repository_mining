@@ -123,13 +123,14 @@ if __name__ == "__main__":
     # print "\n".join(map(lambda x: "{0}, {1}".format(x[0], x[1]), map(lambda x: (
     # os.path.normpath(os.path.join(r'https://github.com/apache', os.path.basename(x[0]))),
     # os.path.normpath(os.path.join(r"http://issues.apache.org/jira/projects", x[1]))), repos)))
-    repo = Repo(u'KAFKA', u'KAFKA')
-    sava_bugs_for_project(repo)
-    choose_versions(repo)
+    # repo = Repo(u'KAFKA', u'KAFKA')
+    # sava_bugs_for_project(repo)
+    # choose_versions(repo)
     if len(sys.argv) == 3:
-        repo, jira_key = sys.argv[1:]
-        sava_bugs_for_project(repo, jira_key)
-        choose_versions(repo, jira_key)
+        r, jira_key = sys.argv[1:]
+        repo = Repo(jira_key, jira_key, r)
+        sava_bugs_for_project(repo)
+        choose_versions(repo)
     else:
         for repo in filter(search_for_pom, get_apache_repos_data()):
             print repo.jira_key
