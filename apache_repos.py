@@ -126,6 +126,8 @@ if __name__ == "__main__":
     # repo = Repo(u'KAFKA', u'KAFKA')
     # sava_bugs_for_project(repo)
     # choose_versions(repo)
+    #x = get_apache_repos_data()
+
     if len(sys.argv) == 3:
         r, jira_key = sys.argv[1:]
         repo = Repo(jira_key, jira_key, r)
