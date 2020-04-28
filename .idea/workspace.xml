@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="71da952e-e94b-495b-897a-3eb62be2bdca" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/checkstyle-to-json.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/source_monitor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/repository_mining.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/repository_mining.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
@@ -11,417 +13,33 @@
       <change beforePath="$PROJECT_DIR$/repo.py" beforeDir="false" afterPath="$PROJECT_DIR$/repo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching" beforeDir="false" afterPath="$PROJECT_DIR$/repository_caching" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ABDERA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ACCUMULO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/AIRAVATA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/AMBARI.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/AMQ.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/APLO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ARCHETYPE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ARIES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ARTEMIS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ASTERIXDB.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ATLAS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/AVRO.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/BATIK.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/BCEL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/BEANUTILS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/BIGTOP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/BOOKKEEPER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/BSF.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CALCITE.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CAMEL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CAY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CHAIN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CHAINSAW.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CHUKWA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CLEREZZA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CLI.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CLOUDSTACK.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/COCOON.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CODEC.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/COLLECTIONS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/COMPRESS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CONFIGURATION.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CONNECTORS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CONTINUUM.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CRUNCH.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CRYPTO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CSV.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CTAKES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CURATOR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CXF.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/CXFXJC.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DBCP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DBUTILS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DELTASPIKE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DIGESTER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DIRMINA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DIRSTUDIO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DOXIA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DOXIASITETOOLS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DOXIATOOLS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/DRILL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/EMAIL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/EMPIREDB.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/FALCON.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/FEDIZ.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/FELIX.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/FILEUPLOAD.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/FLINK.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/FLUME.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/FOP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/FTPSERVER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/GERONIMO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/GERONIMODEVTOOLS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/GIRAPH.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/GORA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/HADOOP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/HAMA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/HCATALOG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/HELIX.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/HIVE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/IGNITE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/IMAGING.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/IO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ISIS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JCI.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JCLOUDS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JCRVLT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JCS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JELLY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JENA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JEXL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JOHNZON.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JSIEVE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JSPF.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JUDDI.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JUNEAU.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JXPATH.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/JXR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/KARAF.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/KNOX.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/KYLIN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/LANG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/LENS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/LOGGING.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MAHOUT.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MANT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MANTRUN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MARMOTTA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MASSEMBLY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MATH.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MCHANGES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MCHECKSTYLE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MCLEAN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MCOMPILER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MDEP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MDEPLOY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MEAR.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MEECROWAVE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MEJB.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/METAMODEL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/METRON.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MGPG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MIME4J.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MINDEXER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MINSTALL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MINVOKER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MJAR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MJAVADOC.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MNEMONIC.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MNG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MPDF.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MPH.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MPIR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MPLUGIN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MPLUGINTESTING.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MPMD.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MRAR.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MREPOSITORY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MRESOLVER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MRESOURCES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MRM.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MRRESOURCES.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MRUNIT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MSCMPUB.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MSHADE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MSITE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MSOURCES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MWAR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MYFACES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/MYFACESTEST.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/NET.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/NIFI.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/OAK.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ODE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ODFTOOLKIT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/OLTU.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/OODT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/OOZIE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/OPENJPA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/OPENMEETINGS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/OPENNLP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/OWB.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/PDFBOX.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/PHOENIX.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/PIVOT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/POOL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/PROXY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/QPIDJMS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/RAMPART.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/RANGER.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/RAT.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/RAVE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/REEF.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/RNG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SAND.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SANSELAN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SCM.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SCXML.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SENTRY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SHINDIG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SHIRO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SM.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SMXCOMP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SSHD.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/STANBOL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/STORM.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/STRATOS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/STREAMS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SUREFIRE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SYNCOPE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/SYSTEMML.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TAJO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TEXT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TEZ.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TIKA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TILES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TINKERPOP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TOBAGO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TOMEE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TREQ.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TRINIDAD.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/TWILL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/VALIDATOR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/VELTOOLS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/VFS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/VXQUERY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/WAGON.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/WEAVER.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/WHIRR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/WICKET.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/WINK.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/WOOKIE.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/WSS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_commits_data/ZEPPELIN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ABDERA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ACCUMULO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/AIRAVATA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/AMBARI.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/AMQ.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/APLO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ARCHETYPE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ARIES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ARTEMIS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ASTERIXDB.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ATLAS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/AVRO.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/BATIK.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/BCEL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/BEANUTILS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/BIGTOP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/BOOKKEEPER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/BSF.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CALCITE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CAMEL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CAY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CHAIN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CHAINSAW.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CHUKWA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CLEREZZA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CLI.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CLOUDSTACK.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/COCOON.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CODEC.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/COLLECTIONS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/COMPRESS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CONFIGURATION.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CONNECTORS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CONTINUUM.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CRUNCH.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CRYPTO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CSV.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CTAKES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CURATOR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CXF.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/CXFXJC.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DBCP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DBUTILS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DELTASPIKE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DIGESTER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DIRMINA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DIRSTUDIO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DOXIA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DOXIASITETOOLS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DOXIATOOLS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/DRILL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/EMAIL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/EMPIREDB.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/FALCON.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/FEDIZ.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/FELIX.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/FILEUPLOAD.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/FLINK.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/FLUME.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/FOP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/FTPSERVER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/GERONIMO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/GERONIMODEVTOOLS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/GIRAPH.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/GORA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/HADOOP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/HAMA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/HCATALOG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/HELIX.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/HIVE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/IGNITE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/IMAGING.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/IO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ISIS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JCI.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JCLOUDS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JCRVLT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JCS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JELLY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JENA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JEXL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JOHNZON.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JSIEVE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JSPF.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JUDDI.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JUNEAU.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JXPATH.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/JXR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/KARAF.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/KNOX.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/KYLIN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/LANG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/LENS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/LOGGING.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MAHOUT.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MANT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MANTRUN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MARMOTTA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MASSEMBLY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MATH.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MCHANGES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MCHECKSTYLE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MCLEAN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MCOMPILER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MDEP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MDEPLOY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MEAR.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MEECROWAVE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MEJB.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/METAMODEL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/METRON.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MGPG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MIME4J.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MINDEXER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MINSTALL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MINVOKER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MJAR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MJAVADOC.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MNEMONIC.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MNG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MPDF.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MPH.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MPIR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MPLUGIN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MPLUGINTESTING.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MPMD.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MRAR.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MREPOSITORY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MRESOLVER.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MRESOURCES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MRM.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MRRESOURCES.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MRUNIT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MSCMPUB.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MSHADE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MSITE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MSOURCES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MWAR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MYFACES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/MYFACESTEST.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/NET.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/NIFI.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/OAK.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ODE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ODFTOOLKIT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/OLTU.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/OODT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/OOZIE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/OPENJPA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/OPENMEETINGS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/OPENNLP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/OWB.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/PDFBOX.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/PHOENIX.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/PIVOT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/POOL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/PROXY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/QPIDJMS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/RAMPART.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/RANGER.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/RAT.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/RAVE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/REEF.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/RNG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SAND.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SANSELAN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SCM.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SCXML.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SENTRY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SHINDIG.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SHIRO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SM.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SMXCOMP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SSHD.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/STANBOL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/STORM.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/STRATOS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/STREAMS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SUREFIRE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SYNCOPE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/SYSTEMML.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TAJO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TEXT.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TEZ.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TIKA.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TILES.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TINKERPOP.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TOBAGO.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TOMEE.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TREQ.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TRINIDAD.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/TWILL.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/VALIDATOR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/VELTOOLS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/VFS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/VXQUERY.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/WAGON.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/WEAVER.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/WHIRR.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/WICKET.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/WINK.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/WOOKIE.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/WSS.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_jira/ZEPPELIN.gzip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_caching/apache_repos_data/KEY.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/version_files/abdera_abdera-0.4.0-incubating.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/version_files/abdera_abdera-1.0.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_caching/version_files/abdera_abdera-1.1-RC1.gzip" beforeDir="false" />
@@ -10236,243 +9854,50 @@
       <change beforePath="$PROJECT_DIR$/repository_caching/version_files/zeppelin_v0.8.0.gzip" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data" beforeDir="false" afterPath="$PROJECT_DIR$/repository_data" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ABDERA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ACCUMULO.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/AIRAVATA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/AMBARI.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/AMQ.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/AMQCLI.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/APLO.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ARCHETYPE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ARIES.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ARTEMIS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ASTERIXDB.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ATLAS.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/AUTOTAG.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/AVRO.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/BATIK.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/BCEL.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/BEANUTILS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/BIGTOP.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/BOOKKEEPER.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/BSF.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/BVAL.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CALCITE.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CAMEL.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CAY.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CHAIN.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CHAINSAW.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CHUKWA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CLEREZZA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CLI.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CLOUDSTACK.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/COCOON.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CODEC.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/COLLECTIONS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/COMPRESS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CONFIGURATION.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CONNECTORS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CONTINUUM.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CRUNCH.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CRYPTO.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CSV.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CTAKES.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CURATOR.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CXF.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/CXFXJC.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DBCP.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DBUTILS.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DDLUTILS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DELTASPIKE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DIGESTER.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DIRECTMEMORY.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DIRMINA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DIRSTUDIO.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DL.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DOXIA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DOXIASITETOOLS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DOXIATOOLS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/DRILL.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/EAGLE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/EMAIL.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/EMPIREDB.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/FALCON.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/FEDIZ.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/FELIX.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/FILEUPLOAD.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/FLINK.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/FLUME.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/FOP.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/FTPSERVER.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/FUNCTOR.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/GERONIMO.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/GERONIMODEVTOOLS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/GIRAPH.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/GORA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/HADOOP.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/HAMA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/HCATALOG.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/HELIX.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/HIVE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/IGNITE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/IMAGING.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/IO.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ISIS.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JACOB.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JCI.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JCLOUDS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JCRVLT.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JCS.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JDKIM.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JELLY.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JENA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JEXL.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JOHNZON.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JSEC.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JSIEVE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JSPF.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JUDDI.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JUNEAU.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JXPATH.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/JXR.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/KALUMET.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/KARAF.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/KNOX.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/KYLIN.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/LANG.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/LENS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/LOGGING.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MACR.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MAHOUT.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MANT.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MANTRUN.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MARMOTTA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MASSEMBLY.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MATH.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MCHANGELOG.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MCHANGES.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MCHECKSTYLE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MCLEAN.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MCOMPILER.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MDEP.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MDEPLOY.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MDOAP.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MEAR.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MEECROWAVE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MEJB.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/METAMODEL.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/METRON.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MGPG.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MIME4J.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MINDEXER.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MINSTALL.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MINVOKER.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MJAR.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MJAVADOC.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MJDEPS.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MJLINK.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MJMOD.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MLINKCHECK.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MNEMONIC.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MNG.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MPATCH.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MPDF.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MPH.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MPIR.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MPLUGIN.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MPLUGINTESTING.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MPMD.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MRAR.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MREPOSITORY.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MRESOLVER.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MRESOURCES.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MRM.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MRRESOURCES.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MRUNIT.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MSCMPUB.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MSHADE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MSITE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MSOURCES.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MSTAGE.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MTOOLCHAINS.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MVERIFIER.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MWAR.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MYFACES.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/MYFACESTEST.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/NET.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/NIFI.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/NIFIREG.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/NUMBERS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/OAK.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ODE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ODFTOOLKIT.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/OGNL.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/OLTU.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/OODT.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/OOZIE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/OPENJPA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/OPENMEETINGS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/OPENNLP.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/OPENWIRE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/OWB.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/PDFBOX.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/PHOENIX.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/PIVOT.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/POOL.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/POSTAGE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/PROXY.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/QPIDJMS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/RAMPART.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/RANGER.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/RAT.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/RAVE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/REEF.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/RNG.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ROCKETMQ.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SAND.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SANSELAN.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SAVAN.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SB.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SCM.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SCXML.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SENTRY.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SHINDIG.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SHIRO.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SIS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SM.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SMXCOMP.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SSHD.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/STANBOL.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/STORM.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/STRATOS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/STREAMS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SUREFIRE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SYNCOPE.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/SYSTEMML.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TAJO.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TEXT.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TEZ.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TIKA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TILES.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TINKERPOP.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TOBAGO.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TOMEE.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TRANSPORTS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TREQ.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TRINIDAD.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/TWILL.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/VALIDATOR.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/VELTOOLS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/VFS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/VXQUERY.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/WAGON.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/WEAVER.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/WHIRR.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/WICKET.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/WINK.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/WOOKIE.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/WSS.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/repository_data/apache_versions/ZEPPELIN.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/configurations/AMBARI_0" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/configurations/AMBARI_1" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/configurations/AMBARI_14" beforeDir="false" />
