@@ -2,16 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="71da952e-e94b-495b-897a-3eb62be2bdca" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/checkstyle-to-json.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/data_extractor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/source_monitor.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/metrics/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/metrics/version_metrics.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/repository_mining.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/repository_mining.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apache_repos.py" beforeDir="false" afterPath="$PROJECT_DIR$/apache_repos.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/caching.py" beforeDir="false" afterPath="$PROJECT_DIR$/caching.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/checkstyle-to-json.py" beforeDir="false" afterPath="$PROJECT_DIR$/metrics/checkstyle-to-json.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/commit.py" beforeDir="false" afterPath="$PROJECT_DIR$/commit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/diff/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diff/commitsdiff.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/diff/filediff.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/externals/checkstyle-6.8-SNAPSHOT-all.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/externals/checkstyle_checks.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/externals/methodNameLines.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fixing_issues.py" beforeDir="false" afterPath="$PROJECT_DIR$/fixing_issues.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/issues.py" beforeDir="false" afterPath="$PROJECT_DIR$/issues.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/repo.py" beforeDir="false" afterPath="$PROJECT_DIR$/repo.py" afterDir="false" />
@@ -10039,6 +10046,7 @@
       <change beforePath="$PROJECT_DIR$/repository_data/configurations/WICKET_23" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/configurations/WICKET_3" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/repository_data/configurations/WICKET_9" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/source_monitor.py" beforeDir="false" afterPath="$PROJECT_DIR$/metrics/source_monitor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/versions.py" beforeDir="false" afterPath="$PROJECT_DIR$/versions.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -10078,6 +10086,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\amirelm\Documents\GitHub\repository_mining\metrics" />
       <recent name="C:\Users\User\Documents\GitHub\repository_mining\diff" />
     </key>
   </component>
@@ -10314,10 +10323,10 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state width="691" height="372" key="XDebugger.FullValuePopup/0.0.1366.728@0.0.1366.728" timestamp="1586784147787" />
-    <state x="467" y="180" width="606" height="526" key="find.popup" timestamp="1588194971590">
+    <state x="467" y="180" width="606" height="526" key="find.popup" timestamp="1588212508748">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state x="467" y="180" width="606" height="526" key="find.popup/0.0.1366.728@0.0.1366.728" timestamp="1588194971590" />
+    <state x="467" y="180" width="606" height="526" key="find.popup/0.0.1366.728@0.0.1366.728" timestamp="1588212508748" />
     <state x="657" y="257" width="606" height="526" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1582815259700" />
     <state x="438" y="121" width="672" height="474" key="search.everywhere.popup" timestamp="1588202543158">
       <screen x="0" y="0" width="1366" height="728" />
