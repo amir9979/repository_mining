@@ -1,10 +1,3 @@
-import git
-import csv
-import os
-# csv.field_size_limit(sys.maxsize)
-from commit import Commit
-from diff.commitsdiff import CommitsDiff
-
 
 class VersionInfo(object):
     def __init__(self, version, commits):
@@ -21,10 +14,6 @@ class VersionInfo(object):
         self.ratio_bugged_commits = 0
         if self.num_commits:
             self.ratio_bugged_commits = 1.0 * self.num_bugged_commits / self.num_commits
-
-    @staticmethod
-    def get_commit_diffs(commits):
-        return list(map(lambda commits: CommitsDiff(commits[0], commits[1]), zip(commits, commits[1:])))
 
     @staticmethod
     def get_commits_files(commits):

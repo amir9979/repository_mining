@@ -1,8 +1,4 @@
-import git
-import os
 from commit import Commit
-from diff.filediff import FileDiff
-from caching import cached
 
 
 class Version(object):
@@ -11,4 +7,3 @@ class Version(object):
         self._name = git_tag.name
         self.committed_files = _files
         self.files = set(git_tag.commit.repo.git.ls_tree("-r", "--name-only", git_tag.name).split())
-        # self.diffs = map(Diff, repo.head.commit.tree.diff(git_tag.commit.tree))
