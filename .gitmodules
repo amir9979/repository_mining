@@ -1,0 +1,3 @@
+[submodule "javadiff"]
+	path = javadiff
+	url = https://github.com/amir9979/javadiff.git
