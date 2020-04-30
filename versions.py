@@ -12,22 +12,3 @@ class Version(object):
         self.committed_files = _files
         self.files = set(git_tag.commit.repo.git.ls_tree("-r", "--name-only", git_tag.name).split())
         # self.diffs = map(Diff, repo.head.commit.tree.diff(git_tag.commit.tree))
-
-
-@cached("version_files")
-def version_files(key, new_tag, prev_tag):
-    return map(lambda diff: diff.b_path, new_tag.commit.tree.diff(prev_tag.commit.tree))
-
-
-def get_repo_versions(repo_path):
-    repo = git.Repo(repo_path)
-    return map(lambda tag: Version(tag[0], version_files(tag[0].name, tag[0], tag[1])), zip(repo.tags[1:], repo.tags))
-
-
-def get_tags_by_name(repo_path, tags_names):
-    repo_tags = get_repo_versions(repo_path)
-    return map(lambda tag_name: filter(lambda tag: tag._name == tag_name, repo_tags)[0], tags_names)
-
-
-def get_tag_by_name(repo_path, tag_name):
-    return get_tags_by_name(repo_path, [tag_name])[0]

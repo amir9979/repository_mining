@@ -8,7 +8,7 @@ class Repo(object):
     GITHUB_PATH = r"https://github.com/apache/{0}.git"
     JIRA_PATH = r"http:\issues.apache.org\jira\projects\{0}"
 
-    def __init__(self, jira_key, github_name, local_path=None):
+    def __init__(self, jira_key, github_name, local_path=None, commit_to_checkout=None):
         self.jira_key = jira_key
         self.github_name = github_name
         if local_path:
@@ -16,6 +16,8 @@ class Repo(object):
         else:
             self.local_path = os.path.join(Repo.REPO_DIR, jira_key)
         self.clone_if_needed()
+        if commit_to_checkout:
+            git.Repo(self.local_path).checkout(commit_to_checkout)
 
     def clone_if_needed(self):
         try:

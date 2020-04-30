@@ -4,23 +4,12 @@ import os
 import csv
 import sys
 from collections import Counter
-from versions import get_repo_versions, get_tags_by_name
-from fixing_issues import save_bugs, get_bugged_files_between_versions
-from caching import REPOSIROTY_DATA_DIR, cached, assert_dir_exists
+from data_extractor import DataExtractor
+from caching import cached
 from repo import Repo
 
 REPO_DIR = r"C:\Temp\apache_repos"
-VERSIONS = os.path.join(REPOSIROTY_DATA_DIR, r"apache_versions")
-CONFIGRATION_PATH = os.path.join(REPOSIROTY_DATA_DIR, r"configurations")
-assert_dir_exists(CONFIGRATION_PATH)
-assert_dir_exists(VERSIONS)
-CONFIGRATION = r"""workingDir=C:\amirelm\projects\{WORKING_DIR}
-git={GIT_PATH}
-issue_tracker_product_name={PRODUCT_NAME}
-issue_tracker_url=https://issues.apache.org/jira
-issue_tracker=jira
-vers={VERSIONS}
-"""
+
 
 def find_repo_and_jira(key, repos, jira_projects):
     jira_project = filter(lambda p: key in [p.key.strip().lower(), "-".join(p.name.strip().lower().split())], jira_projects)[0]
@@ -52,71 +41,9 @@ def search_for_pom(repo):
     return False
 
 
-def sava_bugs_for_project(repo):
-    versions = get_repo_versions(repo.local_path)
-    if len(versions) < 5:
-        return
-    save_bugs(os.path.join(VERSIONS, repo.jira_key) + ".csv", repo.local_path, r"http://issues.apache.org/jira", repo.jira_key, versions)
-
-
-def create_apache_data():
-    for repo in get_apache_repos_data():
-        sava_bugs_for_project(repo)
-
-
-def get_versions_by_type(repo):
-    import re
-    all_versions = get_repo_versions(repo)
-    majors = []
-    minors = []
-    micros = []
-    SEPERATORS = ['\.', '\-', '\_']
-    template_base = [['([0-9])', '([0-9])([0-9])', '([0-9])$'], ['([0-9])', '([0-9])([0-9])$'], ['([0-9])', '([0-9])', '([0-9])([0-9])$'], ['([0-9])([0-9])', '([0-9])$'], ['([0-9])', '([0-9])', '([0-9])$'], ['([0-9])', '([0-9])$']]
-    templates = []
-    for base in template_base:
-        templates.extend(map(lambda sep: sep.join(base), SEPERATORS))
-    templates.extend(['([0-9])([0-9])([0-9])$', '([0-9])([0-9])$'])
-    for version in all_versions:
-        for template in templates:
-            values = re.findall(template, version._name)
-            if values:
-                values = map(int, values[0])
-                if len(values) == 4:
-                    micros.append(version)
-                    major, minor1, minor2, micro = values
-                    minor = 10 * minor1 + minor2
-                elif len(values) == 3:
-                    micros.append(version)
-                    major, minor, micro = values
-                else:
-                    major, minor = values
-                    micro = 0
-                if micro == 0:
-                    minors.append(version)
-                if minor == 0 and micro == 0:
-                    majors.append(version)
-                break
-    return {"all": all_versions, "majors": majors, "minors": minors, "micros": micros}.items()
-
-
-def choose_versions(repo):
-    from itertools import product
-    for start, stop, step, versions in product([1, 5, 10], [100], [5, 10, 20], get_versions_by_type(repo.local_path)):
-        bins = map(lambda x: list(), range(start, stop, step))
-        tags = get_bugged_files_between_versions(repo.local_path, r"http://issues.apache.org/jira", repo.jira_key, versions[1])
-        for tag in tags:
-            bugged_flies = len(filter(lambda x: "java" in x, tag.bugged_files))
-            java_files = len(filter(lambda x: "java" in x, tag.version_files))
-            if bugged_flies*java_files == 0:
-                continue
-            bugged_ratio = 1.0 * bugged_flies / java_files
-            bins[int(((bugged_ratio * 100) - start)/step) - 1].append(tag.version._name)
-        for ind, bin in enumerate(bins):
-            if len(bin) < 5:
-                continue
-            id = "{0}_{1}_{2}_{3}_{4}_{5}".format(repo.jira_key, start, stop, step, versions[0], ind)
-            with open(os.path.join(CONFIGRATION_PATH, id), "wb") as f:
-                f.write(CONFIGRATION.format(WORKING_DIR=id, PRODUCT_NAME=repo.jira_key, GIT_PATH=repo.local_path, VERSIONS=repr(tuple(bin)).replace("'", "")))
+def save_bugs_for_project(repo):
+    d = DataExtractor(repo.local_path, repo.jira_key)
+    d.extract()
 
 
 if __name__ == "__main__":
@@ -131,8 +58,8 @@ if __name__ == "__main__":
     if len(sys.argv) == 3:
         r, jira_key = sys.argv[1:]
         repo = Repo(jira_key, jira_key, r)
-        sava_bugs_for_project(repo)
-        choose_versions(repo)
+        save_bugs_for_project(repo)
+        #choose_versions(repo)
     else:
         for repo in filter(search_for_pom, get_apache_repos_data()):
             print repo.jira_key
@@ -141,10 +68,8 @@ if __name__ == "__main__":
             try:
                 import gc
                 gc.collect()
-                sava_bugs_for_project(repo)
-                choose_versions(repo)
+                save_bugs_for_project(repo)
+                exit()
+                #choose_versions(repo)
             except:
                 raise
-
-
-

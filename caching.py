@@ -11,6 +11,7 @@ assert os.path.exists(REPOSIROTY_CACHING_DIR)
 def assert_dir_exists(cache_dir):
     if not os.path.exists(cache_dir):
         os.mkdir(cache_dir)
+    return cache_dir
 
 
 def cached(cache_name, cache_dir=REPOSIROTY_CACHING_DIR):
@@ -24,10 +25,11 @@ def cached(cache_name, cache_dir=REPOSIROTY_CACHING_DIR):
             gzip_cachefile = os.path.abspath(os.path.join(cache_dir, key + ".gzip"))
             assert_dir_exists(os.path.dirname(gzip_cachefile))
             if os.path.exists(gzip_cachefile):
-                with gzip.GzipFile(gzip_cachefile, 'rb') as cachehandle:
-                    return pickle.load(cachehandle)
-
-
+                try:
+                    with gzip.GzipFile(gzip_cachefile, 'rb') as cachehandle:
+                        return pickle.load(cachehandle)
+                except:
+                    pass
             # execute the function with all arguments passed
             if fn.func_code.co_argcount == 0:
                 res = fn(*args, **kwargs)
@@ -35,9 +37,11 @@ def cached(cache_name, cache_dir=REPOSIROTY_CACHING_DIR):
                 res = fn(key, *args, **kwargs)
 
             # write to cache file
-            with gzip.GzipFile(gzip_cachefile, 'wb') as cachehandle:
-                pickle.dump(res, cachehandle, pickle.HIGHEST_PROTOCOL)
-
+            try:
+                with gzip.GzipFile(gzip_cachefile, 'wb') as cachehandle:
+                    pickle.dump(res, cachehandle, pickle.HIGHEST_PROTOCOL)
+            except:
+                pass
             return res
 
         return wrapped

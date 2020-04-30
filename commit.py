@@ -4,12 +4,10 @@ import time
 
 class Commit(object):
     def __init__(self, bug_id, git_commit):
-        # self._git_commit = git_commit
         self._commit_id = git_commit.hexsha
         self._bug_id = bug_id
         self._files = Commit.fix_renamed_files(git_commit.stats.files.keys())
         self._commit_date = time.mktime(git_commit.committed_datetime.timetuple())
-        # self._git_commit = git_commit
 
     def is_bug(self):
         return self._bug_id != '0'
