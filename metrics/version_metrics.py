@@ -8,17 +8,19 @@ from itertools import repeat
 from xml.etree import ElementTree
 import shutil
 import pandas as pd
+from repo import Repo
+import time
 
 
-class VersionMetrcs(object):
+class VersionMetrics(object):
     EXTERNALS = os.path.realpath(os.path.join(os.path.dirname(__file__), r"..\externals"))
     METHODS = os.path.join(REPOSIROTY_DATA_DIR, r"methods")
     METRICS = os.path.join(REPOSIROTY_DATA_DIR, r"metrics")
     assert_dir_exists(METHODS)
     assert_dir_exists(METRICS)
 
-    def __init__(self, repo, jira_project_name, version_name):
-        self.repo = repo
+    def __init__(self, jira_project_name, local_path, version_name):
+        self.repo = Repo(jira_project_name, jira_project_name, local_path, version_name)
         self.jira_project_name = jira_project_name
         self.version_name = version_name
         self.methods = []
@@ -38,13 +40,13 @@ class VersionMetrcs(object):
         for m in self.methods_by_file_line.values():
             self.metrics[m] = dict()
             for metric_dict in [self.ck, self.designite, self.source_monitor, self.checkstyle]:
-                self.metrics[m].update(metric_dict.get(m))
-        keys = ["method_id"] + sorted(self.metrics.items()[0][0])
-        with open(os.path.join(assert_dir_exists(os.path.join(VersionMetrcs.METRICS, self.jira_project_name)), self.version_name)+ ".csv", "wb") as f:
+                self.metrics[m].update(metric_dict.get(m, {}))
+        keys = ["method_id"] + sorted(self.metrics.values()[0].keys())
+        with open(os.path.join(assert_dir_exists(os.path.join(VersionMetrics.METRICS, self.jira_project_name)), self.version_name) + ".csv", "wb") as f:
             writer = csv.writer(f)
-            writer.writerow([keys])
-            for m in self.metrics.values():
-                writer.writerow(map(lambda k: m.get(k), keys))
+            writer.writerow(keys)
+            for name, m in self.metrics.items():
+                writer.writerow([name] + map(lambda k:  m.get(k, 0), keys))
 
     def methods_per_file(self):
         self.methods = []
@@ -54,20 +56,22 @@ class VersionMetrcs(object):
                 with open(os.path.join(root, name)) as f:
                     sf = SourceFile(f.read(), os.path.join(root, name)[len(self.repo.local_path)+1:])
                     self.methods.extend(list(sf.methods.values()))
-                    self.methods_by_file_line.update(dict(list(map(lambda m: ((m.file_name, m.start_line), m.method_id),
+                    self.methods_by_file_line.update(dict(list(map(lambda m: ((m.file_name, m.start_line), m.id),
                                                                    list(sf.methods.values())))))
-        with open(os.path.join(assert_dir_exists(os.path.join(VersionMetrcs.METHODS, self.jira_project_name)), self.version_name)+ ".csv", "wb") as f:
+        with open(os.path.join(assert_dir_exists(os.path.join(VersionMetrics.METHODS, self.jira_project_name)), self.version_name) + ".csv", "wb") as f:
             writer = csv.writer(f)
             writer.writerows([["method_id", "file_name", "method_name", "start_line", "end_line"]] +
-                             map(lambda m: [m.method_id, m.file_name, m.method_name, m.start_line, m.end_line], self.methods))
+                             map(lambda m: [m.id, m.file_name, m.method_name, m.start_line, m.end_line], self.methods))
 
     def checkstyle_data(self):
         self.checkstyle = {}
         tmp = {}
         keys = set()
         f, path_to_xml = tempfile.mkstemp()
-        Popen(["java", "-jar", os.path.join(VersionMetrcs.EXTERNALS, "checkstyle-8.32-all.jar"), "-c",
-               os.path.join(VersionMetrcs.EXTERNALS, "allChecks.xml"), "-f", "xml", "-o", path_to_xml, self.repo.jira_key]).communicate()
+        p = Popen(["java", "-jar", os.path.join(VersionMetrics.EXTERNALS, "checkstyle-8.32-all.jar"), "-c",
+               os.path.join(VersionMetrics.EXTERNALS, "allChecks.xml"), "-f", "xml", "-o", path_to_xml, self.repo.local_path])
+        p.communicate()
+        p.wait()
         files = {}
         with open(path_to_xml) as f:
             for fileElement in ElementTree.parse(f).getroot():
@@ -97,7 +101,13 @@ class VersionMetrcs(object):
         for method_id in tmp:
             self.checkstyle[method_id] = dict.fromkeys(keys, 0)
             self.checkstyle[method_id].update(tmp[method_id])
-        os.remove(path_to_xml)
+        time.sleep(1)
+        p.kill()
+        if os.path.exists(path_to_xml):
+            try:
+                os.remove(path_to_xml)
+            except:
+                pass
 
     def source_monitor_data(self):
         out_dir = tempfile.mkdtemp()
@@ -140,14 +150,14 @@ class VersionMetrcs(object):
         xmlPath = os.path.join(out_dir, "sourceMonitor.xml")
         with open(xmlPath, "wb") as f:
             f.write(xml)
-        Popen([os.path.join(VersionMetrcs.EXTERNALS, "SourceMonitor.exe"), "/C", xmlPath]).communicate()
+        Popen([os.path.join(VersionMetrics.EXTERNALS, "SourceMonitor.exe"), "/C", xmlPath]).communicate()
         # to do : analyze
 
         shutil.rmtree(out_dir)
 
     def designite_data(self):
         out_dir = tempfile.mkdtemp()
-        Popen([os.path.join(VersionMetrcs.EXTERNALS, "DesigniteJava.jar"), "-i", self.repo.local_path, "-o", out_dir]).communicate()
+        Popen(["java", "-jar", os.path.join(VersionMetrics.EXTERNALS, "DesigniteJava.jar"), "-i", self.repo.local_path, "-o", out_dir]).communicate()
         # to do : analyze
 
         shutil.rmtree(out_dir)
@@ -163,14 +173,18 @@ class VersionMetrcs(object):
     def ck_data(self):
         self.ck = {}
         out_dir = tempfile.mkdtemp()
-        Popen([os.path.join(VersionMetrcs.EXTERNALS, "ck-0.5.3-SNAPSHOT-jar-with-dependencies.jar"), self.repo.local_path],
+        Popen(["java", "-jar", os.path.join(VersionMetrics.EXTERNALS, "ck-0.5.3-SNAPSHOT-jar-with-dependencies.jar"), self.repo.local_path],
               cwd=out_dir).communicate()
-        # to do : analyze
         df = pd.read_csv(os.path.join(out_dir, "method.csv"))
         df = df.drop(['class', "method"], axis=1)
         df['method_id'] = df.apply(lambda x: self.get_closest_id(x['file'], x['line']), axis=1)
-        df = df[df['method_id'] is not None]
+        df = df[list(map(lambda x: x is not None, df['method_id'].to_list()))]
         df = df.drop(['file', "line"], axis=1)
         df.apply(lambda x: self.ck.setdefault(x["method_id"], x.drop(("method_id"))), axis=1)
         shutil.rmtree(out_dir)
 
+
+if __name__ == "__main__":
+    v = VersionMetrics("DL", r"C:\temp\DL", "0.3.51-RC1")
+    v.extract()
+    pass

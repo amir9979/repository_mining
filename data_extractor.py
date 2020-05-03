@@ -17,8 +17,10 @@ class DataExtractor(object):
     VERSIONS = os.path.join(REPOSIROTY_DATA_DIR, r"apache_versions")
     VERSIONS_INFOS = os.path.join(REPOSIROTY_DATA_DIR, r"apache_versions_info")
     COMMITS = os.path.join(REPOSIROTY_DATA_DIR, r"commits_info")
+    COMMITED_FILES = os.path.join(REPOSIROTY_DATA_DIR, r"committed_files")
     FILES = os.path.join(REPOSIROTY_DATA_DIR, r"files_info")
     CONFIGRATION_PATH = os.path.join(REPOSIROTY_DATA_DIR, r"configurations")
+    assert_dir_exists(COMMITED_FILES)
     assert_dir_exists(COMMITS)
     assert_dir_exists(FILES)
     assert_dir_exists(CONFIGRATION_PATH)
@@ -108,15 +110,19 @@ class DataExtractor(object):
 
     def extract(self):
         tags = self.get_bugged_files_between_versions()
+        with open(os.path.join(DataExtractor.COMMITED_FILES, self.jira_project_name) + ".csv", "wb") as f:
+            writer = csv.writer(f)
+            writer.writerows([["file_name", "commit_id", "bug_id", "commit_date"]] +
+                             reduce(list.__add__, map(lambda c: map(lambda file_name: [file_name, c._commit_id, c._bug_id, c._commit_date], c._files), self.commits), []))
         with open(os.path.join(DataExtractor.COMMITS, self.jira_project_name) + ".csv", "wb") as f:
             writer = csv.writer(f)
-            writer.writerows([["commit_id", "bug_id"]] + map(lambda c: [c._commit_id, c._bug_id], self.commits))
+            writer.writerows([["commit_id", "bug_id", "commit_date"]] + map(lambda c: [c._commit_id, c._bug_id, c._commit_date], self.commits))
         with open(os.path.join(DataExtractor.VERSIONS, self.jira_project_name) + ".csv", "wb") as f:
             writer = csv.writer(f)
             writer.writerow(["version_name", "#commited files in version", "#bugged files in version", "bugged_ratio",
                              "#commits", "#bugged_commits", "#ratio_bugged_commits", "version_date"])
             for tag in tags:
-                writer.writerow([tag.version._name, len(tag.version_files), tag.bugged_files, tag.bugged_ratio, tag.num_commits,
+                writer.writerow([tag.version._name, len(tag.version_files), len(tag.bugged_files), tag.bugged_ratio, tag.num_commits,
                                  tag.num_bugged_commits, tag.ratio_bugged_commits,
                                  datetime.fromtimestamp(tag.version._commit._commit_date).strftime("%Y-%m-%d")])
         for tag in tags:
