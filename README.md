@@ -4,7 +4,6 @@
 - [ ] Config file - OS Interoperability
 - [ ] Checkstyle
 - [ ] SpotBugs
-- [ ] 
 
 ## Tools
 | Tool | Description | Implemented? |
