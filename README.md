@@ -148,4 +148,19 @@ Entropy + Smells
 | product | OO | Ce | Efferent Couplings | :x: |
 | product | McCabe | Max(CC) | Maximum Cabe's Cyclomatic Complexity | :x: |
 | product | McCabe | Avg(CC) | Average Cane's Cyclomatic Complexity | :x: |
-
+| process | Moser | REVISION | Number of revisions of a file | :x: |
+| process | Moser | REFACTORINGS | Number of times a file has been refactored | :x: |
+| process | Moser | BUGFIXES | Number of times a file was involved in bug-fixing | :x: |
+| process | Moser | AUTHORS | Number of distinct authors that checked a file into the repository | :x: |
+| process | Moser | LOC_ADDED | Sum over all revisions of the lines of code added to a file | :x: |
+| process | Moser | MAX_LOC_ADDED | Maximum number of lines of code added for all revisions | :x: |
+| process | Moser | AVE_LOC_ADDED | Average lines of code added per revision | :x: |
+| process | Moser | LOC_DELETED | Sum over all revisions of the lines of code deleted from a file | :x: |
+| process | Moser | MAX_LOC_DELETED | Maximum number of lines of code deleted for all revisions | :x: |
+| process | Moser | AVE_LOC_DELETED | Average lines of code deleted per revision | :x: |
+| process | Moser | CODECHURN | Sum of (added lines of code – deleted lines of code) over all revisions Maximum CODECHURN for all revisions | :x: |
+| process | Moser | MAX_CODECHURN | Maximum CODECHURN for all revisions | :x: |
+| process | Moser | AVE_CODECHURN | Average CODECHURN per revision | :x: |
+| process | Moser | MAX_CHANGESET | Maximum number of files committed together to the repository | :x: |
+| process | Moser | AVE_CHANGESET | Average number of files committed together to the repository | :x: |
+| process | Moser | AGE WEIGHTED_AGE | Age of a file in weeks (counting backwards from a specific release) See equation (1) | :x: |
