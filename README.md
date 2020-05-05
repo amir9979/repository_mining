@@ -112,18 +112,6 @@
 WMC + Smells
 Designite vs Fowler
 
-**Is the abstraction of smells used in Designite proves better than Fowler smells for Defect prediction?**
-
-Product + Designite Smells
-Process + Designite Smells
-Entropy + Designite Smells
-
-Vs 
-Product + Fowler Smells
-Process + Smells
-Entropy + Smells
-
-# Designite vs Fowler Paper
 ## Metrics
 | category | subcategory | metric | description | implemented |
 | -------- | ----------- | ------ | ----------- | ----------- |
