@@ -16,32 +16,36 @@ class VersionMetrics(object):
     EXTERNALS = os.path.realpath(os.path.join(os.path.dirname(__file__), r"..\externals"))
     METHODS = os.path.join(REPOSIROTY_DATA_DIR, r"methods")
     METRICS = os.path.join(REPOSIROTY_DATA_DIR, r"metrics")
+    CLASSES_METRICS = os.path.join(REPOSIROTY_DATA_DIR, r"classes_metrics")
     assert_dir_exists(METHODS)
     assert_dir_exists(METRICS)
+    assert_dir_exists(CLASSES_METRICS)
 
     def __init__(self, jira_project_name, local_path, version_name):
         self.repo = Repo(jira_project_name, jira_project_name, local_path, version_name)
         self.jira_project_name = jira_project_name
         self.version_name = version_name
         self.methods = []
+        self.methods_by_name = {}
         self.methods_by_file_line = {}
-        self.methods_by_file_and_name = {}
+        self.methods_by_path_and_name = {}
         self.classes_paths = {}
         self.checkstyle = {}
         self.ck = {}
         self.designite = {}
         self.designite_classes = {}
         self.source_monitor = {}
+        self.source_monitor_files = {}
         self.metrics = {}
         self.files_metrics = {}
         self.classes_metrics = {}
 
     def extract(self):
         self.methods_per_file()
-        # self.designite_data()
-        # self.checkstyle_data()
-        # self.source_monitor_data()
-        # self.ck_data()
+        self.designite_data()
+        self.checkstyle_data()
+        self.source_monitor_data()
+        self.ck_data()
         for m in self.methods_by_file_line.values():
             self.metrics[m] = dict()
             for metric_dict in [self.ck, self.designite, self.source_monitor, self.checkstyle]:
@@ -53,6 +57,13 @@ class VersionMetrics(object):
             for name, m in self.metrics.items():
                 writer.writerow([name] + map(lambda k:  m.get(k, 0), keys))
 
+        classes_keys = ["method_id"] + sorted(self.metrics.values()[0].keys())
+        with open(os.path.join(assert_dir_exists(os.path.join(VersionMetrics.CLASSES_METRICS, self.jira_project_name)), self.version_name) + ".csv", "wb") as f:
+            writer = csv.writer(f)
+            writer.writerow(keys)
+            for name, m in self.classes_metrics.items():
+                writer.writerow([name] + map(lambda k:  m.get(k, 0), classes_keys))
+
     def methods_per_file(self):
         """
         Analyses the files and get the classes and methods
@@ -60,8 +71,9 @@ class VersionMetrics(object):
         """
         self.methods = []
         self.methods_by_file_line = {}
-        self.methods_by_file_and_name = {}
         self.classes_paths = {}
+        self.methods_by_name = {}
+        self.methods_by_path_and_name = {}
         for root, dirs, files in os.walk(self.repo.local_path):
             for name in filter(lambda x: x.endswith(".java"), files):
                 with open(os.path.join(root, name)) as f:
@@ -71,7 +83,10 @@ class VersionMetrics(object):
                     self.methods.extend(list(sf.methods.values()))
                     self.methods_by_file_line.update(dict(list(map(lambda m: ((m.file_name, m.start_line), m.id),
                                                                    list(sf.methods.values())))))
-                    self.methods_by_file_and_name.update(dict(list(map(lambda m: (m.method_name.lower(), m.id),
+                    self.methods_by_name.update(dict(list(map(lambda m: (m.method_name.lower(), m.id),
+                                                                   list(sf.methods.values())))))
+                    self.methods_by_path_and_name.update(dict(list(map(lambda m: ((m.file_name.lower(),
+                                                                                    (".".join(m.method_name_parameters.lower().split(".")[-2:]))), m.id),
                                                                    list(sf.methods.values())))))
         with open(os.path.join(assert_dir_exists(os.path.join(VersionMetrics.METHODS, self.jira_project_name)), self.version_name) + ".csv", "wb") as f:
             writer = csv.writer(f)
@@ -126,6 +141,7 @@ class VersionMetrics(object):
 
     def source_monitor_data(self):
         out_dir = tempfile.mkdtemp()
+        self.source_monitor = {}
         xml = """
             <!--?xml version="1.0" encoding="UTF-8" ?-->
         <sourcemonitor_commands>
@@ -167,6 +183,20 @@ class VersionMetrics(object):
             f.write(xml)
         Popen([os.path.join(VersionMetrics.EXTERNALS, "SourceMonitor.exe"), "/C", xmlPath]).communicate()
         # to do : analyze
+        files_df = pd.read_csv(os.path.join(out_dir, "source_monitor_classes.csv"))
+        cols_to_drop = ["Project Name", "Checkpoint Name", "Created On"]
+        for i in cols_to_drop + ['Name of Most Complex Method*']:
+            files_df = files_df.drop(i, axis=1)
+        files_cols = list(files_df.columns.drop("File Name"))
+        self.source_monitor_files = dict(map(lambda x: (x[1]["File Name"], dict(zip(files_cols, list(x[1].drop("File Name"))))), files_df.iterrows()))
+
+        methods_df = pd.read_csv(os.path.join(out_dir, "source_monitor_methods.csv"))
+        for i in cols_to_drop:
+            methods_df = methods_df.drop(i, axis=1)
+        methods_cols = list(methods_df.columns.drop("File Name"))
+        self.source_monitor = dict(map(lambda x: (self.methods_by_path_and_name.get((x[1]["File Name"].lower(), x[1]["Method"].lower())),
+                                              dict(zip(methods_cols, list(x[1].drop("File Name").drop("Method"))))), methods_df.iterrows()))
+
 
         shutil.rmtree(out_dir)
 
@@ -209,16 +239,16 @@ class VersionMetrics(object):
                                                          ["Package Name", "Type Name", "Method Name"], impl_smells_list)
 
         self.designite_classes.update(design_code_smells)
-        self.designite.update(dict(map(lambda x: (self.methods_by_file_and_name.get(x[0]), x[1]), impl_code_smells.items())))
+        self.designite.update(dict(map(lambda x: (self.methods_by_name.get(x[0]), x[1]), impl_code_smells.items())))
 
 
         methodMetrics = self._designite_helper(os.path.join(out_dir, r"methodMetrics.csv"), ["Package Name", "Type Name", "MethodName"])
         method_cols = list(methodMetrics.columns.drop("id"))
-        self.designite.update(dict(map(lambda x: (x[1]["id"], dict(zip(method_cols, list(x[1])))), methodMetrics.iterrows())))
+        self.designite.update(dict(map(lambda x: (self.methods_by_name.get(x[1]["id"]), dict(zip(method_cols, list(x[1].drop("id"))))), methodMetrics.iterrows())))
         classesMetrics = self._designite_helper(os.path.join(out_dir, r"typeMetrics.csv"), ["Package Name", "Type Name"])
         classes_cols = list(classesMetrics.columns.drop("id"))
         self.designite_classes.update(
-            dict(map(lambda x: (x[1]["id"], dict(zip(classes_cols, list(x[1])))), classesMetrics.iterrows())))
+            dict(map(lambda x: (x[1]["id"], dict(zip(classes_cols, list(x[1].drop("id"))))), classesMetrics.iterrows())))
 
         shutil.rmtree(out_dir)
 
