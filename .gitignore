@@ -194,7 +194,7 @@ modules.xml
 .idea/sonarlint
 
 # End of https://www.gitignore.io/api/pycharm+all
-.idea
+.idea/
 
 
 # Created by https://www.gitignore.io/api/virtualenv
