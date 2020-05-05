@@ -65,6 +65,10 @@ class VersionMetrics(object):
                 writer.writerow([name] + map(lambda k:  m.get(k, 0), classes_keys))
 
     def methods_per_file(self):
+        """
+        Analyses the files and get the classes and methods
+        :return:
+        """
         self.methods = []
         self.methods_by_file_line = {}
         self.classes_paths = {}
