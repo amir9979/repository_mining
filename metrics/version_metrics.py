@@ -83,6 +83,8 @@ class VersionMetrics(object):
                                                                    list(sf.methods.values())))))
                     self.methods_by_path_and_name.update(dict(list(map(lambda m: ((m.file_name.lower(),
                                                                                     (".".join(m.method_name_parameters.lower().split(".")[-2:]))), m.id),
+                                                                   list(sf.methods.values()))) + list(map(lambda m: ((m.file_name.lower(),
+                                                                                    (".".join(m.method_name.lower().split(".")[-2:]))), m.id),
                                                                    list(sf.methods.values())))))
         with open(os.path.join(assert_dir_exists(os.path.join(VersionMetrics.METHODS, self.jira_project_name)), self.version_name) + ".csv", "wb") as f:
             writer = csv.writer(f)
@@ -190,11 +192,20 @@ class VersionMetrics(object):
         for i in cols_to_drop:
             methods_df = methods_df.drop(i, axis=1)
         methods_cols = list(methods_df.columns.drop("File Name"))
-        self.source_monitor = dict(map(lambda x: (self.methods_by_path_and_name.get((x[1]["File Name"].lower(), x[1]["Method"].lower())),
+        self.source_monitor = dict(map(lambda x: (self.get_source_monitor_id(x[1]["File Name"], x[1]["Method"]),
                                               dict(zip(methods_cols, list(x[1].drop("File Name").drop("Method"))))), methods_df.iterrows()))
 
 
         shutil.rmtree(out_dir)
+
+    def get_source_monitor_id(self, source_file_name, source_method):
+        full_key = (source_file_name.lower(), source_method.lower())
+        method_key = (source_file_name.lower(), source_method.lower().split("(")[0])
+        extend_key = (source_file_name.lower(), source_method.lower().split("<")[0] + "." + source_method.lower().split(".")[1])
+        extend_key_params = (source_file_name.lower(), source_method.lower().split("<")[0] + "." + source_method.lower().split(".")[1].split("(")[0])
+        for key in [full_key, method_key, extend_key, extend_key_params]:
+            if key in self.methods_by_path_and_name:
+                return self.methods_by_path_and_name[key]
 
     def designite_data(self):
         out_dir = tempfile.mkdtemp()
@@ -235,17 +246,23 @@ class VersionMetrics(object):
                                                          ["Package Name", "Type Name", "Method Name"], impl_smells_list)
 
         self.designite_classes.update(design_code_smells)
-        self.designite.update(dict(map(lambda x: (self.methods_by_name.get(x[0]), x[1]), impl_code_smells.items())))
+        smells_dict = dict(map(lambda x: (self.methods_by_name.get(x[0]), x[1]), impl_code_smells.items()))
 
 
         methodMetrics = self._designite_helper(os.path.join(out_dir, r"methodMetrics.csv"), ["Package Name", "Type Name", "MethodName"])
         method_cols = list(methodMetrics.columns.drop("id"))
-        self.designite.update(dict(map(lambda x: (self.methods_by_name.get(x[1]["id"]), dict(zip(method_cols, list(x[1].drop("id"))))), methodMetrics.iterrows())))
+        methods_metrics_dict = dict(map(lambda x: (self.methods_by_name.get(x[1]["id"]), dict(zip(method_cols, list(x[1].drop("id"))))),
+                     methodMetrics.iterrows()))
         classesMetrics = self._designite_helper(os.path.join(out_dir, r"typeMetrics.csv"), ["Package Name", "Type Name"])
         classes_cols = list(classesMetrics.columns.drop("id"))
         self.designite_classes.update(
             dict(map(lambda x: (x[1]["id"], dict(zip(classes_cols, list(x[1].drop("id"))))), classesMetrics.iterrows())))
 
+        method_keys = impl_smells_list + methods_metrics_dict.values()[0].keys()
+        for method in set(methods_metrics_dict.keys() + smells_dict.keys()):
+            d = dict(methods_metrics_dict.get(method, {}))
+            d.update(smells_dict.get(method, {s: False for s in impl_smells_list}))
+            self.designite[method] = d
         shutil.rmtree(out_dir)
 
     def _designite_helper(self, file_name, ids):

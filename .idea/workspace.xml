@@ -66,6 +66,27 @@
       <option name="USE_PATTERN" value="false" />
       <method />
     </configuration>
+    <configuration name="SourceFile" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="repository_mining" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/javadiff/javadiff" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/javadiff/javadiff/SourceFile.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="apache_repos" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="repository_mining" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -79,27 +100,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/apache_repos.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="commitsdiff" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="repository_mining" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/diff" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/diff/commitsdiff.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -173,18 +173,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.fixing_issues" />
-      <item itemvalue="Python.commitsdiff" />
       <item itemvalue="Python.apache_repos" />
       <item itemvalue="Python.issues" />
       <item itemvalue="Python.version_metrics" />
+      <item itemvalue="Python.SourceFile" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.version_metrics" />
+        <item itemvalue="Python.SourceFile" />
         <item itemvalue="Python.apache_repos" />
         <item itemvalue="Python.issues" />
         <item itemvalue="Python.fixing_issues" />
-        <item itemvalue="Python.commitsdiff" />
       </list>
     </recent_temporary>
   </component>
@@ -230,50 +230,50 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="526" y="254" key="#com.jetbrains.python.refactoring.move.PyMoveModuleMembersDialog/0.0.1366.728@0.0.1366.728" timestamp="1588173892850" />
-    <state x="353" y="138" width="705" height="515" key="#xdebugger.evaluate" timestamp="1588682745444">
+    <state x="97" y="131" width="1259" height="597" key="#xdebugger.evaluate" timestamp="1588694274382">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state x="353" y="138" width="705" height="515" key="#xdebugger.evaluate/0.0.1366.728@0.0.1366.728" timestamp="1588682745444" />
+    <state x="97" y="131" width="1259" height="597" key="#xdebugger.evaluate/0.0.1366.728@0.0.1366.728" timestamp="1588694274382" />
     <state x="823" y="314" width="957" height="726" key="#xdebugger.evaluate/0.0.1920.1040@0.0.1920.1040" timestamp="1582740868123" />
-    <state width="1345" height="182" key="GridCell.Tab.0.bottom" timestamp="1588682825286">
+    <state width="1345" height="159" key="GridCell.Tab.0.bottom" timestamp="1588694404006">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="182" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1588682825286" />
+    <state width="1345" height="159" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1588694404006" />
     <state width="1899" height="179" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1582741090867" />
-    <state width="1345" height="182" key="GridCell.Tab.0.center" timestamp="1588682825285">
+    <state width="1345" height="159" key="GridCell.Tab.0.center" timestamp="1588694404006">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="182" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1588682825285" />
+    <state width="1345" height="159" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1588694404006" />
     <state width="1899" height="179" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1582741090867" />
-    <state width="1345" height="182" key="GridCell.Tab.0.left" timestamp="1588682825285">
+    <state width="1345" height="159" key="GridCell.Tab.0.left" timestamp="1588694404006">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="182" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1588682825285" />
+    <state width="1345" height="159" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1588694404006" />
     <state width="1899" height="179" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1582741090867" />
-    <state width="1345" height="182" key="GridCell.Tab.0.right" timestamp="1588682825286">
+    <state width="1345" height="159" key="GridCell.Tab.0.right" timestamp="1588694404006">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="182" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1588682825286" />
+    <state width="1345" height="159" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1588694404006" />
     <state width="1899" height="179" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1582741090867" />
-    <state width="1345" height="182" key="GridCell.Tab.1.bottom" timestamp="1588682825214">
+    <state width="1345" height="159" key="GridCell.Tab.1.bottom" timestamp="1588694404006">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="182" key="GridCell.Tab.1.bottom/0.0.1366.728@0.0.1366.728" timestamp="1588682825214" />
+    <state width="1345" height="159" key="GridCell.Tab.1.bottom/0.0.1366.728@0.0.1366.728" timestamp="1588694404006" />
     <state width="1899" height="179" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1582741278337" />
-    <state width="1345" height="182" key="GridCell.Tab.1.center" timestamp="1588682825214">
+    <state width="1345" height="159" key="GridCell.Tab.1.center" timestamp="1588694404006">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="182" key="GridCell.Tab.1.center/0.0.1366.728@0.0.1366.728" timestamp="1588682825214" />
+    <state width="1345" height="159" key="GridCell.Tab.1.center/0.0.1366.728@0.0.1366.728" timestamp="1588694404006" />
     <state width="1899" height="179" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1582741278337" />
-    <state width="1345" height="182" key="GridCell.Tab.1.left" timestamp="1588682825214">
+    <state width="1345" height="159" key="GridCell.Tab.1.left" timestamp="1588694404006">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="182" key="GridCell.Tab.1.left/0.0.1366.728@0.0.1366.728" timestamp="1588682825214" />
+    <state width="1345" height="159" key="GridCell.Tab.1.left/0.0.1366.728@0.0.1366.728" timestamp="1588694404006" />
     <state width="1899" height="179" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1582741278337" />
-    <state width="1345" height="182" key="GridCell.Tab.1.right" timestamp="1588682825214">
+    <state width="1345" height="159" key="GridCell.Tab.1.right" timestamp="1588694404006">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="182" key="GridCell.Tab.1.right/0.0.1366.728@0.0.1366.728" timestamp="1588682825214" />
+    <state width="1345" height="159" key="GridCell.Tab.1.right/0.0.1366.728@0.0.1366.728" timestamp="1588694404006" />
     <state width="1899" height="179" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1582741278337" />
     <state width="691" height="372" key="XDebugger.FullValuePopup" timestamp="1588682505117">
       <screen x="0" y="0" width="1366" height="728" />
@@ -288,10 +288,10 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="324" y="90" width="700" height="530" key="recent.locations.popup/0.0.1366.728@0.0.1366.728" timestamp="1588616686788" />
-    <state x="438" y="121" width="672" height="474" key="search.everywhere.popup" timestamp="1588610627129">
+    <state x="438" y="121" width="672" height="474" key="search.everywhere.popup" timestamp="1588683340571">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state x="438" y="121" width="672" height="474" key="search.everywhere.popup/0.0.1366.728@0.0.1366.728" timestamp="1588610627129" />
+    <state x="438" y="121" width="672" height="474" key="search.everywhere.popup/0.0.1366.728@0.0.1366.728" timestamp="1588683340571" />
     <state x="616" y="173" width="672" height="676" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1582817791959" />
   </component>
   <component name="XDebuggerManager">
@@ -344,13 +344,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/metrics/version_metrics.py</url>
-          <line>295</line>
+          <line>312</line>
           <option name="timeStamp" value="135" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/javadiff/javadiff/SourceFile.py</url>
+          <line>82</line>
+          <option name="timeStamp" value="157" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/metrics/version_metrics.py</url>
-          <line>196</line>
-          <option name="timeStamp" value="156" />
+          <line>51</line>
+          <option name="timeStamp" value="159" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
