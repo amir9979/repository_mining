@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="71da952e-e94b-495b-897a-3eb62be2bdca" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/metrics/version_metrics.py" beforeDir="false" afterPath="$PROJECT_DIR$/metrics/version_metrics.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,27 +107,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="fixing_issues" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="repository_mining" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/fixing_issues.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="issues" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="repository_mining" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -172,7 +150,6 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.fixing_issues" />
       <item itemvalue="Python.apache_repos" />
       <item itemvalue="Python.issues" />
       <item itemvalue="Python.version_metrics" />
@@ -184,7 +161,6 @@
         <item itemvalue="Python.SourceFile" />
         <item itemvalue="Python.apache_repos" />
         <item itemvalue="Python.issues" />
-        <item itemvalue="Python.fixing_issues" />
       </list>
     </recent_temporary>
   </component>
@@ -344,7 +320,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/metrics/version_metrics.py</url>
-          <line>312</line>
+          <line>316</line>
           <option name="timeStamp" value="135" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
