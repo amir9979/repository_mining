@@ -10,7 +10,7 @@ import shutil
 import pandas as pd
 from repo import Repo
 import time
-
+import json
 
 class VersionMetrics(object):
     EXTERNALS = os.path.realpath(os.path.join(os.path.dirname(__file__), r"..\externals"))
@@ -32,6 +32,8 @@ class VersionMetrics(object):
         self.classes_paths = {}
         self.checkstyle = {}
         self.ck = {}
+        self.halstead = {}
+        self.mood = {}
         self.designite = {}
         self.designite_classes = {}
         self.source_monitor = {}
@@ -46,6 +48,7 @@ class VersionMetrics(object):
         self.checkstyle_data()
         self.source_monitor_data()
         self.ck_data()
+        self.mood_data()
         for m in self.methods_by_file_line.values():
             self.metrics[m] = dict()
             for metric_dict in [self.ck, self.designite, self.source_monitor, self.checkstyle]:
@@ -309,6 +312,19 @@ class VersionMetrics(object):
         df = df.drop(['file', "line"], axis=1)
         df.apply(lambda x: self.ck.setdefault(x["method_id"], x.drop(("method_id"))), axis=1)
         shutil.rmtree(out_dir)
+
+    def mood_data(self):
+        self.mood = {}
+        out_dir = tempfile.mkdtemp()
+        Popen(["java", "-jar", os.path.join(VersionMetrics.EXTERNALS, "MOOD-1.0-SNAPSHOT-jar-with-dependencies.jar"),
+               self.repo.local_path, out_dir]).communicate()
+        with open(os.path.join(out_dir, "_metrics.json")) as f:
+            self.mood = dict(map(lambda x: (self.classes_paths.get(x[0].lower()), x[1]), json.loads(f.read()).items()))
+        shutil.rmtree(out_dir)
+
+    def halstead_data(self):
+        from commentedCodeDetector import metrics_for_project
+        self.halstead = metrics_for_project(self.repo.local_path)
 
 
 if __name__ == "__main__":

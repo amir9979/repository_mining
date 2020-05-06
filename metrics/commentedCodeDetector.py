@@ -226,17 +226,17 @@ class Halstead:
     
     
     def getValuesVector(self):
-        return [
-            self.getTotalOperatorsCnt(), 
-            self.getDistinctOperatorsCnt(),
-            self.getTotalOparandsCnt(),
-            self.getDistinctOperandsCnt(),
-            self.getLength(),
-            self.getVocabulary(),
-            self.getVolume(),
-            self.getDifficulty(),
-            self.getEffort()
-        ]
+        return {
+            "getTotalOperatorsCnt" : self.getTotalOperatorsCnt(),
+            "getDistinctOperatorsCnt": self.getDistinctOperatorsCnt(),
+            "getTotalOparandsCnt": self.getTotalOparandsCnt(),
+            "getDistinctOperandsCnt": self.getDistinctOperandsCnt(),
+            "getLength": self.getLength(),
+            "getVocabulary" : self.getVocabulary(),
+            "getVolume": self.getVolume(),
+            "getDifficulty": self.getDifficulty(),
+            "getEffort": self.getEffort()
+        }
     
     
     @staticmethod
@@ -451,8 +451,25 @@ def unzero(v):
         return 0.00000001
     else:
         return v            
-    
-    
+
+
+def metrics_for_file(file_path):
+    with open(file_path, 'r') as f:
+        source = f.read().splitlines()
+        (regularLines, comments) = CommentFilter().filterComments(source)
+    return Halstead(regularLines).getValuesVector()
+
+
+def metrics_for_project(project_path):
+    ans = {}
+    for root, dirs, files in os.walk(project_path):
+        for name in files:
+            if name.endswith(".java"):
+                full_path = os.path.join(root, name)
+                ans[full_path[len(project_path)+1:]] = metrics_for_file(full_path)
+    return ans
+
+
 def main():
     args = parseArgs()
     regularLines = None
