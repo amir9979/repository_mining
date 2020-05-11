@@ -9,17 +9,17 @@ from commit import Commit
 from fixing_issues import VersionInfo
 from issues import get_jira_issues
 from versions import Version
-from caching import REPOSIROTY_DATA_DIR, assert_dir_exists
+from caching import REPOSITORY_DATA_DIR, assert_dir_exists
 from repo import Repo
 
 
 class DataExtractor(object):
-    VERSIONS = os.path.join(REPOSIROTY_DATA_DIR, r"apache_versions")
-    VERSIONS_INFOS = os.path.join(REPOSIROTY_DATA_DIR, r"apache_versions_info")
-    COMMITS = os.path.join(REPOSIROTY_DATA_DIR, r"commits_info")
-    COMMITED_FILES = os.path.join(REPOSIROTY_DATA_DIR, r"committed_files")
-    FILES = os.path.join(REPOSIROTY_DATA_DIR, r"files_info")
-    CONFIGRATION_PATH = os.path.join(REPOSIROTY_DATA_DIR, r"configurations")
+    VERSIONS = os.path.join(REPOSITORY_DATA_DIR, r"apache_versions")
+    VERSIONS_INFOS = os.path.join(REPOSITORY_DATA_DIR, r"apache_versions_info")
+    COMMITS = os.path.join(REPOSITORY_DATA_DIR, r"commits_info")
+    COMMITED_FILES = os.path.join(REPOSITORY_DATA_DIR, r"committed_files")
+    FILES = os.path.join(REPOSITORY_DATA_DIR, r"files_info")
+    CONFIGRATION_PATH = os.path.join(REPOSITORY_DATA_DIR, r"configurations")
     assert_dir_exists(COMMITED_FILES)
     assert_dir_exists(COMMITS)
     assert_dir_exists(FILES)

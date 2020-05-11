@@ -2,4 +2,14 @@
 -e .
 
 # external requirements
+pyparsing
+jira
+gitpython
+github3.py
 javalang
+pandas
+junitparser
+click
+
+# testing requirements
+pytest

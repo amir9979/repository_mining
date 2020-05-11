@@ -2,10 +2,14 @@ import os
 import pickle
 import gzip
 
-REPOSIROTY_DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "repository_data")
-REPOSIROTY_CACHING_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "repository_caching")
-assert os.path.exists(REPOSIROTY_DATA_DIR)
-assert os.path.exists(REPOSIROTY_CACHING_DIR)
+from config import Config
+
+
+REPOSITORY_DATA_DIR = Config.get_work_dir_path(Config().config['CACHING']['RepositoryData'])
+REPOSITORY_CACHING_DIR = Config.get_work_dir_path(Config().config['CACHING']['RepositoryCaching'])
+
+assert os.path.exists(REPOSITORY_DATA_DIR)
+assert os.path.exists(REPOSITORY_CACHING_DIR)
 
 
 def assert_dir_exists(cache_dir):
@@ -14,12 +18,13 @@ def assert_dir_exists(cache_dir):
     return cache_dir
 
 
-def cached(cache_name, cache_dir=REPOSIROTY_CACHING_DIR):
+def cached(cache_name, cache_dir=REPOSITORY_CACHING_DIR):
     """
     A function that creates a decorator which will use "cachefile" for caching the results of the decorated function "fn".
     """
     cache_dir = os.path.join(cache_dir, cache_name)
     assert_dir_exists(cache_dir)
+
     def decorator(fn):  # define a decorator for a function "fn"
         def wrapped(key='KEY', *args, **kwargs):   # define a wrapper that will finally call "fn" with all arguments
             gzip_cachefile = os.path.abspath(os.path.join(cache_dir, key + ".gzip"))

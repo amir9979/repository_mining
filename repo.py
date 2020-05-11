@@ -1,12 +1,16 @@
-import git
 import os
-from subprocess import Popen
+
+import git
+
+from config import Config
+
 
 class Repo(object):
-    #REPO_DIR = r"C:\Temp\apache_repos"
-    REPO_DIR = r"Z:\ev_repos"
-    GITHUB_PATH = r"https://github.com/apache/{0}.git"
-    JIRA_PATH = r"http:\issues.apache.org\jira\projects\{0}"
+    config = Config().config
+
+    REPO_DIR = config['REPO']['RepoDir']
+    GITHUB_PATH = config['REPO']['GithubPath']
+    JIRA_PATH = config['REPO']['JiraPath']
 
     def __init__(self, jira_key, github_name, local_path=None, commit_to_checkout=None):
         self.jira_key = jira_key
@@ -17,16 +21,14 @@ class Repo(object):
             self.local_path = os.path.join(Repo.REPO_DIR, jira_key)
         self.clone_if_needed()
         if commit_to_checkout:
-            Popen("git checkout {0}".format(commit_to_checkout, cwd=self.local_path)).communicate()
+            git.Repo(local_path).git.checkout(commit_to_checkout)
 
     def clone_if_needed(self):
-        try:
-            if self.jira_key == 'SB':
-                return
-            if not os.path.exists(self.local_path):
-                Popen("git clone https://github.com/apache/{0}.git {1}".format(self.github_name, self.local_path)).communicate()
-        except:
-            pass
+        if self.jira_key == 'SB':
+            return
+        if not os.path.exists(self.local_path):
+            git_path = Config().config['REPO']['GithubPath'].format(self.github_name)
+            git.Repo.clone_from(git_path, self.local_path)
 
     def get_github_jira(self):
         return "{0} {1}".format(Repo.GITHUB_PATH.format(self.github_name), Repo.JIRA_PATH.format(self.jira_key))
