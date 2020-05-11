@@ -1,12 +1,13 @@
 import os
-import sys
 import time
 import csv
+from abc import ABC, abstractmethod
 from subprocess import Popen
 import shutil
 import tempfile
 import json
 from xml.etree import ElementTree
+import pdb
 
 import pandas as pd
 import click
@@ -25,6 +26,135 @@ def main(jira_project_name, local_path, version_name):
     v = VersionMetrics(jira_project_name, local_path, version_name)
     v.extract()
     return
+
+
+class Extractor(ABC):
+    def __init__(self, extractor_name, project, version):
+        self.extractor_name = extractor_name
+        self.project = project
+        self.version = version
+        self.config = Config().config
+        self.runner = self._get_runner(self.config, extractor_name)
+        self.local_path: str = str()
+        self.data: dict = dict()
+        pass
+
+    @staticmethod
+    def _get_runner(config, extractor_name):
+        externals_path = config['EXTERNALS']['BaseDir']
+        runner_name = config['EXTERNALS'][extractor_name]
+        externals = Config.get_work_dir_path(externals_path)
+        runner = os.path.join(externals, runner_name)
+        return runner
+
+    @abstractmethod
+    def extract(self, jira_project_name, github_name, local_path):
+        repo = Repo(jira_project_name, github_name, local_path, self.version)
+        self.local_path = repo.local_path
+        pass
+
+
+class Checkstyle(Extractor):
+    def __init__(self, project, version):
+        super().__init__("Checkstyle", project, version)
+
+    def extract(self, jira_project_name, github_name, local_path):
+        super(Checkstyle, self).extract(jira_project_name, github_name, local_path)
+        all_checks_xml = self._get_all_checks_xml(self.config)
+        pdb.set_trace()
+        out_path_to_xml = self._execute_command(self.runner, all_checks_xml, self.local_path)
+        pdb.set_trace()
+        files = {}
+        tmp = {}
+        keys = set()
+        with(open(out_path_to_xml)) as file:
+            for file_element in ElementTree.parse(file).getroot():
+                filepath = file_element.attrib['name']
+                pdb.set_trace()
+                items, tmp, keys = self._get_items(file_element, filepath, tmp, keys)
+                pdb.set_trace()
+                files[filepath] = items
+
+        checkstyle = {}
+        for method_id in tmp:
+            checkstyle[method_id] = dict.fromkeys(keys, 0)
+            checkstyle[method_id].update(tmp[method_id])
+
+        self.data = checkstyle
+
+    @staticmethod
+    def _get_all_checks_xml(config):
+        externals_path = config['EXTERNALS']['BaseDir']
+        all_checks_xml_name = config['EXTERNALS']['AllChecks']
+        externals = Config.get_work_dir_path(externals_path)
+        all_checks_xml = os.path.join(externals, all_checks_xml_name)
+        return all_checks_xml
+
+    @staticmethod
+    def _execute_command(checkstyle_runner: str, all_checks_xml: str, local_path: str) -> str:
+        f, out_path_to_xml = tempfile.mkstemp()
+        commands = ["java",
+                    "-jar", checkstyle_runner,
+                    "-c", all_checks_xml,
+                    "-f", "xml",
+                    "-o", out_path_to_xml,
+                    local_path]
+        p = Popen(commands)
+        p.communicate()
+        return out_path_to_xml
+
+    def _get_items(self, file_element, file_path, tmp, keys):
+        items = []
+        for errorElement in file_element:
+            line = int(errorElement.attrib['line'])
+            if "max allowed" not in errorElement.attrib['message']:
+                continue
+            key = "_".join(errorElement.attrib['message'] \
+                           .replace("lines", "") \
+                           .replace(",", "") \
+                           .split('(')[0] \
+                           .split()[:-2])
+
+            value = int(errorElement.attrib['message'] \
+                        .replace("lines", "") \
+                        .replace(",", "") \
+                        .split('(')[0] \
+                        .split()[-1] \
+                        .strip())
+            items.append({
+                'line': line,
+                'key': key,
+                'value': value,
+                'file': file_path[len(self.local_path) + 1:],
+            })
+            keys.add(key)
+            # method_id = _get_closest_id(file_path, line)
+            # TODO implement _get_closes_id in Extractor
+            method_id = False
+            if method_id:
+                tmp.setdefault(method_id, dict())[key] = value
+        return file_element, tmp, keys
+
+
+class Designite(Extractor):
+    def extract(self):
+        pass
+
+
+class SourceMonitor(Extractor):
+    def extract(self):
+        pass
+
+
+class CK(Extractor):
+    def extract(self):
+        pass
+
+
+class Mood(Extractor):
+
+    def extract(self):
+        pass
 
 
 class VersionMetrics(object):
@@ -135,15 +265,15 @@ class VersionMetrics(object):
                         list(
                             map(lambda m: (
                                 (m.file_name.lower(),
-                                (".".join(
+                                 (".".join(
                                      m.method_name_parameters.lower().split(".")[-2:]))),
                                 m.id),
                                 list(sf.methods.values()))) +
                         list(
                             map(lambda m: (
                                 (m.file_name.lower(),
-                                (".".join(
-                                    m.method_name.lower().split(".")[-2:]))),
+                                 (".".join(
+                                     m.method_name.lower().split(".")[-2:]))),
                                 m.id),
                                 list(sf.methods.values())))))
         out_dir = os.path.join(VersionMetrics.METHODS, self.jira_project_name)
