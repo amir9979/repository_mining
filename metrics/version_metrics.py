@@ -14,6 +14,7 @@ import click
 
 from config import Config
 from javadiff.javadiff.SourceFile import SourceFile
+from metrics.rsc import source_monitor_xml
 from repo import Repo
 from .commented_code_detector import metrics_for_project
 
@@ -142,20 +143,146 @@ class Designite(Extractor):
 
 
 class SourceMonitor(Extractor):
+    def __init__(self, project, version):
+        super().__init__("SourceMonitor", project, version)
+
     def extract(self):
-        pass
+        if not os.name == "dt":
+            self.data = {}
+            return
+
+        out_dir = self._execute_command(self.runner, self.local_path)
+        source_monitor_files, source_monitor = self._process_metrics(out_dir)
+
+    @staticmethod
+    def _execute_command(source_monitor_runner, local_path):
+        out_dir = tempfile.mkdtemp()
+        xml = source_monitor_xml.xml \
+            .replace("verP", out_dir) \
+            .replace("verREPO", local_path)
+        xml_path = os.path.join(out_dir, "sourceMonitor.xml")
+        with open(xml_path, "wb") as f:
+            f.write(xml)
+
+        Popen([source_monitor_runner, "/C", xml_path]).communicate()
+        return out_dir
+
+    def _process_metrics(self, out_dir):
+        files_path = os.path.join(out_dir, "source_monitor_classes.csv")
+        files_df = pd.read_csv(files_path)
+        cols_to_drop = ["Project Name", "Checkpoint Name", "Created On"]
+        for i in cols_to_drop + ['Name of Most Complex Method*']:
+            files_df = files_df.drop(i, axis=1)
+        files_cols = list(files_df.columns.drop("File Name"))
+        source_monitor_files = dict(
+            map(lambda x: (
+                x[1]["File Name"],
+                dict(zip(files_cols, list(x[1].drop("File Name"))))
+            ), files_df.iterrows()))
+
+        methods_path = os.path.join(out_dir, "source_monitor_methods.csv")
+        methods_df = pd.read_csv(methods_path)
+        for i in cols_to_drop:
+            methods_df = methods_df.drop(i, axis=1)
+        methods_cols = list(methods_df.columns.drop("File Name"))
+        source_monitor = dict(map(lambda x: (
+                                            self._get_source_monitor_id(
+                                                x[1]["File Name"],
+                                                x[1]["Method"],
+                                                self.methods_by_path_and_name),
+                                            dict(zip(
+                                                methods_cols,
+                                                list(x[1].drop("File Name").drop("Method"))))),
+                                  methods_df.iterrows()))
+        shutil.rmtree(out_dir)
+        return source_monitor_files, source_monitor
+
+    @staticmethod
+    def _get_source_monitor_id(source_file_name, source_method, methods_by_path_and_name):
+        full_key = (source_file_name.lower(), source_method.lower())
+        method_key = (source_file_name.lower(), source_method.lower().split("(")[0])
+        extend_key = (
+            source_file_name.lower(), source_method.lower().split("<")[0] + "." + source_method.lower().split(".")[1])
+        extend_key_params = (source_file_name.lower(),
+                             source_method.lower().split("<")[0] + "." + source_method.lower().split(".")[1].split("(")[
+                                 0])
+        for key in [full_key, method_key, extend_key, extend_key_params]:
+            # TODO Implement methods_by_path_and_name
+            if key in methods_by_path_and_name:
+                return methods_by_path_and_name[key]
 
 
 class CK(Extractor):
+    def __init__(self, project, version):
+        super().__init__("CK", project, version)
+
     def extract(self):
+        out_dir = self._execute_command(self.runner, self.local_path)
+        ck = self._process_metrics(out_dir)
+        self.data = ck
         pass
+
+    @staticmethod
+    def _execute_command(ck_runner, local_path):
+        out_dir = tempfile.mkdtemp()
+        command = ["java", "-jar", ck_runner, local_path]
+        Popen(command, cwd=out_dir).communicate()
+        return out_dir
+
+    def _process_metrics(self, out_dir):
+        ck = {}
+
+        df_path = os.path.join(out_dir, "method.csv")
+        df = pd.read_csv(df_path)
+        df = df.drop(['class', "method"], axis=1)
+        df['method_id'] = df.apply(lambda x:
+                                   self.get_closest_id(x['file'], x['line']),
+                                   axis=1)
+        # TODO Implement get_closest_id
+        df = df[list(map(lambda x: x is not None, df['method_id'].to_list()))]
+        df = df.drop(['file', "line"], axis=1)
+        df.apply(lambda x:
+                 ck.setdefault(x["method_id"], x.drop(("method_id"))),
+                 axis=1)
+
+        shutil.rmtree(out_dir)
+        return ck
 
 
 class Mood(Extractor):
+    def __init__(self, project, version):
+        super().__init__("MOOD", project, version)
 
     def extract(self):
-        pass
+        out_dir = self._execute_command(self.runner, self.local_path)
+        mood = self._process_metrics(out_dir)
+        self.data = mood
 
+    @staticmethod
+    def _execute_command(mood_runner, local_path):
+        out_dir = tempfile.mkdtemp()
+        command = ["java", "-jar", mood_runner, local_path, out_dir]
+        Popen(command).communicate()
+        return out_dir
+
+    def _process_metrics(self, out_dir):
+        mood = {}
+        with open(os.path.join(out_dir, "_metrics.json")) as file:
+            mood = dict(map(lambda x: (
+                                        self.classes_paths.get(x[0].lower()),
+                                        # TODO Implement classes_paths
+                                        x[1]),
+                            json.loads(file.read()).items()))
+        shutil.rmtree(out_dir)
+        return mood
+
+class Halstead(Extractor):
+    def __init__(self, project, version):
+        super().__init__("HALSTEAD", project, version)
+
+    def extract(self):
+        halstead = metrics_for_project(self.local_path)
+        self.data = halstead
 
 class VersionMetrics(object):
     config = Config().config
