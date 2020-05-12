@@ -455,7 +455,7 @@ def unzero(v):
 
 
 def metrics_for_file(file_path):
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='latin-1') as f:
         source = f.read().splitlines()
         (regularLines, comments) = CommentFilter().filterComments(source)
     return Halstead(regularLines).getValuesVector()
@@ -476,7 +476,7 @@ def main():
     regularLines = None
     comments = None
     
-    with open(args["sourcefile"][0], 'r') as f:
+    with open(args["sourcefile"][0], 'r', encoding='latin-1') as f:
         source = f.read().splitlines()
         (regularLines, comments) = CommentFilter().filterComments(source)
     

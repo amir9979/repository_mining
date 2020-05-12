@@ -259,7 +259,8 @@ class SourceMonitor(Extractor):
     def __init__(self, project, version):
         super().__init__("SourceMonitor", project, version)
 
-    def extract(self):
+    def extract(self, jira_project_name, github_name, local_path):
+        super(SourceMonitor, self).extract(jira_project_name, github_name, local_path)
         if not os.name == "dt":
             self.data = {}
             return
@@ -328,7 +329,8 @@ class CK(Extractor):
     def __init__(self, project, version):
         super().__init__("CK", project, version)
 
-    def extract(self):
+    def extract(self, jira_project_name, github_name, local_path):
+        super(CK, self).extract(jira_project_name, github_name, local_path)
         out_dir = self._execute_command(self.runner, self.local_path)
         ck = self._process_metrics(out_dir)
         self.data = ck
@@ -337,7 +339,8 @@ class CK(Extractor):
     @staticmethod
     def _execute_command(ck_runner, local_path):
         out_dir = tempfile.mkdtemp()
-        command = ["java", "-jar", ck_runner, local_path]
+        project_path = os.path.join(os.getcwd(), local_path)
+        command = ["java", "-jar", ck_runner, project_path, "True"]
         Popen(command, cwd=out_dir).communicate()
         return out_dir
 
@@ -364,7 +367,8 @@ class Mood(Extractor):
     def __init__(self, project, version):
         super().__init__("MOOD", project, version)
 
-    def extract(self):
+    def extract(self, jira_project_name, github_name, local_path):
+        super(Mood, self).extract(jira_project_name, github_name, local_path)
         out_dir = self._execute_command(self.runner, self.local_path)
         mood = self._process_metrics(out_dir)
         self.data = mood
@@ -391,7 +395,8 @@ class Halstead(Extractor):
     def __init__(self, project, version):
         super().__init__("HALSTEAD", project, version)
 
-    def extract(self):
+    def extract(self, jira_project_name, github_name, local_path):
+        super(Halstead, self).extract(jira_project_name, github_name, local_path)
         halstead = metrics_for_project(self.local_path)
         self.data = halstead
 
