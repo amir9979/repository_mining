@@ -12,9 +12,11 @@ import pdb
 import pandas as pd
 import click
 
+from caching import cached
 from config import Config
 from javadiff.javadiff.SourceFile import SourceFile
 from metrics.rsc import source_monitor_xml
+from metrics.version_metrics_data import Data
 from repo import Repo
 from .commented_code_detector import metrics_for_project
 
@@ -29,6 +31,118 @@ def main(jira_project_name, local_path, version_name):
     return
 
 
+class FileAnalyzer:
+    def __init__(self, local_path, project_name, version_name):
+        self.local_path = local_path
+        cache_name = self._get_cache_name(project_name, version_name)
+        analyze = cached(cache_name)(self._analyze)
+        res = analyze(local_path)
+        self.methods = res[0]
+        self._store_methods(project_name, version_name, self.methods)
+        self.methods_by_file_line = res[1]
+        self.classes_paths = res[2]
+        self.methods_by_name = res[3]
+        self.methods_by_path_and_name = res[4]
+
+    def get_closest_id(self, file_name, line):
+        method_id = None
+        for l in [line, line + 1, line - 1]:
+            file_path = (file_name[len(self.local_path) + 1:], l)
+            if file_path in self.methods_by_file_line:
+                method_id = self.methods_by_file_line[(file_name[len(self.local_path) + 1:], l)]
+                break
+        return method_id
+
+    @staticmethod
+    def _get_cache_name(project_name, version_name):
+        config = Config().config
+        storing_dir = config['VERSION_METRICS']['MethodsDir']
+        cache_name = storing_dir + "_" + project_name + "_" + version_name
+        return cache_name
+
+    def _analyze(self, local_path):
+        methods = []
+        methods_by_file_line = {}
+        classes_paths = {}
+        methods_by_name = {}
+        methods_by_path_and_name = {}
+        for root, dirs, files in os.walk(local_path):
+            for name in filter(lambda x: x.endswith(".java"), files):
+                with open(os.path.join(root, name), encoding='latin-1') as f:
+                    contents = f.read()
+                    file_name = os.path.join(root, name)[len(local_path) + 1:]
+                    # TODO Remove print
+                    print("Processing: " + file_name)
+                    sf = SourceFile(contents, file_name)
+
+                    self._extract_classes(sf, classes_paths)
+
+                    self._extract_methods(sf, methods)
+
+                    self._extract_methods_by_file_line(sf, methods_by_file_line)
+
+                    self._extract_methods_by_name(sf, methods_by_name)
+
+                    self._extract_methods_by_path_and_name(sf, methods_by_path_and_name)
+
+        return methods, methods_by_file_line, classes_paths, methods_by_name, methods_by_path_and_name
+
+    @staticmethod
+    def _store_methods(project_name, version_name, methods):
+        config = Config().config
+        repository_data = Config.get_work_dir_path(config['CACHING']['RepositoryData'])
+        out_dir = os.path.join(repository_data, config['VERSION_METRICS']['MethodsDir'], project_name)
+        Config.assert_dir_exists(out_dir)
+        out_path = os.path.join(out_dir, version_name) + ".csv"
+        columns = ["method_id", "file_name", "method_name", "start_line", "end_line"]
+        values = list(map(lambda m: [m.id, m.file_name, m.method_name, m.start_line, m.end_line], methods))
+        df = pd.DataFrame(values, columns=columns)
+        df.to_csv(out_path, index=False)
+
+    @staticmethod
+    def _extract_classes(sf, classes_paths):
+        for m in sf.modified_names:
+            classes_paths[m.lower()] = sf.file_name.lower()
+
+    @staticmethod
+    def _extract_methods(sf, methods):
+        methods.extend(list(sf.methods.values()))
+
+    @staticmethod
+    def _extract_methods_by_file_line(sf, methods_by_file_line):
+        methods_by_file_line.update(dict(list(
+            map(lambda m: (
+                (m.file_name, m.start_line),
+                m.id),
+                list(sf.methods.values())))))
+
+    @staticmethod
+    def _extract_methods_by_name(sf, methods_by_name):
+        methods_by_name.update(dict(list(
+            map(lambda m: (
+                m.method_name.lower(),
+                m.id),
+                list(sf.methods.values())))))
+
+    @staticmethod
+    def _extract_methods_by_path_and_name(sf, methods_by_path_and_name):
+        methods_by_path_and_name.update(dict(
+            list(
+                map(lambda m: (
+                    (m.file_name.lower(),
+                     (".".join(
+                         m.method_name_parameters.lower().split(".")[-2:]))),
+                    m.id),
+                    list(sf.methods.values()))) +
+            list(
+                map(lambda m: (
+                    (m.file_name.lower(),
+                     (".".join(
+                         m.method_name.lower().split(".")[-2:]))),
+                    m.id),
+                    list(sf.methods.values())))))
+
+
 class Extractor(ABC):
     def __init__(self, extractor_name, project, version):
         self.extractor_name = extractor_name
@@ -37,7 +151,8 @@ class Extractor(ABC):
         self.config = Config().config
         self.runner = self._get_runner(self.config, extractor_name)
         self.local_path: str = str()
-        self.data: dict = dict()
+        self.file_analyzer: FileAnalyzer = FileAnalyzer()
+        self.data: Data
         pass
 
     @staticmethod
@@ -52,6 +167,7 @@ class Extractor(ABC):
     def extract(self, jira_project_name, github_name, local_path):
         repo = Repo(jira_project_name, github_name, local_path, self.version)
         self.local_path = repo.local_path
+        self.file_analyzer = FileAnalyzer(self.local_path, self.project, self.version)
         pass
 
 
@@ -129,9 +245,7 @@ class Checkstyle(Extractor):
                 'file': file_path[len(self.local_path) + 1:],
             })
             keys.add(key)
-            # method_id = _get_closest_id(file_path, line)
-            # TODO implement _get_closes_id in Extractor
-            method_id = False
+            method_id = self.file_analyzer.get_closest_id(file_path, line)
             if method_id:
                 tmp.setdefault(method_id, dict())[key] = value
         return file_element, tmp, keys
@@ -186,13 +300,13 @@ class SourceMonitor(Extractor):
             methods_df = methods_df.drop(i, axis=1)
         methods_cols = list(methods_df.columns.drop("File Name"))
         source_monitor = dict(map(lambda x: (
-                                            self._get_source_monitor_id(
-                                                x[1]["File Name"],
-                                                x[1]["Method"],
-                                                self.methods_by_path_and_name),
-                                            dict(zip(
-                                                methods_cols,
-                                                list(x[1].drop("File Name").drop("Method"))))),
+            self._get_source_monitor_id(
+                x[1]["File Name"],
+                x[1]["Method"],
+                self.file_analyzer.methods_by_path_and_name),
+            dict(zip(
+                methods_cols,
+                list(x[1].drop("File Name").drop("Method"))))),
                                   methods_df.iterrows()))
         shutil.rmtree(out_dir)
         return source_monitor_files, source_monitor
@@ -207,7 +321,6 @@ class SourceMonitor(Extractor):
                              source_method.lower().split("<")[0] + "." + source_method.lower().split(".")[1].split("(")[
                                  0])
         for key in [full_key, method_key, extend_key, extend_key_params]:
-            # TODO Implement methods_by_path_and_name
             if key in methods_by_path_and_name:
                 return methods_by_path_and_name[key]
 
@@ -236,9 +349,8 @@ class CK(Extractor):
         df = pd.read_csv(df_path)
         df = df.drop(['class', "method"], axis=1)
         df['method_id'] = df.apply(lambda x:
-                                   self.get_closest_id(x['file'], x['line']),
+                                   self.file_analyzer.get_closest_id(x['file'], x['line']),
                                    axis=1)
-        # TODO Implement get_closest_id
         df = df[list(map(lambda x: x is not None, df['method_id'].to_list()))]
         df = df.drop(['file', "line"], axis=1)
         df.apply(lambda x:
@@ -269,12 +381,12 @@ class Mood(Extractor):
         mood = {}
         with open(os.path.join(out_dir, "_metrics.json")) as file:
             mood = dict(map(lambda x: (
-                                        self.classes_paths.get(x[0].lower()),
-                                        # TODO Implement classes_paths
-                                        x[1]),
+                self.file_analyzer.classes_paths.get(x[0].lower()),
+                x[1]),
                             json.loads(file.read()).items()))
         shutil.rmtree(out_dir)
         return mood
+
 
 class Halstead(Extractor):
     def __init__(self, project, version):
@@ -283,6 +395,7 @@ class Halstead(Extractor):
     def extract(self):
         halstead = metrics_for_project(self.local_path)
         self.data = halstead
+
 
 class VersionMetrics(object):
     config = Config().config

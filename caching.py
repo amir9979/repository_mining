@@ -36,7 +36,7 @@ def cached(cache_name, cache_dir=REPOSITORY_CACHING_DIR):
                 except:
                     pass
             # execute the function with all arguments passed
-            if fn.func_code.co_argcount == 0:
+            if fn.__code__.co_argcount == 0:
                 res = fn(*args, **kwargs)
             else:
                 res = fn(key, *args, **kwargs)
