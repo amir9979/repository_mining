@@ -47,9 +47,10 @@ class FileAnalyzer:
     def get_closest_id(self, file_name, line):
         method_id = None
         for l in [line, line + 1, line - 1]:
-            file_path = (file_name[len(self.local_path) + 1:], l)
+            #file_path = (file_name[len(self.local_path) + 1:], l)
+            file_path = (file_name.split(self.local_path)[1][1:], l)
             if file_path in self.methods_by_file_line:
-                method_id = self.methods_by_file_line[(file_name[len(self.local_path) + 1:], l)]
+                method_id = self.methods_by_file_line[file_path]
                 break
         return method_id
 
@@ -94,6 +95,8 @@ class FileAnalyzer:
         out_dir = os.path.join(repository_data, config['VERSION_METRICS']['MethodsDir'], project_name)
         Config.assert_dir_exists(out_dir)
         out_path = os.path.join(out_dir, version_name) + ".csv"
+        if os.path.exists(out_path):
+            return
         columns = ["method_id", "file_name", "method_name", "start_line", "end_line"]
         values = list(map(lambda m: [m.id, m.file_name, m.method_name, m.start_line, m.end_line], methods))
         df = pd.DataFrame(values, columns=columns)
@@ -151,7 +154,7 @@ class Extractor(ABC):
         self.config = Config().config
         self.runner = self._get_runner(self.config, extractor_name)
         self.local_path: str = str()
-        self.file_analyzer: FileAnalyzer = FileAnalyzer()
+        self.file_analyzer: FileAnalyzer = None
         self.data: Data
         pass
 
@@ -178,18 +181,14 @@ class Checkstyle(Extractor):
     def extract(self, jira_project_name, github_name, local_path):
         super(Checkstyle, self).extract(jira_project_name, github_name, local_path)
         all_checks_xml = self._get_all_checks_xml(self.config)
-        pdb.set_trace()
         out_path_to_xml = self._execute_command(self.runner, all_checks_xml, self.local_path)
-        pdb.set_trace()
         files = {}
         tmp = {}
         keys = set()
         with(open(out_path_to_xml)) as file:
             for file_element in ElementTree.parse(file).getroot():
                 filepath = file_element.attrib['name']
-                pdb.set_trace()
                 items, tmp, keys = self._get_items(file_element, filepath, tmp, keys)
-                pdb.set_trace()
                 files[filepath] = items
 
         checkstyle = {}
