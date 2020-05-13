@@ -9,9 +9,8 @@ from config import Config
 
 
 class Data(ABC):
-    def __init__(self, data_type, project, version, data):
-        self.data_type = data_type
-        self.path = self._get_path(data_type, project, version)
+    def __init__(self, project, version, data):
+        self.path = self._get_path(self.data_type, project, version)
         if data is None:
             self.data = self._read_data_to_df()
         else:
@@ -33,7 +32,6 @@ class Data(ABC):
         data = pd.read_csv(self.path)
         return data
 
-    @abstractmethod
     def store(self):
         self.data.to_csv(self.path, index=False)
 
@@ -57,97 +55,49 @@ class CompositeData(Data):
 
 
 class CheckstyleData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("checkstyle", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "checkstyle"
 
 
 class DesigniteDesignSmellsData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("designite_design", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "designite_design"
 
 
 class DesigniteImplementationSmellsData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("designite_implementation", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "designite_implementation"
 
 
 class DesigniteOrganicTypeSmellsData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("designite_type_organic", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "designite_type_organic"
 
 
 class DesigniteOrganicMethodSmellsData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("designite_method_organic", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "designite_method_organic"
 
 
 class DesigniteTypeMetricsData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("designite_type_metrics", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "designite_type_metrics"
 
 
 class DesigniteMethodMetricsData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("designite_method_metrics", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "designite_method_metrics"
 
 
 class SourceMonitorFilesData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("source_monitor_files", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "source_monitor_files"
 
 
 class SourceMonitorData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("source_monitor", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "source_monitor"
 
 
 class CKData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("ck", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "ck"
 
 
 class MoodData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("mood", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "mood"
 
 
 class HalsteadData(Data):
-    def __init__(self, project, version, data=None):
-        super().__init__("halstead", project, version, data)
-
-    def store(self):
-        super().store()
+    data_type = "halstead"
 
