@@ -136,14 +136,15 @@ class FileAnalyser:
 
 
 class Extractor(ABC):
-    def __init__(self, extractor_name, project, version):
+    def __init__(self, extractor_name, github_project_name, version, jira_project_name, local_path):
         self.extractor_name = extractor_name
-        self.project = project
+        self.project = github_project_name
         self.version = version
         self.config = Config().config
         self.runner = self._get_runner(self.config, extractor_name)
-        self.local_path: str = str()
-        self.file_analyser: FileAnalyser = None
+        repo = Repo(jira_project_name, github_project_name, local_path, version)
+        self.local_path = repo.local_path
+        self.file_analyser = FileAnalyser(self.local_path, self.project, self.version)
         self.data: Data
 
     @staticmethod
@@ -156,18 +157,14 @@ class Extractor(ABC):
 
     @abstractmethod
     def extract(self, jira_project_name, github_name, local_path):
-        repo = Repo(jira_project_name, github_name, local_path, self.version)
-        self.local_path = repo.local_path
-        self.file_analyser = FileAnalyser(self.local_path, self.project, self.version)
         pass
 
 
 class Checkstyle(Extractor):
-    def __init__(self, project, version):
-        super().__init__("Checkstyle", project, version)
+    def __init__(self, github_project_name, version, jira_project_name, local_path):
+        super().__init__("Checkstyle", github_project_name, version, jira_project_name, local_path)
 
-    def extract(self, jira_project_name, github_name, local_path):
-        super(Checkstyle, self).extract(jira_project_name, github_name, local_path)
+    def extract(self):
         all_checks_xml = self._get_all_checks_xml(self.config)
         out_path_to_xml = self._execute_command(self.runner, all_checks_xml, self.local_path)
         checkstyle = self._process_checkstyle_data(out_path_to_xml)
@@ -240,11 +237,10 @@ class Checkstyle(Extractor):
 
 
 class Designite(Extractor):
-    def __init__(self, project, version):
-        super().__init__("Designite", project, version)
+    def __init__(self, github_project_name, version, jira_project_name, local_path):
+        super().__init__("Designite", github_project_name, version, jira_project_name, local_path)
 
-    def extract(self, jira_project_name, github_name, local_path):
-        super(Designite, self).extract(jira_project_name, github_name, local_path)
+    def extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         design_code_smells = self._extract_design_code_smells(out_dir)
         implementation_code_smells = self._extract_implementation_code_smells(out_dir)
@@ -350,11 +346,10 @@ class Designite(Extractor):
 
 
 class SourceMonitor(Extractor):
-    def __init__(self, project, version):
-        super().__init__("SourceMonitor", project, version)
+    def __init__(self, github_project_name, version, jira_project_name, local_path):
+        super().__init__("SourceMonitor", github_project_name, version, jira_project_name, local_path)
 
-    def extract(self, jira_project_name, github_name, local_path):
-        super(SourceMonitor, self).extract(jira_project_name, github_name, local_path)
+    def extract(self):
         if not os.name == "dt":
             # TODO add empty source_monitor_files and source_monitor
             return
@@ -420,11 +415,10 @@ class SourceMonitor(Extractor):
 
 
 class CK(Extractor):
-    def __init__(self, project, version):
-        super().__init__("CK", project, version)
+    def __init__(self, github_project_name, version, jira_project_name, local_path):
+        super().__init__("CK", github_project_name, version, jira_project_name, local_path)
 
     def extract(self, jira_project_name, github_name, local_path):
-        super(CK, self).extract(jira_project_name, github_name, local_path)
         out_dir = self._execute_command(self.runner, self.local_path)
         ck = self._process_metrics(out_dir)
 
@@ -456,11 +450,10 @@ class CK(Extractor):
 
 
 class Mood(Extractor):
-    def __init__(self, project, version):
-        super().__init__("MOOD", project, version)
+    def __init__(self, github_project_name, version, jira_project_name, local_path):
+        super().__init__("MOOD", github_project_name, version, jira_project_name, local_path)
 
-    def extract(self, jira_project_name, github_name, local_path):
-        super(Mood, self).extract(jira_project_name, github_name, local_path)
+    def extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         mood = self._process_metrics(out_dir)
 
@@ -482,9 +475,8 @@ class Mood(Extractor):
 
 
 class Halstead(Extractor):
-    def __init__(self, project, version):
-        super().__init__("HALSTEAD", project, version)
+    def __init__(self, github_project_name, version, jira_project_name, local_path):
+        super().__init__("Halstead", github_project_name, version, jira_project_name, local_path)
 
     def extract(self, jira_project_name, github_name, local_path):
-        super(Halstead, self).extract(jira_project_name, github_name, local_path)
         halstead = metrics_for_project(self.local_path)
