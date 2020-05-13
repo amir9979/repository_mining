@@ -46,7 +46,7 @@ organic_type_smells_list = [
 organic_method_smells_list = [
             'Feature Envy',
             'Long Method',
-            'LongParameter List',
+            'Long Parameter List',
             'Message Chain',
             'Dispersed Coupling',
             'Intensive Coupling',

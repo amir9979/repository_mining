@@ -1,7 +1,7 @@
 import os
-import pdb
 from abc import ABC, abstractmethod
 from pathlib import Path
+from collections import OrderedDict
 
 import pandas as pd
 
@@ -10,6 +10,7 @@ from config import Config
 
 class Data(ABC):
     def __init__(self, data_type, project, version, data):
+        self.data_type = data_type
         self.path = self._get_path(data_type, project, version)
         if data is None:
             self.data = self._read_data_to_df()
@@ -45,14 +46,14 @@ class Data(ABC):
 
 class CompositeData(Data):
     def __init__(self):
-        self.data_collection = []
+        self.data_collection = OrderedDict()
 
     def store(self):
-        for data in self.data_collection:
+        for data in self.data_collection.values():
             data.store()
 
     def add(self, data):
-        self.data_collection.append(data)
+        self.data_collection[data.data_type] = data
 
 
 class CheckstyleData(Data):
@@ -142,9 +143,11 @@ class MoodData(Data):
     def store(self):
         super().store()
 
+
 class HalsteadData(Data):
     def __init__(self, project, version, data=None):
         super().__init__("halstead", project, version, data)
 
     def store(self):
         super().store()
+

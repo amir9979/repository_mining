@@ -12,18 +12,28 @@ from caching import cached
 from config import Config
 from javadiff.javadiff.SourceFile import SourceFile
 from metrics.rsc import source_monitor_xml
-from metrics.version_metrics_data import Data, CheckstyleData, CompositeData, DesigniteDesignSmellsData, \
-    DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData, \
-    DesigniteTypeMetricsData, DesigniteMethodMetricsData, SourceMonitorFilesData, SourceMonitorData, CKData, MoodData, \
-    HalsteadData
+from metrics.version_metrics_data import (
+    Data,
+    CheckstyleData,
+    CompositeData,
+    DesigniteDesignSmellsData,
+    DesigniteImplementationSmellsData,
+    DesigniteOrganicTypeSmellsData,
+    DesigniteOrganicMethodSmellsData,
+    DesigniteTypeMetricsData,
+    DesigniteMethodMetricsData,
+    SourceMonitorFilesData,
+    SourceMonitorData,
+    CKData,
+    MoodData,
+    HalsteadData)
 from repo import Repo
 from .commented_code_detector import metrics_for_project
 from metrics.rsc.designite_smells import (
     design_smells_list,
     implementation_smells_list,
     organic_type_smells_list,
-    organic_method_smells_list
-)
+    organic_method_smells_list)
 
 
 class FileAnalyser:
