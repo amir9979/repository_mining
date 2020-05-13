@@ -12,7 +12,10 @@ from caching import cached
 from config import Config
 from javadiff.javadiff.SourceFile import SourceFile
 from metrics.rsc import source_monitor_xml
-from metrics.version_metrics_data import Data
+from metrics.version_metrics_data import Data, CheckstyleData, CompositeData, DesigniteDesignSmellsData, \
+    DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData, \
+    DesigniteTypeMetricsData, DesigniteMethodMetricsData, SourceMonitorFilesData, SourceMonitorData, CKData, MoodData, \
+    HalsteadData
 from repo import Repo
 from .commented_code_detector import metrics_for_project
 from metrics.rsc.designite_smells import (
@@ -145,7 +148,7 @@ class Extractor(ABC):
         repo = Repo(jira_project_name, github_project_name, local_path, version)
         self.local_path = repo.local_path
         self.file_analyser = FileAnalyser(self.local_path, self.project, self.version)
-        self.data: Data
+        self.data: Data = None
 
     @staticmethod
     def _get_runner(config, extractor_name):
@@ -168,6 +171,8 @@ class Checkstyle(Extractor):
         all_checks_xml = self._get_all_checks_xml(self.config)
         out_path_to_xml = self._execute_command(self.runner, all_checks_xml, self.local_path)
         checkstyle = self._process_checkstyle_data(out_path_to_xml)
+        self.data = CheckstyleData(self.project, self.version, data=checkstyle)
+        self.data.store()
 
     @staticmethod
     def _get_all_checks_xml(config):
@@ -249,6 +254,15 @@ class Designite(Extractor):
         type_metrics = self._extract_type_metrics(out_dir)
         method_metrics = self._extract_method_metrics(out_dir)
 
+        self.data = CompositeData()
+        self.data.add(DesigniteDesignSmellsData(self.project, self.version, data=design_code_smells))
+        self.data.add(DesigniteImplementationSmellsData(self.project, self.version, data=implementation_code_smells))
+        self.data.add(DesigniteOrganicTypeSmellsData(self.project, self.version, data=organic_type_code_smells))
+        self.data.add(DesigniteOrganicMethodSmellsData(self.project, self.version, data=organic_method_code_smells))
+        self.data.add(DesigniteTypeMetricsData(self.project, self.version, data=type_metrics))
+        self.data.add(DesigniteMethodMetricsData(self.project, self.version, data=method_metrics))
+        self.data.store()
+
     @staticmethod
     def _execute_command(designite_runner, local_path):
         out_dir = tempfile.mkdtemp()
@@ -305,7 +319,6 @@ class Designite(Extractor):
 
     def _extract_method_metrics(self, out_dir):
         path = os.path.join(out_dir, r"methodMetrics.csv")
-        # TODO Fix the MethodName together in designite
         keys_columns = ["Package Name", "Type Name", "MethodName"]
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns)
@@ -351,11 +364,15 @@ class SourceMonitor(Extractor):
 
     def extract(self):
         if not os.name == "dt":
-            # TODO add empty source_monitor_files and source_monitor
+            #TODO Create an EmptyData class
             return
 
         out_dir = self._execute_command(self.runner, self.local_path)
         source_monitor_files, source_monitor = self._process_metrics(out_dir)
+        self.data = CompositeData()
+        self.data.add(SourceMonitorFilesData(self.project, self.version, data=source_monitor_files))
+        self.data.add(SourceMonitorData(self.project, self.version, data=source_monitor))
+        self.data.store()
 
     @staticmethod
     def _execute_command(source_monitor_runner, local_path):
@@ -418,9 +435,11 @@ class CK(Extractor):
     def __init__(self, github_project_name, version, jira_project_name, local_path):
         super().__init__("CK", github_project_name, version, jira_project_name, local_path)
 
-    def extract(self, jira_project_name, github_name, local_path):
+    def extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         ck = self._process_metrics(out_dir)
+        self.data = CKData(self.project, self.version, data=ck)
+        self.data.store()
 
     @staticmethod
     def _execute_command(ck_runner, local_path):
@@ -456,6 +475,8 @@ class Mood(Extractor):
     def extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         mood = self._process_metrics(out_dir)
+        self.data = MoodData(self.project, self.version, data=mood)
+        self.data.store()
 
     @staticmethod
     def _execute_command(mood_runner, local_path):
@@ -464,6 +485,7 @@ class Mood(Extractor):
         Popen(command).communicate()
         return out_dir
 
+# TODO There is a but with the Mood id
     def _process_metrics(self, out_dir):
         with open(os.path.join(out_dir, "_metrics.json")) as file:
             mood = dict(map(lambda x: (
@@ -478,5 +500,7 @@ class Halstead(Extractor):
     def __init__(self, github_project_name, version, jira_project_name, local_path):
         super().__init__("Halstead", github_project_name, version, jira_project_name, local_path)
 
-    def extract(self, jira_project_name, github_name, local_path):
+    def extract(self):
         halstead = metrics_for_project(self.local_path)
+        self.data = HalsteadData(self.project, self.version, data=halstead)
+        self.data.store()
