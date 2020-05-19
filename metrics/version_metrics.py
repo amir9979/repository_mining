@@ -66,7 +66,7 @@ class FileAnalyser:
         methods_by_name = {}
         methods_by_path_and_name = {}
         for root, dirs, files in os.walk(local_path):
-            for name in filter(lambda x: x.endswith(".java"), files):
+            for name in filter(lambda y: "Test" not in y, filter(lambda x: x.endswith(".java"), files)):
                 with open(os.path.join(root, name), encoding='latin-1') as f:
                     contents = f.read()
                     file_name = os.path.join(root, name)[len(local_path) + 1:]
@@ -102,7 +102,7 @@ class FileAnalyser:
     @staticmethod
     def _extract_classes(sf, classes_paths):
         for m in sf.modified_names:
-            classes_paths[m.lower()] = sf.file_name.lower()
+            classes_paths[m.lower()] = sf.file_name
 
     @staticmethod
     def _extract_methods(sf, methods):

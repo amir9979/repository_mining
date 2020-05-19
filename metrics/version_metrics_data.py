@@ -79,14 +79,39 @@ class CompositeData(Data):
         return self
 
     def build(self, data, column_names):
-        dfs = []
+        files_dfs = []
+        classes_dfs = []
+        methods_dfs = []
         for data_type, data_values in data.items():
             df = self.data_collection\
                      .get(data_type)\
                      .build(data_values, column_names)
-            dfs.append(df.set_index('File'))
-        tmp = pd.concat(dfs, axis=1, join='inner')
-        pass
+            if "Method" in df.columns:
+                methods_dfs.append(df.drop(columns="Package"))
+            elif "Class" in df.columns:
+                classes_dfs.append(df.drop(columns="Package"))
+            else:
+                files_dfs.append(df)
+        classes_df = None
+        methods_df = None
+
+        if classes_dfs:
+            classes_df = classes_dfs.pop(0)
+            while classes_dfs:
+                classes_df = classes_df.merge(classes_dfs.pop(0), on=['File', 'Class'], how='outer')
+
+        if files_dfs:
+            classes_df = files_dfs.pop(0) if classes_df.empty else classes_df
+            while files_dfs:
+                classes_df = classes_df.merge(files_dfs.pop(0), on=['File'], how='outer')
+
+        if methods_dfs:
+            methods_df = methods_dfs.pop(0)
+            while methods_dfs:
+                method_df = methods_dfs.pop(0)
+                methods_df = methods_df.merge(method_df, on=['File', 'Class', 'Method'], how='outer')
+
+        return classes_df, methods_df
 
 
 class CheckstyleData(Data):
@@ -103,7 +128,7 @@ class CheckstyleData(Data):
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
-        methods = pd.Series(list(map(lambda x: x[1].split('.')[-1], methods_id))).values
+        methods = pd.Series(list(map(lambda x: x[1].split('.')[-1].split('(')[0], methods_id))).values
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
         df.insert(0, 'Class',  classes)
@@ -290,7 +315,7 @@ class CKData(Data):
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
-        methods = pd.Series(list(map(lambda x: x[1].split('.')[-1], methods_id))).values
+        methods = pd.Series(list(map(lambda x: x[1].split('.')[-1].split('(')[0], methods_id))).values
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
         df.insert(0, 'Class',  classes)
@@ -351,7 +376,7 @@ class DataBuilder:
         data = self.metrics.groupby('data_type')['data_column'] \
             .apply(lambda x: x.values.tolist()).to_dict()
         column_names = dict(zip(self.metrics['data_column'], self.metrics['data_value']))
-        self.data_collection.build(data, column_names)
+        df = self.data_collection.build(data, column_names)
 
     def __repr__(self):
         self.metrics = self.metrics.drop_duplicates().reset_index(drop=True)

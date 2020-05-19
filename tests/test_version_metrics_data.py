@@ -16,6 +16,7 @@ class TestDataBuilder:
     def add_multiple_metrics(db: DataBuilder) -> DataBuilder:
         # checkstyle
         db.append(DataName.ThrowsCount)
+        db.append(DataName.SwissArmyKnife)
         # ck
         db.append(DataName.WMC_CK)
         # designite design
