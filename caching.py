@@ -45,8 +45,8 @@ def cached(cache_name, cache_dir=REPOSITORY_CACHING_DIR):
             try:
                 with gzip.GzipFile(gzip_cachefile, 'wb') as cachehandle:
                     pickle.dump(res, cachehandle, pickle.HIGHEST_PROTOCOL)
-            except:
-                pass
+            except Exception as e:
+                raise e
             return res
 
         return wrapped

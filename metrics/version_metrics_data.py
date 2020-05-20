@@ -360,7 +360,7 @@ class HalsteadData(Data):
 
 
 class DataBuilder:
-    def __init__(self, project, version):
+    def __init__(self, project, version, bugged=False):
         self.data_collection = CompositeData().add_all(project, version)
         self.metrics = pd.DataFrame(columns=['data_value', 'data_type', 'data_column'])
 
@@ -377,6 +377,7 @@ class DataBuilder:
             .apply(lambda x: x.values.tolist()).to_dict()
         column_names = dict(zip(self.metrics['data_column'], self.metrics['data_value']))
         df = self.data_collection.build(data, column_names)
+        return df
 
     def __repr__(self):
         self.metrics = self.metrics.drop_duplicates().reset_index(drop=True)

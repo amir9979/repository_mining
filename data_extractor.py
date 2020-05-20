@@ -1,63 +1,156 @@
-import csv
-import json
 import os
+import re
 from datetime import datetime
+from functools import reduce
+from itertools import product
 
 import git
+import pandas as pd
+import numpy as np
 
 from commit import Commit
+from config import Config
 from fixing_issues import VersionInfo
 from issues import get_jira_issues
+from version_selector import ConfigurationSelectVersion, BinSelectVersion, QuadraticSelectVersion
 from versions import Version
 from caching import REPOSITORY_DATA_DIR, assert_dir_exists
 from repo import Repo
 
 
 class DataExtractor(object):
-    VERSIONS = os.path.join(REPOSITORY_DATA_DIR, r"apache_versions")
-    VERSIONS_INFOS = os.path.join(REPOSITORY_DATA_DIR, r"apache_versions_info")
-    COMMITS = os.path.join(REPOSITORY_DATA_DIR, r"commits_info")
-    COMMITED_FILES = os.path.join(REPOSITORY_DATA_DIR, r"committed_files")
-    FILES = os.path.join(REPOSITORY_DATA_DIR, r"files_info")
-    CONFIGRATION_PATH = os.path.join(REPOSITORY_DATA_DIR, r"configurations")
-    assert_dir_exists(COMMITED_FILES)
-    assert_dir_exists(COMMITS)
-    assert_dir_exists(FILES)
-    assert_dir_exists(CONFIGRATION_PATH)
-    assert_dir_exists(VERSIONS_INFOS)
-    CONFIGRATION = r"""workingDir=C:\amirelm\projects\{WORKING_DIR}
-    git={GIT_PATH}
-    issue_tracker_product_name={PRODUCT_NAME}
-    issue_tracker_url=https://issues.apache.org/jira
-    issue_tracker=jira
-    vers={VERSIONS}
-    """
-    assert_dir_exists(VERSIONS)
 
-    def __init__(self, git_path, jira_project_name, jira_url=r"http://issues.apache.org/jira"):
-        self.git_path = git_path
-        self.jira_url = jira_url
-        self.jira_project_name = jira_project_name
-        self.commits = []
-        self.versions = self.get_repo_versions()
+    def __init__(self, project):
+        self.git_path = project.path()
+        self.github_name = project.github()
+        self.jira_url = Config().config['REPO']['JiraURL']
+        self.jira_project_name = project.jira()
+        self.repo = Repo(self.jira_project_name, self.github_name, local_path=self.git_path)
 
-    @staticmethod
-    def version_files(key, new_tag, prev_tag):
-        return map(lambda diff: diff.b_path, new_tag.commit.tree.diff(prev_tag.commit.tree))
+        self.commits = self._get_repo_commits()
+        self.versions = self._get_repo_versions()
+        self.bugged_files_between_versions = self._get_bugged_files_between_versions()
 
-    def get_repo_versions(self):
+    def _get_repo_commits(self):
         repo = git.Repo(self.git_path)
-        return map(lambda tag: Version(tag[0], DataExtractor.version_files(tag[0].name, tag[0], tag[1])),
-                   zip(repo.tags[1:], repo.tags))
+        issues = list(map(lambda x: x.key.strip(),
+                     filter(lambda issue: issue.type == 'bug', get_jira_issues(self.jira_project_name, self.jira_url))))
+        commits = DataExtractor._commits_and_issues(repo, issues)
+        return commits
+
+    def _get_repo_versions(self):
+        repo = git.Repo(self.git_path)
+        tags = zip(list(repo.tags)[1:], list(repo.tags))
+        versions = list(map(lambda tag: Version(tag[0], DataExtractor._version_files(tag[0], tag[1])),
+                            tags))
+        return versions
+
+    def _get_bugged_files_between_versions(self):
+        tags_commits = self._get_commits_between_versions()
+        tags = []
+        for tag in tags_commits:
+            if tags_commits[tag]:
+                tags.append(VersionInfo(tag, tags_commits[tag]))
+        return sorted(tags, key=lambda x: x.version._commit._commit_date)
+
+    def extract(self):
+        tags = self.bugged_files_between_versions
+        self._store_commited_files()
+        self._store_commits()
+        self._store_versions(tags)
+        self._store_versions_infos(tags)
+        self._store_files(tags)
+
+    def _store_commited_files(self):
+        columns = ["file_name", "commit_id", "bug_id", "commit_date"]
+        commited_files = list(map(lambda c:
+                                  list(map(lambda file_name:
+                                           [file_name, c._commit_id,
+                                            c._bug_id, c._commit_date],
+                                    c._files)), self.commits))
+
+        commited_files = reduce(list.__add__, commited_files, [])
+        df = pd.DataFrame(commited_files, columns=columns)
+        commited_files_dir = self._get_caching_path("CommittedFiles")
+        path = os.path.join(commited_files_dir, self.jira_project_name + ".csv")
+        df.to_csv(path, index=False)
+
+    def _store_commits(self):
+        columns = ["commit_id", "bug_id", "commit_date"]
+        commits = [map(lambda c: [c._commit_id, c._bug_id, c._commit_date], self.commits)]
+        df = pd.DataFrame(commits, columns=columns)
+        commits_dir = self._get_caching_path("Commits")
+        path = os.path.join(commits_dir, self.jira_project_name + ".csv")
+        df.to_csv(path, index=False)
+
+    def _store_versions(self, tags):
+        columns = ["version_name", "#commited_files_in_version", "#bugged_files_in_version", "bugged_ratio",
+                   "#commits", "#bugged_commits", "#ratio_bugged_commits", "version_date"]
+        df = pd.DataFrame(columns=columns)
+        for tag in tags:
+            version = {"version_name": tag.version._name,
+                       "#commited_files_in_version": len(tag.version_files),
+                       "#bugged_files_in_version": len(tag.bugged_files),
+                       "bugged_ratio": tag.bugged_ratio,
+                       "#commits": tag.num_commits,
+                       "#bugged_commits": tag.num_bugged_commits,
+                       "#ratio_bugged_commits": tag.ratio_bugged_commits,
+                       "version_date": datetime.fromtimestamp(tag.version._commit._commit_date).strftime("%Y-%m-%d")}
+            df = df.append(version, ignore_index=True)
+
+        versions_dir = self._get_caching_path("Versions")
+        path = os.path.join(versions_dir, self.jira_project_name + ".csv")
+        df.to_csv(path, index=False)
+
+    def _store_versions_infos(self, tags):
+        versions_infos_dir = os.path.join(self._get_caching_path("VersionsInfos"), self.jira_project_name)
+        Config.assert_dir_exists(versions_infos_dir)
+        for tag in tags:
+            df = pd.DataFrame(tag.commits_shas, columns=["commit_id", "is_buggy"])
+            path = os.path.join(versions_infos_dir, tag.version._name + ".csv")
+            df.to_csv(path, index=False)
+
+    def _store_files(self, tags):
+        files_dir = os.path.join(self._get_caching_path("Files"), self.jira_project_name)
+        Config.assert_dir_exists(files_dir)
+        for tag in tags:
+            files = {file_name: False for file_name in tag.version_files}
+            files.update({file_name: True for file_name in tag.bugged_files})
+            df = pd.DataFrame(files.items(), columns=["file_name", "is_buggy"])
+            path = os.path.join(files_dir, tag.version._name + ".csv")
+            df.to_csv(path, index=False)
+
+    def _get_commits_between_versions(self):
+        sorted_versions = sorted(self.versions, key=lambda version: version._commit._commit_date)
+        sorted_commits_and_versions = sorted(self.versions + self.commits,
+                                             key=lambda version: version._commit._commit_date if hasattr(version,
+                                                                                                         "_commit") else version._commit_date)
+        versions_indices = list(map(lambda version: (version, sorted_commits_and_versions.index(version)), sorted_versions))
+        selected_versions = list(filter(lambda vers: vers[0][1] < vers[1][1], zip(versions_indices, versions_indices[1:])))
+        return dict(
+            map(lambda vers: (vers[0][0], sorted_commits_and_versions[vers[0][1] + 1: vers[1][1]]), selected_versions))
+
+    def _get_caching_path(self, config_name):
+        config = Config().config
+        file_name = config['DATA_EXTRACTION'][config_name]
+        repository_data = config["CACHING"]["RepositoryData"]
+        path = os.path.join(repository_data, file_name, self.github_name)
+        Config.assert_dir_exists(path)
+        return path
 
     @staticmethod
-    def clean_commit_message(commit_message):
+    def _version_files(new_tag, prev_tag):
+        return list(map(lambda diff: diff.b_path, new_tag.commit.tree.diff(prev_tag.commit.tree)))
+
+
+    @staticmethod
+    def _clean_commit_message(commit_message):
         if "git-svn-id" in commit_message:
             return commit_message.split("git-svn-id")[0]
         return commit_message
 
     @staticmethod
-    def commits_and_issues(repo, issues):
+    def _commits_and_issues(repo, issues):
         def replace(chars_to_replace, replacement, s):
             temp_s = s
             for c in chars_to_replace:
@@ -74,123 +167,28 @@ class DataExtractor(object):
             return "0"
 
         commits = []
-        issues_ids = map(lambda issue: issue.split("-")[1], issues)
+        issues_ids = list(map(lambda issue: issue.split("-")[1], issues))
         for git_commit in repo.iter_commits():
-            commit_text = DataExtractor.clean_commit_message(git_commit.summary)
+            try:
+                commit_text = DataExtractor._clean_commit_message(git_commit.summary)
+            except:
+                continue
             commits.append(
                 Commit.init_commit_by_git_commit(git_commit, get_bug_num_from_comit_text(commit_text, issues_ids)))
         return commits
 
-    def get_commits_between_versions(self):
-        sorted_versions = sorted(self.versions, key=lambda version: version._commit._commit_date)
-        sorted_commits_and_versions = sorted(self.versions + self.commits,
-                                             key=lambda version: version._commit._commit_date if hasattr(version,
-                                                                                                         "_commit") else version._commit_date)
-        versions_indices = map(lambda version: (version, sorted_commits_and_versions.index(version)), sorted_versions)
-        selected_versions = filter(lambda vers: vers[0][1] < vers[1][1], zip(versions_indices, versions_indices[1:]))
-        return dict(
-            map(lambda vers: (vers[0][0], sorted_commits_and_versions[vers[0][1] + 1: vers[1][1]]), selected_versions))
-
-    # @cached(r"apache_commits_data")
-    def get_data(self):
-        repo = git.Repo(self.git_path)
-        issues = map(lambda x: x.key.strip(),
-                     filter(lambda issue: issue.type == 'bug', get_jira_issues(self.jira_project_name, self.jira_url)))
-        commits = DataExtractor.commits_and_issues(repo, issues)
-        return commits
-
-    def get_bugged_files_between_versions(self):
-        self.commits = self.get_data()
-        tags_commits = self.get_commits_between_versions()
-        tags = []
-        for tag in tags_commits:
-            if tags_commits[tag]:
-                tags.append(VersionInfo(tag, tags_commits[tag]))
-        return sorted(tags, key=lambda x: x.version._commit._commit_date)
-
-    def extract(self):
-        tags = self.get_bugged_files_between_versions()
-        with open(os.path.join(DataExtractor.COMMITED_FILES, self.jira_project_name) + ".csv", "wb") as f:
-            writer = csv.writer(f)
-            writer.writerows([["file_name", "commit_id", "bug_id", "commit_date"]] +
-                             reduce(list.__add__, map(lambda c: map(lambda file_name: [file_name, c._commit_id, c._bug_id, c._commit_date], c._files), self.commits), []))
-        with open(os.path.join(DataExtractor.COMMITS, self.jira_project_name) + ".csv", "wb") as f:
-            writer = csv.writer(f)
-            writer.writerows([["commit_id", "bug_id", "commit_date"]] + map(lambda c: [c._commit_id, c._bug_id, c._commit_date], self.commits))
-        with open(os.path.join(DataExtractor.VERSIONS, self.jira_project_name) + ".csv", "wb") as f:
-            writer = csv.writer(f)
-            writer.writerow(["version_name", "#commited files in version", "#bugged files in version", "bugged_ratio",
-                             "#commits", "#bugged_commits", "#ratio_bugged_commits", "version_date"])
-            for tag in tags:
-                writer.writerow([tag.version._name, len(tag.version_files), len(tag.bugged_files), tag.bugged_ratio, tag.num_commits,
-                                 tag.num_bugged_commits, tag.ratio_bugged_commits,
-                                 datetime.fromtimestamp(tag.version._commit._commit_date).strftime("%Y-%m-%d")])
-        for tag in tags:
-            with open(os.path.join(assert_dir_exists(os.path.join(DataExtractor.VERSIONS_INFOS, self.jira_project_name)), tag.version._name) + ".csv", "wb") as f:
-                writer = csv.writer(f)
-                writer.writerows([["commit_id", "is_buggy"]] + tag.commits_shas)
-        for tag in tags:
-            with open(os.path.join(assert_dir_exists(os.path.join(DataExtractor.FILES, self.jira_project_name)), tag.version._name) + ".csv", "wb") as f:
-                writer = csv.writer(f)
-                files = {file_name: False for file_name in tag.version_files}
-                files.update({file_name: True for file_name in tag.bugged_files})
-                writer.writerows([["file_name", "is_buggy"]] + files.items())
-
-    def get_versions_by_type(self):
-        import re
-        all_versions = self.versions
-        majors = []
-        minors = []
-        micros = []
-        SEPERATORS = ['\.', '\-', '\_']
-        template_base = [['([0-9])', '([0-9])([0-9])', '([0-9])$'], ['([0-9])', '([0-9])([0-9])$'],
-                         ['([0-9])', '([0-9])', '([0-9])([0-9])$'], ['([0-9])([0-9])', '([0-9])$'],
-                         ['([0-9])', '([0-9])', '([0-9])$'], ['([0-9])', '([0-9])$']]
-        templates = []
-        for base in template_base:
-            templates.extend(map(lambda sep: sep.join(base), SEPERATORS))
-        templates.extend(['([0-9])([0-9])([0-9])$', '([0-9])([0-9])$'])
-        for version in all_versions:
-            for template in templates:
-                values = re.findall(template, version._name)
-                if values:
-                    values = map(int, values[0])
-                    if len(values) == 4:
-                        micros.append(version)
-                        major, minor1, minor2, micro = values
-                        minor = 10 * minor1 + minor2
-                    elif len(values) == 3:
-                        micros.append(version)
-                        major, minor, micro = values
-                    else:
-                        major, minor = values
-                        micro = 0
-                    if micro == 0:
-                        minors.append(version)
-                    if minor == 0 and micro == 0:
-                        majors.append(version)
-                    break
-        return {"all": all_versions, "majors": majors, "minors": minors, "micros": micros}.items()
-
-    def choose_versions(self, repo=None, versions_num=5):
-        from itertools import product
+    def choose_versions(self, repo=None, version_num=5, configurations=False, bin=True):
+        tags = self.bugged_files_between_versions
         if repo is None:
-            repo = Repo(self.jira_project_name, self.jira_project_name, self.git_path)
-        for start, stop, step, versions in product([1, 5, 10], [100], [5, 10, 20],
-                                                   self.get_versions_by_type()):
-            bins = map(lambda x: list(), range(start, stop, step))
-            tags = self.get_bugged_files_between_versions()
-            for tag in tags:
-                bugged_flies = len(filter(lambda x: "java" in x, tag.bugged_files))
-                java_files = len(filter(lambda x: "java" in x, tag.version_files))
-                if bugged_flies * java_files == 0:
-                    continue
-                bugged_ratio = 1.0 * bugged_flies / java_files
-                bins[int(((bugged_ratio * 100) - start) / step) - 1].append(tag.version._name)
-            for ind, bin in enumerate(bins):
-                if len(bin) < versions_num:
-                    continue
-                id = "{0}_{1}_{2}_{3}_{4}_{5}".format(repo.jira_key, start, stop, step, versions[0], ind)
-                with open(os.path.join(DataExtractor.CONFIGRATION_PATH, id), "wb") as f:
-                    f.write(DataExtractor.CONFIGRATION.format(WORKING_DIR=id, PRODUCT_NAME=repo.jira_key, GIT_PATH=repo.local_path,
-                                                VERSIONS=repr(tuple(bin)).replace("'", "")))
+            repo = self.repo
+
+        selector = None
+        if configurations:
+            selector = ConfigurationSelectVersion(repo, tags, self.versions, version_num)
+        else:
+            if bin:
+                selector = BinSelectVersion(repo, tags, self.versions, version_num)
+            else:
+                selector = QuadraticSelectVersion(repo, tags, self.versions, version_num)
+
+        selector.select()

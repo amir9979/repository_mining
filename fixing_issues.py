@@ -1,10 +1,12 @@
+from functools import reduce
+
 
 class VersionInfo(object):
     def __init__(self, version, commits):
         self.version = version
         self.commits_shas = list(map(lambda commit: (commit._commit_id, commit._bug_id != "0"), commits))
         self.num_commits = len(commits)
-        bugged_commits = filter(lambda commit: commit._bug_id != "0", commits)
+        bugged_commits = list(filter(lambda commit: commit._bug_id != "0", commits))
         self.num_bugged_commits = len(bugged_commits)
         self.version_files = set(VersionInfo.filter_java_files(self.version.files))
         self.bugged_files = self.version_files.intersection(self.get_commits_files(bugged_commits))

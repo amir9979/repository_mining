@@ -168,6 +168,17 @@ class Extractor(ABC):
         pass
 
 
+class Bugged(Extractor):
+
+    def __init__(self, github_project_name, version, jira_project_name, local_path):
+        super(Bugged, self).__init__("Bugged", github_project_name, version, jira_project_name, local_path)
+
+    def extract(self, jira_project_name, github_name, local_path):
+
+        self._process_bugged_data(path)
+        pass
+
+
 class Checkstyle(Extractor):
     def __init__(self, github_project_name, version, jira_project_name, local_path):
         super(Checkstyle, self).__init__("Checkstyle", github_project_name, version, jira_project_name, local_path)
@@ -261,12 +272,12 @@ class Designite(Extractor):
 
         self.data = CompositeData()
         self.data \
-            .add(DesigniteDesignSmellsData(self.project, self.version, data=design_code_smells))\
-            .add(DesigniteImplementationSmellsData(self.project, self.version, data=implementation_code_smells))\
-            .add(DesigniteOrganicTypeSmellsData(self.project, self.version, data=organic_type_code_smells))\
-            .add(DesigniteOrganicMethodSmellsData(self.project, self.version, data=organic_method_code_smells))\
-            .add(DesigniteTypeMetricsData(self.project, self.version, data=type_metrics))\
-            .add(DesigniteMethodMetricsData(self.project, self.version, data=method_metrics))\
+            .add(DesigniteDesignSmellsData(self.project, self.version, data=design_code_smells)) \
+            .add(DesigniteImplementationSmellsData(self.project, self.version, data=implementation_code_smells)) \
+            .add(DesigniteOrganicTypeSmellsData(self.project, self.version, data=organic_type_code_smells)) \
+            .add(DesigniteOrganicMethodSmellsData(self.project, self.version, data=organic_method_code_smells)) \
+            .add(DesigniteTypeMetricsData(self.project, self.version, data=type_metrics)) \
+            .add(DesigniteMethodMetricsData(self.project, self.version, data=method_metrics)) \
             .store()
 
     @staticmethod
@@ -369,7 +380,8 @@ class Designite(Extractor):
 
 class SourceMonitor(Extractor):
     def __init__(self, github_project_name, version, jira_project_name, local_path):
-        super(SourceMonitor, self).__init__("SourceMonitor", github_project_name, version, jira_project_name, local_path)
+        super(SourceMonitor, self).__init__("SourceMonitor", github_project_name, version, jira_project_name,
+                                            local_path)
 
     def extract(self):
         if not os.name == "dt":
@@ -380,8 +392,8 @@ class SourceMonitor(Extractor):
         source_monitor_files, source_monitor = self._process_metrics(out_dir)
         self.data = CompositeData()
         self.data \
-            .add(SourceMonitorFilesData(self.project, self.version, data=source_monitor_files))\
-            .add(SourceMonitorData(self.project, self.version, data=source_monitor))\
+            .add(SourceMonitorFilesData(self.project, self.version, data=source_monitor_files)) \
+            .add(SourceMonitorData(self.project, self.version, data=source_monitor)) \
             .store()
 
     @staticmethod
@@ -495,7 +507,7 @@ class Mood(Extractor):
         Popen(command).communicate()
         return out_dir
 
-# TODO There is a but with the Mood id
+    # TODO There is a but with the Mood id
     def _process_metrics(self, out_dir):
         with open(os.path.join(out_dir, "_metrics.json")) as file:
             mood = dict(map(lambda x: (
