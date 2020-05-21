@@ -126,6 +126,7 @@ class QuadraticSelectVersion(AbstractSelectVersions):
         self.min_num_commits = min_num_commits
 
     def _select_versions(self, repo, versions_by_type, tags):
+
         def cond1(x, ratio): return x.bugged_ratio <= ratio
         def cond2(x, ratio): return x.bugged_ratio >= ratio
         def cond3(x, num_commits): return x.num_commits >= num_commits
@@ -147,6 +148,10 @@ class QuadraticSelectVersion(AbstractSelectVersions):
         if (not self.strict) or (self.strict and len(filtered_tags) == self.version_num):
             self.versions_selected = list(map(lambda x: x.version._name, filtered_tags))
             return
+
+        # The #commits formula is f(x) = 100*x, f(x) > 0 and x > 0
+        # The quadratic formula is:
+        # f(x) = -100(x-0.2)^2+1, 0 <= f(x) <= 1 and 0.10 <= x <= 0.30
 
         min_num_commits = 100.00 * float(min(filtered_tags, key=lambda x: x.num_commits).num_commits)
         max_num_commits = 100.00 * float(max(filtered_tags, key=lambda x: x.num_commits).num_commits)
