@@ -1,12 +1,9 @@
 import os
-import re
 from datetime import datetime
 from functools import reduce
-from itertools import product
 
 import git
 import pandas as pd
-import numpy as np
 
 from commit import Commit
 from config import Config
@@ -14,7 +11,7 @@ from fixing_issues import VersionInfo
 from issues import get_jira_issues
 from version_selector import ConfigurationSelectVersion, BinSelectVersion, QuadraticSelectVersion
 from versions import Version
-from caching import REPOSITORY_DATA_DIR, assert_dir_exists
+from caching import REPOSITORY_DATA_DIR, assert_dir_exists, cached
 from repo import Repo
 
 
@@ -26,20 +23,25 @@ class DataExtractor(object):
         self.jira_url = Config().config['REPO']['JiraURL']
         self.jira_project_name = project.jira()
         self.repo = Repo(self.jira_project_name, self.github_name, local_path=self.git_path)
+        self.git_repo = git.Repo(self.git_path)
 
-        self.commits = self._get_repo_commits()
-        self.versions = self._get_repo_versions()
+        get_repo_commits = cached(self.jira_project_name)(self._get_repo_commits)
+        get_repo_versions = cached(self.jira_project_name)(self._get_repo_versions)
+        self.commits = get_repo_commits("commits", self.git_repo, self.jira_project_name, self.jira_url)
+        self.versions = get_repo_versions("versions", self.git_repo)
+
         self.bugged_files_between_versions = self._get_bugged_files_between_versions()
+        pass
 
-    def _get_repo_commits(self):
-        repo = git.Repo(self.git_path)
+    @staticmethod
+    def _get_repo_commits(key, repo, jira_project_name, jira_url):
         issues = list(map(lambda x: x.key.strip(),
-                     filter(lambda issue: issue.type == 'bug', get_jira_issues(self.jira_project_name, self.jira_url))))
+                     filter(lambda issue: issue.type == 'bug', get_jira_issues(jira_project_name, jira_url))))
         commits = DataExtractor._commits_and_issues(repo, issues)
         return commits
 
-    def _get_repo_versions(self):
-        repo = git.Repo(self.git_path)
+    @staticmethod
+    def _get_repo_versions(key, repo):
         tags = zip(list(repo.tags)[1:], list(repo.tags))
         versions = list(map(lambda tag: Version(tag[0], DataExtractor._version_files(tag[0], tag[1])),
                             tags))
@@ -77,7 +79,7 @@ class DataExtractor(object):
 
     def _store_commits(self):
         columns = ["commit_id", "bug_id", "commit_date"]
-        commits = [map(lambda c: [c._commit_id, c._bug_id, c._commit_date], self.commits)]
+        commits = list(map(lambda c: [c._commit_id, c._bug_id, c._commit_date], self.commits))
         df = pd.DataFrame(commits, columns=columns)
         commits_dir = self._get_caching_path("Commits")
         path = os.path.join(commits_dir, self.jira_project_name + ".csv")
@@ -177,18 +179,41 @@ class DataExtractor(object):
                 Commit.init_commit_by_git_commit(git_commit, get_bug_num_from_comit_text(commit_text, issues_ids)))
         return commits
 
-    def choose_versions(self, repo=None, version_num=5, configurations=False, bin=True):
+    def choose_versions(self, repo=None, version_num=5, configurations=False,
+                        algorithm="bin", version_type="all", strict="true"):
         tags = self.bugged_files_between_versions
         if repo is None:
             repo = self.repo
 
-        selector = None
         if configurations:
-            selector = ConfigurationSelectVersion(repo, tags, self.versions, version_num)
+            selector = ConfigurationSelectVersion(repo, tags, self.versions, version_num, version_type)
         else:
-            if bin:
-                selector = BinSelectVersion(repo, tags, self.versions, version_num)
+            if algorithm == "bin":
+                selector = BinSelectVersion(repo, tags, self.versions, version_num, version_type, strict=strict)
+            elif algorithm == "quadratic":
+                selector = QuadraticSelectVersion(repo, tags, self.versions, version_num, version_type, strict=strict)
             else:
-                selector = QuadraticSelectVersion(repo, tags, self.versions, version_num)
+                raise Exception("Error: you picked the wrong algorithm")
 
         selector.select()
+
+    @staticmethod
+    def get_stored_files_bugged(github_name, jira_project_name, version):
+        config = Config().config
+        file_name = config['DATA_EXTRACTION']["Files"]
+        repository_data = config["CACHING"]["RepositoryData"]
+        base_path = os.path.join(repository_data, file_name, github_name)
+        files_dir = os.path.join(base_path, jira_project_name)
+        path = os.path.join(files_dir, version + ".csv")
+        if not os.path.exists(path):
+            return []
+        return pd.read_csv(path).to_dict('records')
+
+    def get_files_bugged(self, version):
+        versions = list(filter(lambda tag: tag.version._name == version, self.bugged_files_between_versions))
+        if (not versions):
+            raise Exception("Error: version not found")
+        tag = versions[0]
+        files = {file_name: False for file_name in tag.version_files}
+        files.update({file_name: True for file_name in tag.bugged_files})
+        return files

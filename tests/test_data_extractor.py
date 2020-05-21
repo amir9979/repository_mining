@@ -3,6 +3,7 @@ import os
 import pickle
 
 from pytest_steps import test_steps
+import git
 
 from config import Config
 from data_extractor import DataExtractor
@@ -38,11 +39,12 @@ class TestDataExtractor:
         path = extractor.git_path
         assert os.path.exists(path) and os.listdir(path)
         yield
-        extractor.commits = extractor._get_repo_commits()
+        repo = git.Repo(extractor.git_path)
+        extractor.commits = extractor._get_repo_commits("", repo, extractor.jira_project_name, extractor.jira_url)
         assert extractor.commits[0]._commit_date == 1587403411.0
         yield
-        extractor.versions = extractor._get_repo_versions()
-        assert next(extractor.versions[0].committed_files) == "RELEASE-NOTES.txt"
+        extractor.versions = extractor._get_repo_versions("", repo)
+        assert extractor.versions[0].committed_files[0] == "RELEASE-NOTES.txt"
         yield
         extractor.bugged_files_between_versions = extractor._get_bugged_files_between_versions()
         assert extractor.bugged_files_between_versions
@@ -53,5 +55,29 @@ class TestDataExtractor:
         extractor = DataExtractor(project)
         extractor.extract()
 
-    def test_choose_versions(self):
-        assert False
+    def test_bin_choose_versions(self):
+        project = ProjectName.CommonsLang
+        extractor = DataExtractor(project)
+        extractor.choose_versions()
+        assert True
+
+    def test_quadratic_choose_versions(self):
+        project = ProjectName.CommonsLang
+        extractor = DataExtractor(project)
+        extractor.choose_versions(algorithm="quadratic", strict="true", version_type="all")
+        assert True
+
+    def test_get_stored_files_bugged(self):
+        project = ProjectName.CommonsLang
+        version = Config().config['TEST_0']['VersionName']
+        files = DataExtractor.get_stored_files_bugged(project.github(), project.jira(), version)
+        assert files
+
+    def test_bugged_files_between_versions(self):
+        project = ProjectName.CommonsLang
+        extractor = DataExtractor(project)
+        version = Config().config['TEST_0']['VersionName']
+        files = extractor.get_files_bugged(version)
+        assert files
+
+

@@ -10,35 +10,38 @@ from repo import Repo
 
 
 class AbstractSelectVersions(ABC):
-    def __init__(self, repo, tags, versions, version_num=5, type="all"):
+    def __init__(self, repo, tags, versions, version_num, version_type, strict=False):
         self.repo = repo
         self.tags = tags
         self.versions = versions
         self.version_num = version_num
         self.versions_by_type: list
-        self.versions_selected: list
-        self.type = all
+        self.versions_selected: list = []
+        self.type = version_type
+        self.strict = strict
 
     def select(self):
         self._get_versions_by_type(self.versions)
+        self.tags = list(filter(lambda x: x.version in self.versions_by_type, self.tags))
         self._select_versions(self.repo, self.versions_by_type, self.tags)
         self._store_versions(self.repo)
+        return self.versions_selected
 
     def _get_versions_by_type(self, versions):
-        majors, minors, micros = []
+        majors, minors, micros = [], [], []
         separators = ['\.', '\-', '\_']
         template_base = [['([0-9])', '([0-9])([0-9])', '([0-9])$'], ['([0-9])', '([0-9])([0-9])$'],
                          ['([0-9])', '([0-9])', '([0-9])([0-9])$'], ['([0-9])([0-9])', '([0-9])$'],
                          ['([0-9])', '([0-9])', '([0-9])$'], ['([0-9])', '([0-9])$']]
         templates = []
         for base in template_base:
-            templates.extend(map(lambda sep: sep.join(base), separators))
+            templates.extend(list(map(lambda sep: sep.join(base), separators)))
         templates.extend(['([0-9])([0-9])([0-9])$', '([0-9])([0-9])$'])
         for version in versions:
             for template in templates:
                 values = re.findall(template, version._name)
                 if values:
-                    values = map(int, values[0])
+                    values = list(map(int, values[0]))
                     if len(values) == 4:
                         micros.append(version)
                         major, minor1, minor2, micro = values
@@ -76,32 +79,36 @@ class AbstractSelectVersions(ABC):
 
 
 class BinSelectVersion(AbstractSelectVersions):
-    def __init__(self, repo, tags, versions, version_num=5):
-        super().__init__()
+    def __init__(self, repo, tags, versions, version_num, version_type, strict, start=[5], stop=[100], step=[10]):
+        super().__init__(repo, tags, versions, version_num, version_type, strict)
+        self.start = start
+        self.stop = stop
+        self.step = step
+        self.selected_versions = list()
 
     def _select_versions(self, repo, versions_by_type, tags):
-        versions = []
-        for start, stop, step, versions in product([1, 5, 10], [100], [5, 10, 20],
-                                                   self._get_versions_by_type()):
-            bins = map(lambda x: list(), range(start, stop, step))
-            tags = self._get_bugged_files_between_versions()
+        for start, stop, step in product(self.start, self.stop, self.step):
+            bins = list(map(lambda x: list(), range(start, stop, step)))
             for tag in tags:
-                bugged_flies = len(list(filter(lambda x: "java" in x, tag.bugged_files)))
+                bugged_files = len(list(filter(lambda x: "java" in x, tag.bugged_files)))
                 java_files = len(list(filter(lambda x: "java" in x, tag.version_files)))
-                if bugged_flies * java_files == 0:
+                if bugged_files * java_files == 0:
                     continue
-                bugged_ratio = 1.0 * bugged_flies / java_files
+                bugged_ratio = 1.0 * bugged_files / java_files
                 bins[int(((bugged_ratio * 100) - start) / step) - 1].append(tag.version._name)
-            for ind, bin in enumerate(bins):
-                if len(bin) < self.versions_num:
+            for ind, bin_ in enumerate(bins):
+                if len(bin_) < self.version_num:
                     continue
-                versions.append(repr(tuple(bin)).replace("'", ""))
-
-        self.selected_versions = versions
+                selected_versions = list(bin_)
+                configuration = {'start': start, 'step': step, 'stop': stop, 'versions': selected_versions}
+                self.selected_versions.append(configuration)
 
     def _store_versions(self, repo: Repo):
-        values = [self.selected_versions]
-        df = pd.DataFrame(values, columns=["versions"])
+        configuration = self.selected_versions[0]
+        values = list(product([configuration['start']], [configuration['step']],
+                              [configuration['stop']], configuration['versions']))
+        columns = ["start", "step", "stop", "version"]
+        df = pd.DataFrame(values, columns=columns)
         config = Config().config
         repository_data = config["CACHING"]["RepositoryData"]
         selected_versions = config["DATA_EXTRACTION"]["SelectedVersions"]
@@ -112,20 +119,68 @@ class BinSelectVersion(AbstractSelectVersions):
 
 
 class QuadraticSelectVersion(AbstractSelectVersions):
+    def __init__(self, repo, tags, versions, version_num, version_type, strict, min_ratio=0.10, max_ratio=0.30, min_num_commits=100):
+        super().__init__(repo, tags, versions, version_num, version_type, strict)
+        self.min_ratio = min_ratio
+        self.max_ratio = max_ratio
+        self.min_num_commits = min_num_commits
 
-    def __init__(self, repo, tags, versions, version_num=5):
-        super().__init__(repo, tags, versions, version_num)
+    def _select_versions(self, repo, versions_by_type, tags):
+        def cond1(x, ratio): return x.bugged_ratio <= ratio
+        def cond2(x, ratio): return x.bugged_ratio >= ratio
+        def cond3(x, num_commits): return x.num_commits >= num_commits
+        max_ratio, min_ratio = self.max_ratio, self.min_ratio
+        min_num_commits = self.min_num_commits
+        filtered_tags = []
+        while len(filtered_tags) < self.version_num:
+            if min_num_commits <= 0:
+                raise self.NotEnoughVersions("Error: lower the num of versions.")
 
-    def _select_versions(self, versions_by_type, tags):
+            filtered_tags = list(filter(lambda tag:
+                                        cond1(tag, max_ratio) and
+                                        cond2(tag, min_ratio) and
+                                        cond3(tag, min_num_commits), tags))
+
+            max_ratio += self.max_ratio / 10
+            min_num_commits -= self.min_num_commits / 10
+
+        if (not self.strict) or (self.strict and len(filtered_tags) == self.version_num):
+            self.versions_selected = list(map(lambda x: x.version._name, filtered_tags))
+            return
+
+        min_num_commits = 100.00 * float(min(filtered_tags, key=lambda x: x.num_commits).num_commits)
+        max_num_commits = 100.00 * float(max(filtered_tags, key=lambda x: x.num_commits).num_commits)
+        def num_commits(x): return 100.0 * float(x.num_commits)
+
+        commits_scores = list(map(lambda x: (num_commits(x) - min_num_commits)/(max_num_commits - min_num_commits),
+                                  filtered_tags))
+        ratio_scores = list(map(lambda x: (-100 * (x.bugged_ratio - 0.2)**2 + 1), filtered_tags))
+
+        values = list(map(lambda x, y, z: (x, str(y + z)), filtered_tags, commits_scores, ratio_scores))
+        values.sort(reverse=True, key=lambda x: x[1])
+        selected = list(map(lambda x: x[0].version._name, values[:5]))
+        self.versions_selected = selected
+
+    class NotEnoughVersions(Exception):
         pass
 
-    def _store_versions(versions, repo: Repo):
+    def _store_versions(self, repo: Repo):
+        columns = ["version"]
+        values = self.versions_selected
+        df = pd.DataFrame(values, columns=columns)
+        config = Config().config
+        repository_data = config["CACHING"]["RepositoryData"]
+        selected_versions = config["DATA_EXTRACTION"]["SelectedVersionsQuadratic"]
+        dir_path = os.path.join(repository_data, selected_versions)
+        Config.assert_dir_exists(dir_path)
+        path = os.path.join(dir_path, repo.github_name + ".csv")
+        df.to_csv(path, index=False)
         pass
 
 
 class ConfigurationSelectVersion(AbstractSelectVersions):
-    def __init__(self, repo, tags, versions, version_num=5):
-        super().__init__(repo, tags, versions, version_num)
+    def __init__(self, repo, tags, versions, version_num, version_type):
+        super().__init__(repo, tags, versions, version_num, version_type)
         self.configuration = r"""workingDir={WORKING_DIR}
             git={GIT_PATH}
             issue_tracker_product_name={PRODUCT_NAME}
