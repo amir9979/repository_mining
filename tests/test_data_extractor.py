@@ -41,7 +41,7 @@ class TestDataExtractor:
         yield
         repo = git.Repo(extractor.git_path)
         extractor.commits = extractor._get_repo_commits("", repo, extractor.jira_project_name, extractor.jira_url)
-        assert extractor.commits[0]._commit_date == 1587403411.0
+        assert extractor.commits[0]._commit_date == 1427557756.0
         yield
         extractor.versions = extractor._get_repo_versions("", repo)
         assert extractor.versions[0].committed_files[0] == "RELEASE-NOTES.txt"
@@ -66,12 +66,6 @@ class TestDataExtractor:
         extractor = DataExtractor(project)
         extractor.choose_versions(algorithm="quadratic", strict="true", version_type="all")
         assert True
-
-    def test_get_stored_files_bugged(self):
-        project = ProjectName.CommonsLang
-        version = Config().config['TEST_0']['VersionName']
-        files = DataExtractor.get_stored_files_bugged(project.github(), project.jira(), version)
-        assert files
 
     def test_bugged_files_between_versions(self):
         project = ProjectName.CommonsLang

@@ -11,7 +11,7 @@ from fixing_issues import VersionInfo
 from issues import get_jira_issues
 from version_selector import ConfigurationSelectVersion, BinSelectVersion, QuadraticSelectVersion
 from versions import Version
-from caching import REPOSITORY_DATA_DIR, assert_dir_exists, cached
+from caching import cached
 from repo import Repo
 
 
@@ -24,19 +24,19 @@ class DataExtractor(object):
         self.jira_project_name = project.jira()
         self.repo = Repo(self.jira_project_name, self.github_name, local_path=self.git_path)
         self.git_repo = git.Repo(self.git_path)
+        self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
 
         get_repo_commits = cached(self.jira_project_name)(self._get_repo_commits)
         get_repo_versions = cached(self.jira_project_name)(self._get_repo_versions)
         self.commits = get_repo_commits("commits", self.git_repo, self.jira_project_name, self.jira_url)
         self.versions = get_repo_versions("versions", self.git_repo)
-
         self.bugged_files_between_versions = self._get_bugged_files_between_versions()
-        pass
 
     @staticmethod
     def _get_repo_commits(key, repo, jira_project_name, jira_url):
-        issues = list(map(lambda x: x.key.strip(),
-                     filter(lambda issue: issue.type == 'bug', get_jira_issues(jira_project_name, jira_url))))
+        jira_issues = get_jira_issues(jira_project_name, jira_url)
+        issues = dict(map(lambda x: (x.key.strip().split("-")[1], x),
+                          list(filter(lambda issue: issue.type == 'bug', jira_issues))))
         commits = DataExtractor._commits_and_issues(repo, issues)
         return commits
 
@@ -64,11 +64,11 @@ class DataExtractor(object):
         self._store_files(tags)
 
     def _store_commited_files(self):
-        columns = ["file_name", "commit_id", "bug_id", "commit_date"]
+        columns = ["file_name", "commit_id", "bug_id", "commit_date", "commit_url", "bug_url"]
         commited_files = list(map(lambda c:
                                   list(map(lambda file_name:
                                            [file_name, c._commit_id,
-                                            c._bug_id, c._commit_date],
+                                            c._bug_id, c._commit_formatted_date, self.get_commit_url(c._commit_id), c.get_issue_url()],
                                     c._files)), self.commits))
 
         commited_files = reduce(list.__add__, commited_files, [])
@@ -78,8 +78,8 @@ class DataExtractor(object):
         df.to_csv(path, index=False)
 
     def _store_commits(self):
-        columns = ["commit_id", "bug_id", "commit_date"]
-        commits = list(map(lambda c: [c._commit_id, c._bug_id, c._commit_date], self.commits))
+        columns = ["commit_id", "bug_id", "commit_date", "commit_url", "bug_url"]
+        commits = list(map(lambda c: [c._commit_id, c._bug_id, c._commit_formatted_date, self.get_commit_url(c._commit_id), c.get_issue_url()], self.commits))
         df = pd.DataFrame(commits, columns=columns)
         commits_dir = self._get_caching_path("Commits")
         path = os.path.join(commits_dir, self.jira_project_name + ".csv")
@@ -87,7 +87,7 @@ class DataExtractor(object):
 
     def _store_versions(self, tags):
         columns = ["version_name", "#commited_files_in_version", "#bugged_files_in_version", "bugged_ratio",
-                   "#commits", "#bugged_commits", "#ratio_bugged_commits", "version_date"]
+                   "#commits", "#bugged_commits", "#ratio_bugged_commits", "version_date", "version_url"]
         df = pd.DataFrame(columns=columns)
         for tag in tags:
             version = {"version_name": tag.version._name,
@@ -97,12 +97,16 @@ class DataExtractor(object):
                        "#commits": tag.num_commits,
                        "#bugged_commits": tag.num_bugged_commits,
                        "#ratio_bugged_commits": tag.ratio_bugged_commits,
-                       "version_date": datetime.fromtimestamp(tag.version._commit._commit_date).strftime("%Y-%m-%d")}
+                       "version_date": tag.version._commit._commit_formatted_date,
+                       "version_url": self.get_commit_url(tag.version._commit._commit_id)}
             df = df.append(version, ignore_index=True)
 
         versions_dir = self._get_caching_path("Versions")
         path = os.path.join(versions_dir, self.jira_project_name + ".csv")
         df.to_csv(path, index=False)
+
+    def get_commit_url(self, commit_sha):
+        return os.path.normpath(os.path.join(self.git_url, commit_sha))
 
     def _store_versions_infos(self, tags):
         versions_infos_dir = os.path.join(self._get_caching_path("VersionsInfos"), self.jira_project_name)
@@ -169,14 +173,14 @@ class DataExtractor(object):
             return "0"
 
         commits = []
-        issues_ids = list(map(lambda issue: issue.split("-")[1], issues))
         for git_commit in repo.iter_commits():
             try:
                 commit_text = DataExtractor._clean_commit_message(git_commit.summary)
             except:
                 continue
+            bug_id = get_bug_num_from_comit_text(commit_text, issues.keys())
             commits.append(
-                Commit.init_commit_by_git_commit(git_commit, get_bug_num_from_comit_text(commit_text, issues_ids)))
+                Commit.init_commit_by_git_commit(git_commit, bug_id, issues.get(bug_id)))
         return commits
 
     def choose_versions(self, repo=None, version_num=5, configurations=False,
@@ -214,3 +218,8 @@ class DataExtractor(object):
         cache_path = self._get_caching_path("Files")
         path = os.path.join(cache_path, self.jira_project_name, version + '.csv')
         return path
+
+
+if __name__ == "__main__":
+    from projects import ProjectName
+    DataExtractor(ProjectName.CommonsLang).extract()
