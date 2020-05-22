@@ -15,8 +15,8 @@ class AbstractSelectVersions(ABC):
         self.tags = tags
         self.versions = versions
         self.version_num = version_num
-        self.versions_by_type: list
-        self.versions_selected: list = []
+        self.versions_by_type = []
+        self.versions_selected = []
         self.type = version_type
         self.strict = strict
 
@@ -74,7 +74,7 @@ class AbstractSelectVersions(ABC):
         pass
 
     @abstractmethod
-    def _store_versions(versions, repo: Repo):
+    def _store_versions(versions, repo):
         pass
 
 
@@ -103,7 +103,7 @@ class BinSelectVersion(AbstractSelectVersions):
                 configuration = {'start': start, 'step': step, 'stop': stop, 'versions': selected_versions}
                 self.selected_versions.append(configuration)
 
-    def _store_versions(self, repo: Repo):
+    def _store_versions(self, repo):
         configuration = self.selected_versions[0]
         values = list(product([configuration['start']], [configuration['step']],
                               [configuration['stop']], configuration['versions']))
@@ -169,7 +169,7 @@ class QuadraticSelectVersion(AbstractSelectVersions):
     class NotEnoughVersions(Exception):
         pass
 
-    def _store_versions(self, repo: Repo):
+    def _store_versions(self, repo):
         columns = ["version"]
         values = self.versions_selected
         df = pd.DataFrame(values, columns=columns)
@@ -213,7 +213,7 @@ class ConfigurationSelectVersion(AbstractSelectVersions):
 
         self.selected_versions = versions_dict
 
-    def _store_versions(self, repo: Repo):
+    def _store_versions(self, repo):
         config = Config().config
         repository_data = config["CACHING"]["RepositoryData"]
         configuration_path = config["DATA_EXTRACTION"]["ConfigurationsPaths"]

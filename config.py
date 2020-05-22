@@ -27,6 +27,7 @@ class Config:
     @staticmethod
     def assert_dir_exists(dir_path):
         path = pathlib.Path(dir_path)
-        path.mkdir(parents=True, exist_ok=True)
+        if not path.exists():
+            path.mkdir(parents=True)
         return dir_path
 

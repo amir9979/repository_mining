@@ -27,7 +27,7 @@ def cached(cache_name, cache_dir=REPOSITORY_CACHING_DIR):
 
     def decorator(fn):  # define a decorator for a function "fn"
         def wrapped(key='KEY', *args, **kwargs):   # define a wrapper that will finally call "fn" with all arguments
-            gzip_cachefile = cache_dir.joinpath(key + ".gzip").resolve()
+            gzip_cachefile = cache_dir.joinpath(key + ".gzip")
             assert_dir_exists(gzip_cachefile.parent)
             if gzip_cachefile.exists():
                 try:
@@ -43,7 +43,7 @@ def cached(cache_name, cache_dir=REPOSITORY_CACHING_DIR):
 
             # write to cache file
             try:
-                with gzip.GzipFile(gzip_cachefile, 'wb') as cachehandle:
+                with gzip.GzipFile(os.path.join(*gzip_cachefile.parts), 'wb') as cachehandle:
                     pickle.dump(res, cachehandle, pickle.HIGHEST_PROTOCOL)
             except Exception as e:
                 raise e

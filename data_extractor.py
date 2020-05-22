@@ -9,7 +9,7 @@ from commit import Commit
 from config import Config
 from fixing_issues import VersionInfo
 from issues import get_jira_issues
-from version_selector import ConfigurationSelectVersion, BinSelectVersion, QuadraticSelectVersion
+# from version_selector import ConfigurationSelectVersion, BinSelectVersion, QuadraticSelectVersion
 from versions import Version
 from caching import REPOSITORY_DATA_DIR, assert_dir_exists, cached
 from repo import Repo
@@ -24,7 +24,7 @@ class DataExtractor(object):
         self.jira_project_name = project.jira()
         self.repo = Repo(self.jira_project_name, self.github_name, local_path=self.git_path)
         self.git_repo = git.Repo(self.git_path)
-        self.git_url = os.path.join(list(git_commit.repo.remotes[0].urls)[0].replace(".git", ""), "tree")
+        self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
 
         get_repo_commits = cached(self.jira_project_name)(self._get_repo_commits)
         get_repo_versions = cached(self.jira_project_name)(self._get_repo_versions)
@@ -34,8 +34,9 @@ class DataExtractor(object):
 
     @staticmethod
     def _get_repo_commits(key, repo, jira_project_name, jira_url):
+        jira_issues = get_jira_issues(jira_project_name, jira_url)
         issues = dict(map(lambda x: (x.key.strip().split("-")[1], x),
-                     filter(lambda issue: issue.type == 'bug', get_jira_issues(jira_project_name, jira_url))))
+                          filter(lambda issue: issue.type == 'bug', jira_issues)))
         commits = DataExtractor._commits_and_issues(repo, issues)
         return commits
 
@@ -220,3 +221,8 @@ class DataExtractor(object):
         files = {file_name: False for file_name in tag.version_files}
         files.update({file_name: True for file_name in tag.bugged_files})
         return files
+
+
+if __name__ == "__main__":
+    from projects import ProjectName
+    DataExtractor(ProjectName.CommonsLang).extract()
