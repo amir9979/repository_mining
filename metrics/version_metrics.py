@@ -10,13 +10,15 @@ import pandas as pd
 
 from caching import cached
 from config import Config
+from data_extractor import DataExtractor
 from javadiff.javadiff.SourceFile import SourceFile
 from metrics.rsc import source_monitor_xml
 from metrics.version_metrics_data import (
     Data,
     CompositeData, HalsteadData, MoodData, CKData, SourceMonitorFilesData, SourceMonitorData, DesigniteDesignSmellsData,
     DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData,
-    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData)
+    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData)
+from projects import ProjectName
 from repo import Repo
 from .commented_code_detector import metrics_for_project
 from metrics.rsc.designite_smells import (
@@ -142,17 +144,18 @@ class FileAnalyser:
                     m.id),
                     list(sf.methods.values())))))
 
-
+# TODO Create documentation on how to add a new metric
 class Extractor(ABC):
-    def __init__(self, extractor_name, github_project_name, version, jira_project_name, local_path):
+    def __init__(self, extractor_name, project: ProjectName, version):
         self.extractor_name = extractor_name
-        self.project = github_project_name
+        self.project = project
+        self.project_name = project.github()
         self.version = version
         self.config = Config().config
         self.runner = self._get_runner(self.config, extractor_name)
-        repo = Repo(jira_project_name, github_project_name, local_path, version)
+        repo = Repo(project.jira(), project.github(), project.path(), version)
         self.local_path = repo.local_path
-        self.file_analyser = FileAnalyser(self.local_path, self.project, self.version)
+        self.file_analyser = FileAnalyser(self.local_path, self.project_name, self.version)
         self.data: Data = None
 
     @staticmethod
@@ -164,30 +167,32 @@ class Extractor(ABC):
         return runner
 
     @abstractmethod
-    def extract(self, jira_project_name, github_name, local_path):
+    def extract(self):
         pass
 
 
 class Bugged(Extractor):
+    def __init__(self, project: ProjectName, version):
+        super().__init__("Bugged", project, version)
 
-    def __init__(self, github_project_name, version, jira_project_name, local_path):
-        super(Bugged, self).__init__("Bugged", github_project_name, version, jira_project_name, local_path)
-
-    def extract(self, jira_project_name, github_name, local_path):
-
-        self._process_bugged_data(path)
-        pass
+    def extract(self):
+        extractor = DataExtractor(self.project)
+        extractor.extract()
+        path = extractor.get_bugged_files_path(self.version)
+        bugged = pd.read_csv(path).groupby('file_name').apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
+        self.data = BuggedData(self.project_name, self.version, data=bugged)
+        self.data.store()
 
 
 class Checkstyle(Extractor):
-    def __init__(self, github_project_name, version, jira_project_name, local_path):
-        super(Checkstyle, self).__init__("Checkstyle", github_project_name, version, jira_project_name, local_path)
+    def __init__(self, project: ProjectName, version):
+        super().__init__("Checkstyle", project, version)
 
     def extract(self):
         all_checks_xml = self._get_all_checks_xml(self.config)
         out_path_to_xml = self._execute_command(self.runner, all_checks_xml, self.local_path)
         checkstyle = self._process_checkstyle_data(out_path_to_xml)
-        self.data = CheckstyleData(self.project, self.version, data=checkstyle)
+        self.data = CheckstyleData(self.project_name, self.version, data=checkstyle)
         self.data.store()
 
     @staticmethod
@@ -258,8 +263,8 @@ class Checkstyle(Extractor):
 
 
 class Designite(Extractor):
-    def __init__(self, github_project_name, version, jira_project_name, local_path):
-        super().__init__("Designite", github_project_name, version, jira_project_name, local_path)
+    def __init__(self, project: ProjectName, version):
+        super().__init__("Designite", project, version)
 
     def extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
@@ -272,12 +277,12 @@ class Designite(Extractor):
 
         self.data = CompositeData()
         self.data \
-            .add(DesigniteDesignSmellsData(self.project, self.version, data=design_code_smells)) \
-            .add(DesigniteImplementationSmellsData(self.project, self.version, data=implementation_code_smells)) \
-            .add(DesigniteOrganicTypeSmellsData(self.project, self.version, data=organic_type_code_smells)) \
-            .add(DesigniteOrganicMethodSmellsData(self.project, self.version, data=organic_method_code_smells)) \
-            .add(DesigniteTypeMetricsData(self.project, self.version, data=type_metrics)) \
-            .add(DesigniteMethodMetricsData(self.project, self.version, data=method_metrics)) \
+            .add(DesigniteDesignSmellsData(self.project_name, self.version, data=design_code_smells)) \
+            .add(DesigniteImplementationSmellsData(self.project_name, self.version, data=implementation_code_smells)) \
+            .add(DesigniteOrganicTypeSmellsData(self.project_name, self.version, data=organic_type_code_smells)) \
+            .add(DesigniteOrganicMethodSmellsData(self.project_name, self.version, data=organic_method_code_smells)) \
+            .add(DesigniteTypeMetricsData(self.project_name, self.version, data=type_metrics)) \
+            .add(DesigniteMethodMetricsData(self.project_name, self.version, data=method_metrics)) \
             .store()
 
     @staticmethod
@@ -379,9 +384,8 @@ class Designite(Extractor):
 
 
 class SourceMonitor(Extractor):
-    def __init__(self, github_project_name, version, jira_project_name, local_path):
-        super(SourceMonitor, self).__init__("SourceMonitor", github_project_name, version, jira_project_name,
-                                            local_path)
+    def __init__(self, project: ProjectName, version):
+        super().__init__("SourceMonitor", project, version)
 
     def extract(self):
         if not os.name == "dt":
@@ -392,8 +396,8 @@ class SourceMonitor(Extractor):
         source_monitor_files, source_monitor = self._process_metrics(out_dir)
         self.data = CompositeData()
         self.data \
-            .add(SourceMonitorFilesData(self.project, self.version, data=source_monitor_files)) \
-            .add(SourceMonitorData(self.project, self.version, data=source_monitor)) \
+            .add(SourceMonitorFilesData(self.project_name, self.version, data=source_monitor_files)) \
+            .add(SourceMonitorData(self.project_name, self.version, data=source_monitor)) \
             .store()
 
     @staticmethod
@@ -454,13 +458,13 @@ class SourceMonitor(Extractor):
 
 
 class CK(Extractor):
-    def __init__(self, github_project_name, version, jira_project_name, local_path):
-        super(CK, self).__init__("CK", github_project_name, version, jira_project_name, local_path)
+    def __init__(self, project: ProjectName, version):
+        super().__init__("CK", project, version)
 
     def extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         ck = self._process_metrics(out_dir)
-        self.data = CKData(self.project, self.version, data=ck)
+        self.data = CKData(self.project_name, self.version, data=ck)
         self.data.store()
 
     @staticmethod
@@ -491,13 +495,13 @@ class CK(Extractor):
 
 
 class Mood(Extractor):
-    def __init__(self, github_project_name, version, jira_project_name, local_path):
-        super(Mood, self).__init__("MOOD", github_project_name, version, jira_project_name, local_path)
+    def __init__(self, project: ProjectName, version):
+        super().__init__("MOOD", project, version)
 
     def extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         mood = self._process_metrics(out_dir)
-        self.data = MoodData(self.project, self.version, data=mood)
+        self.data = MoodData(self.project_name, self.version, data=mood)
         self.data.store()
 
     @staticmethod
@@ -519,10 +523,10 @@ class Mood(Extractor):
 
 
 class Halstead(Extractor):
-    def __init__(self, github_project_name, version, jira_project_name, local_path):
-        super(Halstead, self).__init__("Halstead", github_project_name, version, jira_project_name, local_path)
+    def __init__(self, project: ProjectName, version):
+        super().__init__("Halstead", project, version)
 
     def extract(self):
         halstead = metrics_for_project(self.local_path)
-        self.data = HalsteadData(self.project, self.version, data=halstead)
+        self.data = HalsteadData(self.project_name, self.version, data=halstead)
         self.data.store()

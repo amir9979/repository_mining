@@ -9,7 +9,7 @@ class TestDataBuilder:
 
     @staticmethod
     def add_single_metric(db: DataBuilder) -> DataBuilder:
-        db.append(DataName.AntiSingleton)
+        db.append(DataName.NumberOfPublicMethods_Checkstyle)
         return db
 
     @staticmethod
@@ -35,6 +35,8 @@ class TestDataBuilder:
         db.append(DataName.NumberOfPublicAttributes)
         # halstead
         db.append(DataName.Length)
+        # bugged
+        db.append(DataName.Bugged)
         return db
 
     '''
@@ -80,6 +82,11 @@ class TestDataBuilder:
     def test_data_builder_multiple_item_build(self):
         db = self.get_data_builder()
         db = self.add_multiple_metrics(db)
+        db.build()
+
+    def test_data_builder_bugged_item(self):
+        db = DataBuilder("commons-lang", "LANG_3_4_RC1")
+        db.append(DataName.Bugged)
         db.build()
 
 

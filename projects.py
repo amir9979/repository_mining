@@ -116,3 +116,4 @@ class ProjectName(Enum):
 
     def path(self):
         return os.path.join(Config().config['REPO']['RepoDir'], self.value[0])
+

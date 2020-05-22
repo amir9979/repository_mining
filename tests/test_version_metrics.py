@@ -1,23 +1,29 @@
-from metrics.version_metrics import Halstead, Checkstyle, Designite, CK, Mood
+from metrics.version_metrics import Halstead, Checkstyle, Designite, CK, Mood, Bugged
+from projects import ProjectName
 
 
 class TestExtractor:
+    # check repository_mining/repository_data/metrics/commons-lang/LANG_3_4_RC1/**.csv
+    def test_bugged(self):
+        m = Bugged(ProjectName.CommonsLang, "LANG_3_4_RC1")
+        m.extract()
+
     def test_checkstyle(self):
-        m = Checkstyle("commons-lang", "LANG_3_4_RC1", "LANG", "tests/commons_lang")
+        m = Checkstyle(ProjectName.CommonsLang, "LANG_3_4_RC1")
         m.extract()
 
     def test_designite(self):
-        m = Designite("commons-lang", "LANG_3_4_RC1", "LANG", "tests/commons_lang")
+        m = Designite(ProjectName.CommonsLang, "LANG_3_4_RC1")
         m.extract()
 
     def test_ck(self):
-        m = CK("commons-lang", "LANG_3_4_RC1", "LANG", "tests/commons_lang")
+        m = CK(ProjectName.CommonsLang, "LANG_3_4_RC1")
         m.extract()
 
     def test_mood(self):
-        m = Mood("commons-lang", "LANG_3_4_RC1", "LANG", "tests/commons_lang")
+        m = Mood(ProjectName.CommonsLang, "LANG_3_4_RC1")
         m.extract()
 
     def test_halstead(self):
-        m = Halstead("commons-lang", "LANG_3_4_RC1", "LANG", "tests/commons_lang")
+        m = Halstead(ProjectName.CommonsLang, "LANG_3_4_RC1")
         m.extract()

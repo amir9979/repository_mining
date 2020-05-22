@@ -14,9 +14,13 @@ class DataType(Enum):
     CKDataType = "ck"
     MoodDataType = "mood"
     HalsteadDataType = "halstead"
+    BuggedDataType = "bugged"
 
 
 class DataName(Enum):
+    # TODO create accessors for each enumeration
+    Bugged = auto(), DataType.BuggedDataType.value, "is_buggy"
+
     ImperativeAbstraction = auto(), DataType.DesigniteDesignSmellsDataType.value, "Imperative Abstraction"
     MultifacetedAbstraction = auto(), DataType.DesigniteDesignSmellsDataType.value, "Multifaceted Abstraction"
     UnnecessaryAbstraction = auto(), DataType.DesigniteDesignSmellsDataType.value, "Unnecessary Abstraction"

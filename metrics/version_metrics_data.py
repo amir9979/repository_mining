@@ -1,6 +1,5 @@
 import os
 from abc import ABC, abstractmethod
-from enum import Enum
 from itertools import tee
 from pathlib import Path
 from collections import OrderedDict
@@ -13,7 +12,7 @@ from metrics.version_metrics_name import DataType
 
 
 class Data(ABC):
-    def __init__(self, project, version):
+    def __init__(self, project: str, version: str):
         self.path = self._get_path(self.data_type, project, version)
         if self.raw_data is None:
             self.data = self._read_data_to_df()
@@ -47,7 +46,7 @@ class Data(ABC):
         self.data.to_csv(self.path, index=False)
 
     @abstractmethod
-    def build(self, values) -> pd.DataFrame:
+    def build(self, values, column_names) -> pd.DataFrame:
         df = pd.read_csv(self.path)
         id = df.columns[0]
         return df[[id] + values]
@@ -66,7 +65,8 @@ class CompositeData(Data):
         return self
 
     def add_all(self, project, version):
-        self.add(CheckstyleData(project, version)) \
+        self.add(BuggedData(project, version))\
+            .add(CheckstyleData(project, version)) \
             .add(DesigniteDesignSmellsData(project, version)) \
             .add(DesigniteImplementationSmellsData(project, version)) \
             .add(DesigniteOrganicTypeSmellsData(project, version)) \
@@ -101,7 +101,7 @@ class CompositeData(Data):
                 classes_df = classes_df.merge(classes_dfs.pop(0), on=['File', 'Class'], how='outer')
 
         if files_dfs:
-            classes_df = files_dfs.pop(0) if classes_df.empty else classes_df
+            classes_df = files_dfs.pop(0) if not classes_dfs else classes_df
             while files_dfs:
                 classes_df = classes_df.merge(files_dfs.pop(0), on=['File'], how='outer')
 
@@ -114,6 +114,22 @@ class CompositeData(Data):
         return classes_df, methods_df
 
 
+class BuggedData(Data):
+    def __init__(self, project, version, data=None):
+        self.data_type = DataType.BuggedDataType.value
+        self.raw_data = data
+        super().__init__(project, version)
+
+    def build(self, values, column_names):
+        df = super().build(values, column_names)
+        id = df['id'].iteritems()
+        files = pd.Series(list(map(lambda x: x[1], id))).values
+        df = df.drop(columns='id')
+        df.insert(0, 'File', files)
+        df = df.rename(columns=column_names)
+        return df
+
+
 class CheckstyleData(Data):
     def __init__(self, project, version, data=None):
         self.data_type = DataType.CheckstyleDataType.value
@@ -122,7 +138,7 @@ class CheckstyleData(Data):
         pass
 
     def build(self, values, column_names):
-        df = super().build(values)
+        df = super().build(values, column_names)
         id = df['id'].iteritems()
         files_id, packages_id, classes_id, methods_id = tee(id, 4)
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
@@ -147,7 +163,7 @@ class DesigniteDesignSmellsData(Data):
         pass
 
     def build(self, values, column_names):
-        df = super().build(values)
+        df = super().build(values, column_names)
         id = df['id'].iteritems()
         files_id, packages_id, classes_id = tee(id, 3)
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
@@ -169,7 +185,7 @@ class DesigniteImplementationSmellsData(Data):
         pass
 
     def build(self, values, column_names):
-        df = super().build(values)
+        df = super().build(values, column_names)
         id = df['id'].iteritems()
         files_id, packages_id, classes_id, methods_id = tee(id, 4)
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
@@ -193,7 +209,7 @@ class DesigniteOrganicTypeSmellsData(Data):
         pass
 
     def build(self, values, column_names):
-        df = super().build(values)
+        df = super().build(values, column_names)
         id = df['id'].iteritems()
         files_id, packages_id, classes_id = tee(id, 3)
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
@@ -215,7 +231,7 @@ class DesigniteOrganicMethodSmellsData(Data):
         pass
 
     def build(self, values, column_names):
-        df = super().build(values)
+        df = super().build(values, column_names)
         id = df['id'].iteritems()
         files_id, packages_id, classes_id, methods_id = tee(id, 4)
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
@@ -239,7 +255,7 @@ class DesigniteTypeMetricsData(Data):
         pass
 
     def build(self, values, column_names):
-        df = super().build(values)
+        df = super().build(values, column_names)
         id = df['id'].iteritems()
         files_id, packages_id, classes_id = tee(id, 3)
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
@@ -261,7 +277,7 @@ class DesigniteMethodMetricsData(Data):
         pass
 
     def build(self, values, column_names):
-        df = super().build(values)
+        df = super().build(values, column_names)
         id = df['id'].iteritems()
         files_id, packages_id, classes_id, methods_id = tee(id, 4)
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
@@ -284,8 +300,8 @@ class SourceMonitorFilesData(Data):
         super().__init__(project, version)
         pass
 
-    def build(self, values):
-        df = super().build(values)
+    def build(self, values, column_names):
+        df = super().build(values, column_names)
         return df
 
 
@@ -296,8 +312,8 @@ class SourceMonitorData(Data):
         super().__init__(project, version)
         pass
 
-    def build(self, values):
-        df = super().build(values)
+    def build(self, values, column_names):
+        df = super().build(values, column_names)
         return df
 
 
@@ -309,7 +325,7 @@ class CKData(Data):
         pass
 
     def build(self, values, column_names):
-        df = super().build(values)
+        df = super().build(values, column_names)
         id = df['id'].iteritems()
         files_id, packages_id, classes_id, methods_id = tee(id, 4)
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
@@ -333,7 +349,7 @@ class MoodData(Data):
         pass
 
     def build(self, values, column_names):
-        df = super().build(values)
+        df = super().build(values, column_names)
         id = df['id'].iteritems()
         files = pd.Series(list(map(lambda x: x[1], id))).values
         df = df.drop(columns='id')
@@ -350,7 +366,7 @@ class HalsteadData(Data):
         pass
 
     def build(self, values, column_names):
-        df = super().build(values)
+        df = super().build(values, column_names)
         id = df['id'].iteritems()
         files = pd.Series(list(map(lambda x: x[1], id))).values
         df = df.drop(columns='id')

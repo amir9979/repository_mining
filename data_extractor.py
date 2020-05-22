@@ -136,6 +136,7 @@ class DataExtractor(object):
         config = Config().config
         file_name = config['DATA_EXTRACTION'][config_name]
         repository_data = config["CACHING"]["RepositoryData"]
+        repository_data = Config().get_work_dir_path(repository_data)
         path = os.path.join(repository_data, file_name, self.github_name)
         Config.assert_dir_exists(path)
         return path
@@ -143,7 +144,6 @@ class DataExtractor(object):
     @staticmethod
     def _version_files(new_tag, prev_tag):
         return list(map(lambda diff: diff.b_path, new_tag.commit.tree.diff(prev_tag.commit.tree)))
-
 
     @staticmethod
     def _clean_commit_message(commit_message):
@@ -197,19 +197,11 @@ class DataExtractor(object):
 
         selector.select()
 
-    @staticmethod
-    def get_stored_files_bugged(github_name, jira_project_name, version):
-        config = Config().config
-        file_name = config['DATA_EXTRACTION']["Files"]
-        repository_data = config["CACHING"]["RepositoryData"]
-        base_path = os.path.join(repository_data, file_name, github_name)
-        files_dir = os.path.join(base_path, jira_project_name)
-        path = os.path.join(files_dir, version + ".csv")
-        if not os.path.exists(path):
-            return []
-        return pd.read_csv(path).to_dict('records')
-
     def get_files_bugged(self, version):
+        files_dir = self._get_caching_path("Files")
+        path = os.path.join(files_dir, version+".csv")
+        if os.path.exists(path):
+            return pd.read_csv(path).to_dict('records')
         versions = list(filter(lambda tag: tag.version._name == version, self.bugged_files_between_versions))
         if (not versions):
             raise Exception("Error: version not found")
@@ -217,3 +209,8 @@ class DataExtractor(object):
         files = {file_name: False for file_name in tag.version_files}
         files.update({file_name: True for file_name in tag.bugged_files})
         return files
+
+    def get_bugged_files_path(self, version):
+        cache_path = self._get_caching_path("Files")
+        path = os.path.join(cache_path, self.jira_project_name, version + '.csv')
+        return path
