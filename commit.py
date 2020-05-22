@@ -3,18 +3,24 @@ import time
 
 
 class Commit(object):
-    def __init__(self, bug_id, git_commit):
+    def __init__(self, bug_id, git_commit, issue=None):
         self._commit_id = git_commit.hexsha
         self._bug_id = bug_id
         self._files = Commit.fix_renamed_files(git_commit.stats.files.keys())
         self._commit_date = time.mktime(git_commit.committed_datetime.timetuple())
+        self.issue = issue
 
     def is_bug(self):
         return self._bug_id != '0'
 
+    def get_issue_url(self):
+        if self.issue:
+            return self.issue.url
+        return ""
+
     @classmethod
-    def init_commit_by_git_commit(cls, git_commit, bug_id):
-        return Commit(bug_id, git_commit)
+    def init_commit_by_git_commit(cls, git_commit, bug_id=0, issue=None):
+        return Commit(bug_id, git_commit, issue)
 
     def to_list(self):
         return [self._commit_id, str(self._bug_id), ";".join(self._files)]

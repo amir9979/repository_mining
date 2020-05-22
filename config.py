@@ -8,9 +8,8 @@ class Config:
     def __init__(self):
         self.config = configparser.ConfigParser()
         cwd = pathlib.Path(__file__).parent.absolute()
-        config_path = os.path.join(cwd, r"config.ini")
+        config_path = cwd.joinpath(r"config.ini")
         self.config.read(config_path)
-        pass
 
     @staticmethod
     def get_temp_path(path=""):
@@ -23,7 +22,7 @@ class Config:
         cwd = pathlib.Path(__file__).parent.absolute()
         if path == "":
             return cwd
-        return os.path.join(cwd, path)
+        return cwd.joinpath(path)
 
     @staticmethod
     def assert_dir_exists(dir_path):
