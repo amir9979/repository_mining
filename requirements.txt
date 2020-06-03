@@ -10,6 +10,7 @@ javalang
 pandas
 junitparser
 click
+tqdm
 
 # testing requirements
 pytest

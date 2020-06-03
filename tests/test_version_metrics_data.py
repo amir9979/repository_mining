@@ -17,6 +17,7 @@ class TestDataBuilder:
         # checkstyle
         db.append(DataName.ThrowsCount)
         db.append(DataName.SwissArmyKnife)
+        db.append(DataName.BrokenHierarchy)
         # ck
         db.append(DataName.WMC_CK)
         # designite design

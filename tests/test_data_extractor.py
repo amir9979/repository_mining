@@ -55,6 +55,11 @@ class TestDataExtractor:
         extractor = DataExtractor(project)
         extractor.extract()
 
+    def test_extract(self):
+        project = ProjectName.Dubbo
+        extractor = DataExtractor(project)
+        extractor.extract()
+
     def test_bin_choose_versions(self):
         project = ProjectName.CommonsLang
         extractor = DataExtractor(project)

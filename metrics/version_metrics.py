@@ -8,10 +8,8 @@ from xml.etree import ElementTree
 
 import pandas as pd
 
-from caching import cached
 from config import Config
 from data_extractor import DataExtractor
-from javadiff.javadiff.SourceFile import SourceFile
 from metrics.rsc import source_monitor_xml
 from metrics.version_metrics_data import (
     Data,
@@ -26,125 +24,9 @@ from metrics.rsc.designite_smells import (
     implementation_smells_list,
     organic_type_smells_list,
     organic_method_smells_list)
+from .java_analyser import JavaParserFileAnalyser
 
 
-class FileAnalyser:
-    def __init__(self, local_path, project_name, version_name):
-        self.local_path = local_path
-        cache_name = self._get_cache_name(project_name, version_name)
-        analyze = cached(cache_name)(self._analyze)
-        res = analyze(local_path)
-        self.methods = res[0]
-        self.methods_df = self._store_methods(project_name, version_name, self.methods)
-        self.methods_by_file_line = res[1]
-        self.classes_paths = res[2]
-        self.methods_by_name = res[3]
-        self.methods_by_path_and_name = res[4]
-
-    def get_closest_id(self, file_name, line):
-        method_id = None
-        for line_ in [line, line + 1, line - 1]:
-            file_path = (file_name.split(self.local_path)[1][1:], line_)
-            if file_path in self.methods_by_file_line:
-                method_id = self.methods_by_file_line[file_path]
-                break
-        return method_id
-
-    def get_methods_from_file(self, file):
-        cond = self.methods_df['file_name'] == file
-        return self.methods_df.loc[cond].method_name
-
-    @staticmethod
-    def _get_cache_name(project_name, version_name):
-        config = Config().config
-        storing_dir = config['VERSION_METRICS']['MethodsDir']
-        cache_name = storing_dir + "_" + project_name + "_" + version_name
-        return cache_name
-
-    def _analyze(self, local_path):
-        methods = []
-        methods_by_file_line = {}
-        classes_paths = {}
-        methods_by_name = {}
-        methods_by_path_and_name = {}
-        for root, dirs, files in os.walk(local_path):
-            for name in filter(lambda y: "Test" not in y, filter(lambda x: x.endswith(".java"), files)):
-                with open(os.path.join(root, name), encoding='latin-1') as f:
-                    contents = f.read()
-                    file_name = os.path.join(root, name)[len(local_path) + 1:]
-                    sf = SourceFile(contents, file_name)
-
-                    self._extract_classes(sf, classes_paths)
-
-                    self._extract_methods(sf, methods)
-
-                    self._extract_methods_by_file_line(sf, methods_by_file_line)
-
-                    self._extract_methods_by_name(sf, methods_by_name)
-
-                    self._extract_methods_by_path_and_name(sf, methods_by_path_and_name)
-
-        return methods, methods_by_file_line, classes_paths, methods_by_name, methods_by_path_and_name
-
-    @staticmethod
-    def _store_methods(project_name, version_name, methods):
-        config = Config().config
-        repository_data = Config.get_work_dir_path(config['CACHING']['RepositoryData'])
-        out_dir = os.path.join(repository_data, config['VERSION_METRICS']['MethodsDir'], project_name)
-        Config.assert_dir_exists(out_dir)
-        out_path = os.path.join(out_dir, version_name) + ".csv"
-        if os.path.exists(out_path):
-            return pd.read_csv(out_path)
-        columns = ["method_id", "file_name", "method_name", "start_line", "end_line"]
-        values = list(map(lambda m: [m.id, m.file_name, m.method_name, m.start_line, m.end_line], methods))
-        df = pd.DataFrame(values, columns=columns)
-        df.to_csv(out_path, index=False)
-        return df
-
-    @staticmethod
-    def _extract_classes(sf, classes_paths):
-        for m in sf.modified_names:
-            classes_paths[m.lower()] = sf.file_name
-
-    @staticmethod
-    def _extract_methods(sf, methods):
-        methods.extend(list(sf.methods.values()))
-
-    @staticmethod
-    def _extract_methods_by_file_line(sf, methods_by_file_line):
-        methods_by_file_line.update(dict(list(
-            map(lambda m: (
-                (m.file_name, m.start_line),
-                m.id),
-                list(sf.methods.values())))))
-
-    @staticmethod
-    def _extract_methods_by_name(sf, methods_by_name):
-        methods_by_name.update(dict(list(
-            map(lambda m: (
-                m.method_name.lower(),
-                m.id),
-                list(sf.methods.values())))))
-
-    @staticmethod
-    def _extract_methods_by_path_and_name(sf, methods_by_path_and_name):
-        methods_by_path_and_name.update(dict(
-            list(
-                map(lambda m: (
-                    (m.file_name.lower(),
-                     (".".join(
-                         m.method_name_parameters.lower().split(".")[-2:]))),
-                    m.id),
-                    list(sf.methods.values()))) +
-            list(
-                map(lambda m: (
-                    (m.file_name.lower(),
-                     (".".join(
-                         m.method_name.lower().split(".")[-2:]))),
-                    m.id),
-                    list(sf.methods.values())))))
-
-# TODO Create documentation on how to add a new metric
 class Extractor(ABC):
     def __init__(self, extractor_name, project: ProjectName, version):
         self.extractor_name = extractor_name
@@ -155,7 +37,7 @@ class Extractor(ABC):
         self.runner = self._get_runner(self.config, extractor_name)
         repo = Repo(project.jira(), project.github(), project.path(), version)
         self.local_path = repo.local_path
-        self.file_analyser = FileAnalyser(self.local_path, self.project_name, self.version)
+        self.file_analyser = JavaParserFileAnalyser(self.local_path, self.project_name, self.version)
         self.data: Data = None
 
     @staticmethod
@@ -221,8 +103,15 @@ class Checkstyle(Extractor):
         tmp = {}
         keys = set()
         with(open(out_path_to_xml)) as file:
-            for file_element in ElementTree.parse(file).getroot():
-                filepath = file_element.attrib['name']
+            root = ElementTree.parse(file).getroot()
+            for file_element in root:
+                try:
+                    filepath = file_element.attrib['name']
+                except:
+                    continue
+                if not filepath.endswith(".java"):
+                    continue
+                print(filepath)
                 items, tmp, keys = self._get_items(file_element, filepath, tmp, keys)
                 files[filepath] = items
         checkstyle = {}
