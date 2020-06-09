@@ -39,15 +39,6 @@ class TestDataExtractor:
         path = extractor.git_path
         assert os.path.exists(path) and os.listdir(path)
         yield
-        repo = git.Repo(extractor.git_path)
-        extractor.commits = extractor._get_repo_commits("", repo, extractor.jira_project_name, extractor.jira_url)
-        print(extractor.commits[-1])
-        print(extractor.commits[0])
-        assert extractor.commits[-1]._commit_date == 1427557756.0
-        yield
-        extractor.versions = extractor._get_repo_versions("", repo)
-        assert extractor.versions[0].committed_files[0] == "RELEASE-NOTES.txt"
-        yield
         extractor.bugged_files_between_versions = extractor._get_bugged_files_between_versions()
         assert extractor.bugged_files_between_versions
         yield
