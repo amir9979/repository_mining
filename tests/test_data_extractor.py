@@ -38,6 +38,9 @@ class TestDataExtractor:
                               local_path=extractor.git_path)
         path = extractor.git_path
         assert os.path.exists(path) and os.listdir(path)
+        repo = git.Repo(extractor.git_path)	
+        extractor.commits = extractor._get_repo_commits("", repo, extractor.jira_project_name, extractor.jira_url)	
+        extractor.versions = extractor._get_repo_versions("", repo)	
         yield
         extractor.bugged_files_between_versions = extractor._get_bugged_files_between_versions()
         assert extractor.bugged_files_between_versions
