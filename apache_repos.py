@@ -12,11 +12,20 @@ REPO_DIR = r"C:\Temp\apache_repos"
 
 
 def find_repo_and_jira(key, repos, jira_projects):
-    jira_project = filter(lambda p: key in [p.key.strip().lower(), "-".join(p.name.strip().lower().split())], jira_projects)[0]
-    github = filter(lambda repo: repo.as_dict()['name'].strip().lower() == key, repos)[0]
+    jira_project = filter(lambda p: key in [p.key.strip().lower(), "-".join(p.name.strip().lower().split())], jira_projects)
+    if jira_project:
+        jira_project = jira_project[0]
+    else:
+        return None
+    github = filter(lambda repo: repo.as_dict()['name'].strip().lower() == key, repos)
+    if github:
+        github = github[0]
+    else:
+        return None
     return Repo(jira_project.key, github.repository.as_dict()['name'])
 
-@cached("apache_repos_data")
+
+# @cached("apache_repos_data")
 def get_apache_repos_data():
     gh = github3.login('DebuggerIssuesReport', password='DebuggerIssuesReport1') # DebuggerIssuesReport@mail.com
     repos = list(gh.search_repositories('user:apache language:Java'))
@@ -27,7 +36,12 @@ def get_apache_repos_data():
     jira_names = map(lambda p: "-".join(p.name.strip().lower().split()), jira_projects)
     jira_elements = list(set(jira_names + jira_keys))
     jira_and_github = map(lambda x: x[0], filter(lambda x: x[1] > 1, Counter(github_repos + jira_elements).most_common()))
-    return map(lambda key: find_repo_and_jira(key, repos, jira_projects), jira_and_github)
+    ans = []
+    for key in jira_and_github:
+        repo = find_repo_and_jira(key, repos, jira_projects)
+        if repo:
+            ans.append(repo)
+    return ans
 
 
 def search_for_pom(repo):
