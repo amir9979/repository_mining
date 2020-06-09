@@ -113,7 +113,8 @@ class DataExtractor(object):
         Config.assert_dir_exists(versions_infos_dir)
         for tag in tags:
             df = pd.DataFrame(tag.commits_shas, columns=["commit_id", "is_buggy"])
-            path = os.path.join(versions_infos_dir, tag.version._name + ".csv")
+            version_name = tag.version._name.replace(os.path.sep, "_")
+            path = os.path.join(versions_infos_dir, version_name + ".csv")
             df.to_csv(path, index=False)
 
     def _store_files(self, tags):
@@ -123,7 +124,8 @@ class DataExtractor(object):
             files = {file_name: False for file_name in tag.version_files}
             files.update({file_name: True for file_name in tag.bugged_files})
             df = pd.DataFrame(files.items(), columns=["file_name", "is_buggy"])
-            path = os.path.join(files_dir, tag.version._name + ".csv")
+            version_name = tag.version._name.replace(os.path.sep, "_")
+            path = os.path.join(files_dir, version_name + ".csv")
             df.to_csv(path, index=False)
 
     def _get_commits_between_versions(self):
@@ -216,7 +218,7 @@ class DataExtractor(object):
 
     def get_bugged_files_path(self, version):
         cache_path = self._get_caching_path("Files")
-        path = os.path.join(cache_path, self.jira_project_name, version + '.csv')
+        path = os.path.join(cache_path, self.jira_project_name, version.replace(os.path.sep, "_") + '.csv')
         return path
 
 

@@ -21,7 +21,7 @@ class Repo(object):
             self.local_path = os.path.join(Repo.REPO_DIR, jira_key)
         self.clone_if_needed()
         if commit_to_checkout:
-            git.Repo(local_path).git.checkout(commit_to_checkout)
+            git.Repo(local_path).git.checkout(commit_to_checkout, force=True)
 
     def clone_if_needed(self):
         if self.jira_key == 'SB':

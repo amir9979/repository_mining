@@ -114,8 +114,9 @@ class BinSelectVersion(AbstractSelectVersions):
         df = pd.DataFrame(values, columns=columns)
         config = Config().config
         repository_data = config["CACHING"]["RepositoryData"]
-        selected_versions = config["DATA_EXTRACTION"]["SelectedVersions"]
+        selected_versions = config["DATA_EXTRACTION"]["SelectedVersionsBin"]
         dir_path = os.path.join(repository_data, selected_versions)
+        dir_path = Config.get_work_dir_path(dir_path)
         Config.assert_dir_exists(dir_path)
         path = os.path.join(dir_path, repo.github_name + ".csv")
         df.to_csv(path, index=False)
@@ -180,6 +181,7 @@ class QuadraticSelectVersion(AbstractSelectVersions):
         repository_data = config["CACHING"]["RepositoryData"]
         selected_versions = config["DATA_EXTRACTION"]["SelectedVersionsQuadratic"]
         dir_path = os.path.join(repository_data, selected_versions)
+        dir_path = Config.get_work_dir_path(dir_path)
         Config.assert_dir_exists(dir_path)
         path = os.path.join(dir_path, repo.github_name + ".csv")
         df.to_csv(path, index=False)
