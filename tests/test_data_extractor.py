@@ -41,7 +41,9 @@ class TestDataExtractor:
         yield
         repo = git.Repo(extractor.git_path)
         extractor.commits = extractor._get_repo_commits("", repo, extractor.jira_project_name, extractor.jira_url)
-        assert extractor.commits[0]._commit_date == 1427557756.0
+        print(extractor.commits[-1])
+        print(extractor.commits[0])
+        assert extractor.commits[-1]._commit_date == 1427557756.0
         yield
         extractor.versions = extractor._get_repo_versions("", repo)
         assert extractor.versions[0].committed_files[0] == "RELEASE-NOTES.txt"
