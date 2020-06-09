@@ -55,25 +55,25 @@ class TestDataBuilder:
         return db
     '''
 
-    def test_data_builder_empty_repr(self):
-        db = self.get_data_builder()
-        assert repr(db) == "Empty"
-
-    def test_data_builder_one_item_repr(self):
-        db = self.get_data_builder()
-        db = self.add_single_metric(db)
-        assert repr(db) == """designite_type_organic\n\tAntiSingleton
-"""
-
-    def test_data_builder_multiple_items_repr(self):
-        db = self.get_data_builder()
-        db = self.add_multiple_metrics(db)
-        assert repr(db) == """designite_implementation
-\tComplexMethod\nck\n\tCBO\ndesignite_design
-\tMultipathHierarchy\n\tBrokenModularization\ncheckstyle
-\tNestedForDepth\n\tNumberOfPackageMethod\nmood
-\tNumberPublicMethods
-"""
+#    def test_data_builder_empty_repr(self):
+#        db = self.get_data_builder()
+#        assert repr(db) == "Empty"
+#
+#    def test_data_builder_one_item_repr(self):
+#        db = self.get_data_builder()
+#        db = self.add_single_metric(db)
+#        assert repr(db) == """designite_type_organic\n\tAntiSingleton
+#"""
+#
+#    def test_data_builder_multiple_items_repr(self):
+#        db = self.get_data_builder()
+#        db = self.add_multiple_metrics(db)
+#        assert repr(db) == """designite_implementation
+#\tComplexMethod\nck\n\tCBO\ndesignite_design
+#\tMultipathHierarchy\n\tBrokenModularization\ncheckstyle
+#\tNestedForDepth\n\tNumberOfPackageMethod\nmood
+#\tNumberPublicMethods
+#"""
 
     def test_data_builder_one_item_build(self):
         db = self.get_data_builder()
