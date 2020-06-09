@@ -75,5 +75,15 @@ if __name__ == "__main__":
         save_bugs_for_project(repo)
         #choose_versions(repo)
     else:
-        repos = filter(search_for_pom, get_apache_repos_data())
-        print map(lambda repo: repo.get_github_jira(), repos)
+        for repo in filter(search_for_pom, get_apache_repos_data()):
+            print(repo.jira_key)
+            if repo.jira_key in [u'KAFKA']:#["BCEL", "EXEC", "OCM", "POSTAGE", "SCXML", "MNG", "KNOX", "GERONIMODEVTOOLS", "MSCMPUB", "HDFS", "VFS", "HUPA", "CAMEL", "DL", "MINDEXER", "RAMPART", "FUNCTOR", "VELTOOLS", "FILEUPLOAD", "CRUNCH", "JACOB", "JOHNZON", "JOSHUA", "MARMOTTA", "QPID", "MNEMONIC", "TRANSPORTS", "JDKIM", "MPATCH", "DBCP", "CRYPTO", "JEXL", "CURATOR", "WAGON", "MJLINK", "WEAVER", "QPIDJMS", "PULSAR", "DIRECTMEMORY", "NIFI", "EMAIL", "OPENWIRE", "MJAVADOC", "DIRMINA", "JUNEAU", "MRESOLVER", "OAK", "VALIDATOR", "JSPF", "TILES", "MDEP", "ZOOKEEPER", "AIRAVATA", "MRAR", "ROCKETMQ", "OPENEJB", "SUBMARINE", "STANBOL", "NIFIREG", "MRRESOURCES", "HADOOP", "OPENJPA", "SYNCOPE", "SM", "OMID", "MACR", "TEPHRA", "TRINIDAD", "JENA", "LOGGING", "MPDF", "ARCHETYPE", "HAMA", "MRM", "POOL", "PLC4X", "OLTU", "FTPSERVER", "CLOUDSTACK", "MVERIFIER", "METRON", "WICKET", "ARIES", "ACCUMULO", "MSHADE", "UNOMI", "MGPG", "MTOOLCHAINS", "MJDEPRSCAN", "FLINK", "LANG", "MAHOUT", "METAMODEL", "EAGLE", "MPH", "TIKA", "AMBARI", "VXQUERY", "MJDEPS", "RNG", "HELIX", "TINKERPOP", "ISIS", "SYNAPSE", "HCATALOG", "ASTERIXDB", "PROXY", "SAND", "SHINDIG", "IMAGING", "OWB", "MPLUGINTESTING", "TOMEE", "AMQCLI", "GERONIMO", "MLINKCHECK", "JUDDI", "MPIR", "ODFTOOLKIT", "MCHANGELOG", "BVAL", "CAY", "CHAINSAW", "FEDIZ", "BEANUTILS", "OGNL", "TAJO", "CXF", "JSIEVE", "PHOENIX", "PIVOT", "MRESOURCES", "GORA", "IO", "AMQ", "MJAR", "COLLECTIONS", "CONNECTORS", "GRIFFIN", "CHUKWA", "OODT", "KALUMET", "TEZ", "MEJB", "DELTASPIKE", "JELLY", "JCLOUDS", "RANGER", "MEAR", "ARTEMIS", "SENTRY", "APLO", "RYA", "CODEC", "DDLUTILS", "TEXT", "GIRAPH", "BIGTOP", "CONFIGURATION", "MIME4J", "MSITE", "OPENNLP", "STORM", "MDOAP", "MCHANGES", "DOXIA", "ZEPPELIN", "SUREFIRE", "MYFACESTEST", "TWILL", "CONTINUUM", "MCLEAN", "KYLIN", "DOXIATOOLS", "JSEC", "MDEPLOY", "AUTOTAG", "SSHD", "MCOMPILER", "MINSTALL", "SANSELAN", "AVRO", "COMPRESS", "HADOOP", "SHIRO", "EMPIREDB", "BSF", "CMIS", "DIGESTER", "DIRSTUDIO", "FALCON", "NET", "TOBAGO", "MASSEMBLY", "SAVAN", "MINVOKER", "PDFBOX", "JXR", "REEF", "MCHECKSTYLE", "MWAR", "MJMOD", "DBUTILS", "LENS", "ABDERA", "MSTAGE", "MSOURCES", "ATLAS", "HIVE", "MPLUGIN", "ODE", "CXFXJC", "NUMBERS", "BOOKKEEPER", "OPENMEETINGS", "KARAF", "DOXIASITETOOLS", "DRILL", "MPMD", "SIS", "TREQ", "CHAIN", "SYSTEMML", "IGNITE", "CSV", "HBASE", "MANTRUN", "USERGRID", "JXPATH", "COCOON", "WOOKIE", "SCM", "JCI", "JCS", "FLUME", "NUVEM", "DUBBO", "OOZIE", "JCRVLT", "CTAKES", "CLEREZZA", "STREAMS", "CLI", "FELIX", "MATH", "MYFACES", "JSPWIKI", "SMXCOMP"]:
+                continue
+            try:
+                import gc
+                gc.collect()
+                save_bugs_for_project(repo)
+                exit()
+                #choose_versions(repo)
+            except:
+                raise

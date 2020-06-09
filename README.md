@@ -1,8 +1,6 @@
 # repository_mining
 
 ## TODO
-- [ ] Config file - OS Interoperability
-- [ ] Checkstyle
 - [ ] SpotBugs
 
 ## Tools
@@ -19,7 +17,7 @@
 | [SourceMonitor](http://www.campwoodsw.com/sourcemonitor.html) | The freeware program SourceMonitor lets you see inside your software source code to find out how much code you have and to identify the relative complexity of your modules. | Yes |
 | [ConcernReCS](https://sourceforge.net/p/concernrecs/home/Home/) | ConcernReCS is an Eclipse plug-in written to find Aspectization Code Smells, i.e., scenarios in source code that can lead to aspectization mistakes.) | No | 
 | [Sonarqube](https://www.sonarqube.org/) | Thousands of automated Static Code Analysis rules. | No |
-| [Halstead](https://github.com/dborowiec/commentedCodeDetector) | The tool detects commented code using heuristics based on usage of Halstead code metrics | No |
+| [Halstead](https://github.com/dborowiec/commentedCodeDetector) | The tool detects commented code using heuristics based on usage of Halstead code metrics | Yes |
 | [gorgeous_metrics](https://github.com/thainamariani/gorgeous_metrics) | Gorgeous Metrics | No |
 | [JaSoMe](https://github.com/rodhilton/jasome) | Jasome (JAH-suhm, rhymes with awesome) is a source code analyzer that mines internal quality metrics from projects based on source code alone | No |
  
