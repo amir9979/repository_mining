@@ -14,8 +14,7 @@ from repo import Repo
 class TestDataExtractor:
 
     @test_steps('git_path', 'github_name', 'jira_url',
-                'jira_project_name', 'jira_repo', 'commits',
-                'versions', 'bugged_files')
+                'jira_project_name', 'jira_repo', 'commits')
     def test__init(self):
         extractor = object.__new__(DataExtractor)
         project = ProjectName.CommonsLang
@@ -44,8 +43,6 @@ class TestDataExtractor:
         extractor.versions = extractor._get_repo_versions("", repo)	
         extractor.bugged_files_between_versions = extractor._get_bugged_files_between_versions()
         assert extractor.bugged_files_between_versions
-        yield
-        assert 1 == 1
         yield
 
     def test_extract(self):
