@@ -45,14 +45,11 @@ class TestDataExtractor:
         extractor.bugged_files_between_versions = extractor._get_bugged_files_between_versions()
         assert extractor.bugged_files_between_versions
         yield
+        assert 1 == 1
+        yield
 
     def test_extract(self):
         project = ProjectName.CommonsLang
-        extractor = DataExtractor(project)
-        extractor.extract()
-
-    def test_extract(self):
-        project = ProjectName.Dubbo
         extractor = DataExtractor(project)
         extractor.extract()
 
