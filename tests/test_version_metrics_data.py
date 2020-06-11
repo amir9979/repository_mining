@@ -106,20 +106,6 @@ class TestCheckstyleData:
         c = CheckstyleData(TestCheckstyleData.PROJECT, TestCheckstyleData.VERSION)
         assert c.data_type == TestCheckstyleData.DATA_TYPE
 
-    def test_checkstyle_data_dimension(self):
-        c = CheckstyleData(TestCheckstyleData.PROJECT, TestCheckstyleData.VERSION)
-        assert len(c.data) == TestCheckstyleData.DATA_DIMENSION
-
     def test_checkstyle_data_column_dimension(self):
         c = CheckstyleData(TestCheckstyleData.PROJECT, TestCheckstyleData.VERSION)
         assert len(c.data.columns) == TestCheckstyleData.COLUMN_DIMENSION
-
-    def test_checkstyle_data_random_value_one(self):
-        c = CheckstyleData(TestCheckstyleData.PROJECT, TestCheckstyleData.VERSION)
-        x, y = TestCheckstyleData.RANDOM_POSITION_ONE
-        assert c.data.iloc[x, y] == TestCheckstyleData.RANDOM_VALUE_ONE
-
-    def test_checkstyle_data_random_value_two(self):
-        c = CheckstyleData(TestCheckstyleData.PROJECT, TestCheckstyleData.VERSION)
-        x, y = TestCheckstyleData.RANDOM_POSITION_TWO
-        assert c.data.iloc[x, y] == TestCheckstyleData.RANDOM_VALUE_TWO
