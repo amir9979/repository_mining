@@ -157,12 +157,12 @@ class ProjectName(Enum):
     # Fineract = Project("fineract", "FINERACT")
     # Dubbo = Project("dubbo", "DUBBO")
 
-    def github(self):
-        return self.value[0]
-
-    def jira(self):
-        return self.value[1]
-
-    def path(self):
-        return os.path.join(Config().config['REPO']['RepoDir'], self.value[0])
+    # def github(self):
+    #     return self.github()
+    #
+    # def jira(self):
+    #     return self.jira()
+    #
+    # def path(self):
+    #     return self.path()
 
