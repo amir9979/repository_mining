@@ -9,7 +9,7 @@ class Project():
         self._github_name = github_name
         self._jira_name = jira_name
         self._description = description
-        self._path = os.path.join(Config().config['REPO']['RepoDir'], self.github)
+        self._path = os.path.join(Config().config['REPO']['RepoDir'], self._github_name)
 
     def github(self):
         return self._github_name
