@@ -8,7 +8,7 @@ import pandas as pd
 
 from caching import cached
 from config import Config
-from javadiff.SourceFile import SourceFile
+from javadiff.javadiff.SourceFile import SourceFile
 
 
 class FileAnalyser(ABC):
