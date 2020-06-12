@@ -12,7 +12,7 @@ import pandas as pd
 sys.path.append("..")
 from config import Config
 from data_extractor import DataExtractor
-from projects import ProjectName
+from projects import ProjectName, Project
 
 
 done = [
@@ -68,7 +68,7 @@ def organize_quadratic_versions(project: ProjectName):
         failure_verbose_log.exception("organize | quadratic | Failed to organize {0}".format(project.github()))
 
 
-def organize_bin_versions(project: ProjectName):
+def organize_bin_versions(project: Project):
     general_log = logging.getLogger(__name__)
     success_log = logging.getLogger("success")
     failure_log = logging.getLogger("failure")
@@ -166,10 +166,10 @@ if __name__ == "__main__":
     # projects = list(ProjectName)
     # projects = list(filter(lambda x: x not in done, projects))
     projects = [
-        ProjectName.CommonsBeanUtils,
-        ProjectName.CommonsNet,
-        ProjectName.Continuum,
-        ProjectName.Bahir
+        ProjectName.CommonsBeanUtils.value,
+        ProjectName.CommonsNet.value,
+        ProjectName.Continuum.value,
+        ProjectName.Bahir.value
     ]
 
     with Pool() as p:

@@ -107,10 +107,10 @@ if __name__ == "__main__":
     # projects = list(ProjectName)
     # projects = list(filter(lambda x: x not in done, projects))
     projects = [
-        ProjectName.CommonsBeanUtils,
-        ProjectName.CommonsNet,
-        ProjectName.Continuum,
-        ProjectName.Bahir
+        ProjectName.CommonsBeanUtils.value,
+        ProjectName.CommonsNet.value,
+        ProjectName.Continuum.value,
+        ProjectName.Bahir.value
     ]
     with Pool() as p:
         ris = p.map(extract_data, list(enumerate(projects)))

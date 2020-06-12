@@ -224,4 +224,4 @@ class DataExtractor(object):
 
 if __name__ == "__main__":
     from projects import ProjectName
-    DataExtractor(ProjectName.CommonsLang).extract()
+    DataExtractor(ProjectName.CommonsLang.value).extract()

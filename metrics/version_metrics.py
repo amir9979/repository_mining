@@ -16,7 +16,7 @@ from metrics.version_metrics_data import (
     CompositeData, HalsteadData, MoodData, CKData, SourceMonitorFilesData, SourceMonitorData, DesigniteDesignSmellsData,
     DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData,
     DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData)
-from projects import ProjectName
+from projects import Project
 from repo import Repo
 from .commented_code_detector import metrics_for_project
 from metrics.rsc.designite_smells import (
@@ -28,7 +28,7 @@ from .java_analyser import JavaParserFileAnalyser
 
 
 class Extractor(ABC):
-    def __init__(self, extractor_name, project: ProjectName, version):
+    def __init__(self, extractor_name, project: Project, version):
         self.extractor_name = extractor_name
         self.project = project
         self.project_name = project.github()
@@ -54,7 +54,7 @@ class Extractor(ABC):
 
 
 class Bugged(Extractor):
-    def __init__(self, project: ProjectName, version):
+    def __init__(self, project: Project, version):
         super().__init__("Bugged", project, version)
 
     def extract(self):
@@ -67,7 +67,7 @@ class Bugged(Extractor):
 
 
 class Checkstyle(Extractor):
-    def __init__(self, project: ProjectName, version):
+    def __init__(self, project: Project, version):
         super().__init__("Checkstyle", project, version)
 
     def extract(self):
@@ -152,7 +152,7 @@ class Checkstyle(Extractor):
 
 
 class Designite(Extractor):
-    def __init__(self, project: ProjectName, version):
+    def __init__(self, project: Project, version):
         super().__init__("Designite", project, version)
 
     def extract(self):
@@ -273,7 +273,7 @@ class Designite(Extractor):
 
 
 class SourceMonitor(Extractor):
-    def __init__(self, project: ProjectName, version):
+    def __init__(self, project: Project, version):
         super().__init__("SourceMonitor", project, version)
 
     def extract(self):
@@ -347,7 +347,7 @@ class SourceMonitor(Extractor):
 
 
 class CK(Extractor):
-    def __init__(self, project: ProjectName, version):
+    def __init__(self, project: Project, version):
         super().__init__("CK", project, version)
 
     def extract(self):
@@ -384,7 +384,7 @@ class CK(Extractor):
 
 
 class Mood(Extractor):
-    def __init__(self, project: ProjectName, version):
+    def __init__(self, project: Project, version):
         super().__init__("MOOD", project, version)
 
     def extract(self):
@@ -412,7 +412,7 @@ class Mood(Extractor):
 
 
 class Halstead(Extractor):
-    def __init__(self, project: ProjectName, version):
+    def __init__(self, project: Project, version):
         super().__init__("Halstead", project, version)
 
     def extract(self):

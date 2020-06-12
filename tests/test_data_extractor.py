@@ -17,7 +17,7 @@ class TestDataExtractor:
                 'jira_project_name', 'jira_repo', 'commits')
     def test__init(self):
         extractor = object.__new__(DataExtractor)
-        project = ProjectName.CommonsLang
+        project = ProjectName.CommonsLang.value
         extractor.git_path = project.path()
         path = os.path.join(Config().config['REPO']['RepoDir'], "commons-lang" )
         assert extractor.git_path == path
@@ -46,24 +46,24 @@ class TestDataExtractor:
         yield
 
     def test_extract(self):
-        project = ProjectName.CommonsLang
+        project = ProjectName.CommonsLang.value
         extractor = DataExtractor(project)
         extractor.extract()
 
     def test_bin_choose_versions(self):
-        project = ProjectName.CommonsLang
+        project = ProjectName.CommonsLang.value
         extractor = DataExtractor(project)
         extractor.choose_versions()
         assert True
 
     def test_quadratic_choose_versions(self):
-        project = ProjectName.CommonsLang
+        project = ProjectName.CommonsLang.value
         extractor = DataExtractor(project)
         extractor.choose_versions(algorithm="quadratic", strict="true", version_type="all")
         assert True
 
     def test_bugged_files_between_versions(self):
-        project = ProjectName.CommonsLang
+        project = ProjectName.CommonsLang.value
         extractor = DataExtractor(project)
         version = Config().config['TEST_0']['VersionName']
         files = extractor.get_files_bugged(version)

@@ -70,7 +70,7 @@ The store will save the dataset in the following file:
     repository_mining/repository_data/metrics/<project_name>/<version_name>/<metric_name>.csv
 ```
     class <NewMetric>(Extractor):
-        def __init__(self, project: ProjectName, version):
+        def __init__(self, project: Project, version):
             super().__init__("<runner_id>", project, version)
 
         def extract(self):
