@@ -4,26 +4,19 @@ import os
 import csv
 import sys
 from collections import Counter
-from data_extractor import DataExtractor
-from caching import cached
-from repo import Repo
+from itertools import product
+# from data_extractor import DataExtractor
+# from caching import cached
+# from repo import Repo
 
 REPO_DIR = r"C:\Temp\apache_repos"
 
 
 def find_repo_and_jira(key, repos, jira_projects):
     jira_project = list(filter(lambda p: key in [p.key.strip().lower(), "-".join(p.name.strip().lower().split())], jira_projects))
-    if jira_project:
-        jira_project = jira_project[0]
-    else:
-        return None
     github = list(filter(lambda repo: repo.as_dict()['name'].strip().lower() == key, repos))
-    if github:
-        github = github[0]
-    else:
-        return None
-    return Repo(jira_project.key, github.repository.as_dict()['name'])
-
+    for g, j in product(github, jira_project):
+        yield "{1} = Project({0}, {1}, {2})".format(g.repository.as_dict()['name'], j.key, g.repository.as_dict()['description'].encode('utf-8'))
 
 # @cached("apache_repos_data")
 def get_apache_repos_data():
@@ -36,46 +29,12 @@ def get_apache_repos_data():
     jira_names = list(map(lambda p: "-".join(p.name.strip().lower().split()), jira_projects))
     jira_elements = list(set(jira_names + jira_keys))
     jira_and_github = map(lambda x: x[0], filter(lambda x: x[1] > 1, Counter(github_repos + jira_elements).most_common()))
-    ans = []
     for key in jira_and_github:
-        repo = find_repo_and_jira(key, repos, jira_projects)
-        if repo:
-            ans.append(repo)
-    return ans
-
-
-def search_for_pom(repo):
-    for _, _, files in os.walk(repo.local_path):
-        if any(map(lambda f: 'pom.xml' in f.lower(), files)):
-            return True
-        elif any(map(lambda f: 'build.xml' in f.lower(), files)):
-            return False
-        elif any(map(lambda f: 'gradle' in f.lower(), files)):
-            return False
-    return False
-
-
-def save_bugs_for_project(repo):
-    d = DataExtractor(repo.local_path, repo.jira_key)
-    d.extract()
+        for repo in find_repo_and_jira(key, repos, jira_projects):
+            if repo:
+                print repo
+    return
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3:
-        r, jira_key = sys.argv[1:]
-        repo = Repo(jira_key, jira_key, r)
-        save_bugs_for_project(repo)
-        #choose_versions(repo)
-    else:
-        for repo in filter(search_for_pom, get_apache_repos_data()):
-            print(repo.jira_key)
-            if repo.jira_key in [u'KAFKA']:#["BCEL", "EXEC", "OCM", "POSTAGE", "SCXML", "MNG", "KNOX", "GERONIMODEVTOOLS", "MSCMPUB", "HDFS", "VFS", "HUPA", "CAMEL", "DL", "MINDEXER", "RAMPART", "FUNCTOR", "VELTOOLS", "FILEUPLOAD", "CRUNCH", "JACOB", "JOHNZON", "JOSHUA", "MARMOTTA", "QPID", "MNEMONIC", "TRANSPORTS", "JDKIM", "MPATCH", "DBCP", "CRYPTO", "JEXL", "CURATOR", "WAGON", "MJLINK", "WEAVER", "QPIDJMS", "PULSAR", "DIRECTMEMORY", "NIFI", "EMAIL", "OPENWIRE", "MJAVADOC", "DIRMINA", "JUNEAU", "MRESOLVER", "OAK", "VALIDATOR", "JSPF", "TILES", "MDEP", "ZOOKEEPER", "AIRAVATA", "MRAR", "ROCKETMQ", "OPENEJB", "SUBMARINE", "STANBOL", "NIFIREG", "MRRESOURCES", "HADOOP", "OPENJPA", "SYNCOPE", "SM", "OMID", "MACR", "TEPHRA", "TRINIDAD", "JENA", "LOGGING", "MPDF", "ARCHETYPE", "HAMA", "MRM", "POOL", "PLC4X", "OLTU", "FTPSERVER", "CLOUDSTACK", "MVERIFIER", "METRON", "WICKET", "ARIES", "ACCUMULO", "MSHADE", "UNOMI", "MGPG", "MTOOLCHAINS", "MJDEPRSCAN", "FLINK", "LANG", "MAHOUT", "METAMODEL", "EAGLE", "MPH", "TIKA", "AMBARI", "VXQUERY", "MJDEPS", "RNG", "HELIX", "TINKERPOP", "ISIS", "SYNAPSE", "HCATALOG", "ASTERIXDB", "PROXY", "SAND", "SHINDIG", "IMAGING", "OWB", "MPLUGINTESTING", "TOMEE", "AMQCLI", "GERONIMO", "MLINKCHECK", "JUDDI", "MPIR", "ODFTOOLKIT", "MCHANGELOG", "BVAL", "CAY", "CHAINSAW", "FEDIZ", "BEANUTILS", "OGNL", "TAJO", "CXF", "JSIEVE", "PHOENIX", "PIVOT", "MRESOURCES", "GORA", "IO", "AMQ", "MJAR", "COLLECTIONS", "CONNECTORS", "GRIFFIN", "CHUKWA", "OODT", "KALUMET", "TEZ", "MEJB", "DELTASPIKE", "JELLY", "JCLOUDS", "RANGER", "MEAR", "ARTEMIS", "SENTRY", "APLO", "RYA", "CODEC", "DDLUTILS", "TEXT", "GIRAPH", "BIGTOP", "CONFIGURATION", "MIME4J", "MSITE", "OPENNLP", "STORM", "MDOAP", "MCHANGES", "DOXIA", "ZEPPELIN", "SUREFIRE", "MYFACESTEST", "TWILL", "CONTINUUM", "MCLEAN", "KYLIN", "DOXIATOOLS", "JSEC", "MDEPLOY", "AUTOTAG", "SSHD", "MCOMPILER", "MINSTALL", "SANSELAN", "AVRO", "COMPRESS", "HADOOP", "SHIRO", "EMPIREDB", "BSF", "CMIS", "DIGESTER", "DIRSTUDIO", "FALCON", "NET", "TOBAGO", "MASSEMBLY", "SAVAN", "MINVOKER", "PDFBOX", "JXR", "REEF", "MCHECKSTYLE", "MWAR", "MJMOD", "DBUTILS", "LENS", "ABDERA", "MSTAGE", "MSOURCES", "ATLAS", "HIVE", "MPLUGIN", "ODE", "CXFXJC", "NUMBERS", "BOOKKEEPER", "OPENMEETINGS", "KARAF", "DOXIASITETOOLS", "DRILL", "MPMD", "SIS", "TREQ", "CHAIN", "SYSTEMML", "IGNITE", "CSV", "HBASE", "MANTRUN", "USERGRID", "JXPATH", "COCOON", "WOOKIE", "SCM", "JCI", "JCS", "FLUME", "NUVEM", "DUBBO", "OOZIE", "JCRVLT", "CTAKES", "CLEREZZA", "STREAMS", "CLI", "FELIX", "MATH", "MYFACES", "JSPWIKI", "SMXCOMP"]:
-                continue
-            try:
-                import gc
-                gc.collect()
-                save_bugs_for_project(repo)
-                exit()
-                #choose_versions(repo)
-            except:
-                raise
+    get_apache_repos_data()

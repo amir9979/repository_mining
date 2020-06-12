@@ -4,138 +4,158 @@ from enum import Enum
 from config import Config
 
 
+class Project():
+    def __init__(self, github_name, jira_name, description=None):
+        self._github_name = github_name
+        self._jira_name = jira_name
+        self._description = description
+        self._path = os.path.join(Config().config['REPO']['RepoDir'], self.github)
+
+    def github(self):
+        return self._github_name
+
+    def jira(self):
+        return self._jira_name
+
+    def description(self):
+        return self._description
+
+    def path(self):
+        return self._path
+
+
 class ProjectName(Enum):
-    Camel = "camel", "CAMEL"
-    Hadoop = "hadoop", "HADOOP"
-    Flink = "flink", "FLINK"
-    Kafka = "kafka", "KAFKA"
-    OpenMeetings = "openmeetings", "OPENMEETINGS"
-    Karaf = "karaf", "KARAF"
-    Hbase = "hbase", "HBASE"
-    Netbeans = "netbeans", "NETBEANS"
-    UimaRuta = "uima-ruta", "UIMA"
-    Lucene = "lucene-solr", "LUCENE"
-    DeltaSpike = "deltaspike", "DELTASPIKE"
-    JackrabbitOak = "jackrabbit-oak", "OAK"
-    Pulsar = "pulsar", "PULSAR"
-    Ofbiz = "ofbiz", "OFBIZ"
-    Cayenne = "cayenne", "CAY"
-    CommonsCodec = "commons-codec", "CODEC"
-    Parquet = "parquet-mr", "PARQUET"
-    Kylin = "kylin", "KYLIN"
-    Hive = "hive", "HIVE"
-    CommonsValidator = "commons-validator", "VALIDATOR"
-    Surefire = "maven-surefire", "SUREFIRE"
-    Syncope = "syncope", "SYNCOPE"
-    CommonsMath = "commons-math", "MATH"
-    Tomcat = "tomcat", "MTOMCAT"
-    Atlas = "atlas", "ATLAS"
-    Struts = "struts", "STR"
-    Tika = "tika", "TIKA"
-    ServiceComb = "servicecomb-java-chassis", "SCB"
-    Ranger = "ranger", "RANGER"
-    Cassandra = "cassandra", "CASSANDRA"
-    CXF = "cxf", "CXF"
-    Avro = "avro", "AVRO"
-    Nifi = "nifi", "NIFI"
-    Bookkeeper = "bookkeeper", "BOOKKEEPER"
-    Clerezza = "clerezza", "CLEREZZA"
-    SystemML = "systemml", "SYSTEMML"
-    AsterixDB = "asterixdb", "ASTERIXDB"
-    Unomi = "unomi", "UNOMI"
-    Maven = "maven", "MNG"
-    Zeppelin = "zeppelin", "ZEPPELIN"
-    CommonsCollections = "commons-collections", "COLLECTIONS"
-    Jena = "jena", "JENA"
-    Calcite = "calcite", "CALCITE"
-    Tez = "tez", "TEZ"
-    CommonsLang = "commons-lang", "LANG"
-    ActiveMQ = "activemq", "AMQ"
-    Curator = "curator", "CURATOR"
-    Phoenix = "phoenix", "PHOENIX"
-    Samza = "samza", "SAMZA"
-    Nutch = "nutch", "NUTCH"
-    QpidJMS = "qpid-jms", "QPIDJMS"
-    DirectoryKerby = "directory-kerby", "DIRKRB"
-    Juneau = "juneau", "JUNEAU"
-    MyFacesTobago = "myfaces-tobago", "TOBAGO"
-    Isis = "isis", "ISIS"
-    Wicket = "wicket", "WICKET"
-    Santuario = "santuario-java", "SANTUARIO"
-    Helix = "helix", "HELIX"
-    Storm = "storm", "STORM"
-    Airavata = "airavata", "AIRAVATA"
-    MyFaces = "myfaces", "MYFACES"
-    CommonsDBCP = "commons-dbcp", "DBCP"
-    CommonsVFS = "commons-vfs", "VFS"
-    OpenNLP = "opennlp", "OPENNLP"
-    Tomee = "tomee", "TOMEE"
-    TinkerPop = "tinkerpop", "TINKERPOP"
-    DirectoryServer = "directory-server", "DIRSERVER"
-    CommonsCompress = "commons-compress", "COMPRESS"
-    Accumulo = "accumulo", "ACCUMULO"
-    Giraph = "giraph", "GIRAPH"
-    Johnzon = "johnzon", "JOHNZON"
-    JClouds = "jclouds", "JCLOUDS"
-    ManifoldCF = "manifoldcf", "CONNECTORS"
-    Shiro = "shiro", "SHIRO"
-    Knox = "knox", "KNOX"
-    Drill = "drill", "DRILL"
-    Crunch = "crunch", "CRUNCH"
-    CommonsIO = "commons-io", "IO"
-    CommonsCLI = "commons-cli", "CLI"
-    Jackrabbit = "jackrabbit", "JCR"
-    OpenWebBeans = "openwebbeans", "OWB"
-    FOP = "xmlgraphics-fop", "FOP"
-    Tajo = "tajo", "TAJO"
-    CommonsEmail = "commons-email", "EMAIL"
-    DirectoryStudio = "directory-studio", "DIRSTUDIO"
-    Tapestry5 = "tapestry-5", "TAP5"
-    Archiva = "archiva", "MRM"
-    Olingo = "olingo-odata4", "OLINGO"
-    OpenJPA = "openjpa", "OPENJPA"
-    CommonsJexl = "commons-jexl", "JEXL"
-    Roller = "roller", "ROL"
-    Reef = "reef", "REEF"
+    Camel = Project("camel", "CAMEL")
+    Hadoop = Project("hadoop", "HADOOP")
+    Flink = Project("flink", "FLINK")
+    Kafka = Project("kafka", "KAFKA")
+    OpenMeetings = Project("openmeetings", "OPENMEETINGS")
+    Karaf = Project("karaf", "KARAF")
+    Hbase = Project("hbase", "HBASE")
+    Netbeans = Project("netbeans", "NETBEANS")
+    UimaRuta = Project("uima-ruta", "UIMA")
+    Lucene = Project("lucene-solr", "LUCENE")
+    DeltaSpike = Project("deltaspike", "DELTASPIKE")
+    JackrabbitOak = Project("jackrabbit-oak", "OAK")
+    Pulsar = Project("pulsar", "PULSAR")
+    Ofbiz = Project("ofbiz", "OFBIZ")
+    Cayenne = Project("cayenne", "CAY")
+    CommonsCodec = Project("commons-codec", "CODEC")
+    Parquet = Project("parquet-mr", "PARQUET")
+    Kylin = Project("kylin", "KYLIN")
+    Hive = Project("hive", "HIVE")
+    CommonsValidator = Project("commons-validator", "VALIDATOR")
+    Surefire = Project("maven-surefire", "SUREFIRE")
+    Syncope = Project("syncope", "SYNCOPE")
+    CommonsMath = Project("commons-math", "MATH")
+    Tomcat = Project("tomcat", "MTOMCAT")
+    Atlas = Project("atlas", "ATLAS")
+    Struts = Project("struts", "STR")
+    Tika = Project("tika", "TIKA")
+    ServiceComb = Project("servicecomb-java-chassis", "SCB")
+    Ranger = Project("ranger", "RANGER")
+    Cassandra = Project("cassandra", "CASSANDRA")
+    CXF = Project("cxf", "CXF")
+    Avro = Project("avro", "AVRO")
+    Nifi = Project("nifi", "NIFI")
+    Bookkeeper = Project("bookkeeper", "BOOKKEEPER")
+    Clerezza = Project("clerezza", "CLEREZZA")
+    SystemML = Project("systemml", "SYSTEMML")
+    AsterixDB = Project("asterixdb", "ASTERIXDB")
+    Unomi = Project("unomi", "UNOMI")
+    Maven = Project("maven", "MNG")
+    Zeppelin = Project("zeppelin", "ZEPPELIN")
+    CommonsCollections = Project("commons-collections", "COLLECTIONS")
+    Jena = Project("jena", "JENA")
+    Calcite = Project("calcite", "CALCITE")
+    Tez = Project("tez", "TEZ")
+    CommonsLang = Project("commons-lang", "LANG")
+    ActiveMQ = Project("activemq", "AMQ")
+    Curator = Project("curator", "CURATOR")
+    Phoenix = Project("phoenix", "PHOENIX")
+    Samza = Project("samza", "SAMZA")
+    Nutch = Project("nutch", "NUTCH")
+    QpidJMS = Project("qpid-jms", "QPIDJMS")
+    DirectoryKerby = Project("directory-kerby", "DIRKRB")
+    Juneau = Project("juneau", "JUNEAU")
+    MyFacesTobago = Project("myfaces-tobago", "TOBAGO")
+    Isis = Project("isis", "ISIS")
+    Wicket = Project("wicket", "WICKET")
+    Santuario = Project("santuario-java", "SANTUARIO")
+    Helix = Project("helix", "HELIX")
+    Storm = Project("storm", "STORM")
+    Airavata = Project("airavata", "AIRAVATA")
+    MyFaces = Project("myfaces", "MYFACES")
+    CommonsDBCP = Project("commons-dbcp", "DBCP")
+    CommonsVFS = Project("commons-vfs", "VFS")
+    OpenNLP = Project("opennlp", "OPENNLP")
+    Tomee = Project("tomee", "TOMEE")
+    TinkerPop = Project("tinkerpop", "TINKERPOP")
+    DirectoryServer = Project("directory-server", "DIRSERVER")
+    CommonsCompress = Project("commons-compress", "COMPRESS")
+    Accumulo = Project("accumulo", "ACCUMULO")
+    Giraph = Project("giraph", "GIRAPH")
+    Johnzon = Project("johnzon", "JOHNZON")
+    JClouds = Project("jclouds", "JCLOUDS")
+    ManifoldCF = Project("manifoldcf", "CONNECTORS")
+    Shiro = Project("shiro", "SHIRO")
+    Knox = Project("knox", "KNOX")
+    Drill = Project("drill", "DRILL")
+    Crunch = Project("crunch", "CRUNCH")
+    CommonsIO = Project("commons-io", "IO")
+    CommonsCLI = Project("commons-cli", "CLI")
+    Jackrabbit = Project("jackrabbit", "JCR")
+    OpenWebBeans = Project("openwebbeans", "OWB")
+    FOP = Project("xmlgraphics-fop", "FOP")
+    Tajo = Project("tajo", "TAJO")
+    CommonsEmail = Project("commons-email", "EMAIL")
+    DirectoryStudio = Project("directory-studio", "DIRSTUDIO")
+    Tapestry5 = Project("tapestry-5", "TAP5")
+    Archiva = Project("archiva", "MRM")
+    Olingo = Project("olingo-odata4", "OLINGO")
+    OpenJPA = Project("openjpa", "OPENJPA")
+    CommonsJexl = Project("commons-jexl", "JEXL")
+    Roller = Project("roller", "ROL")
+    Reef = Project("reef", "REEF")
 
-    ActiveMQArtemis = "activemq-artemis", "ARTEMIS"
-    Beam = "beam", "BEAM"
-    Metron = "metron", "METRON"
-    Plc4x = "plc4x", "PLC4X"
+    ActiveMQArtemis = Project("activemq-artemis", "ARTEMIS")
+    Beam = Project("beam", "BEAM")
+    Metron = Project("metron", "METRON")
+    Plc4x = Project("plc4x", "PLC4X")
 
-    Cocoon = "cocoon", "COCOON"
-    CarbonData = "carbondata", "CARBONDATA"
-    CommonsCSV = "commons-csv", "CSV"
+    Cocoon = Project("cocoon", "COCOON")
+    CarbonData = Project("carbondata", "CARBONDATA")
+    CommonsCSV = Project("commons-csv", "CSV")
 
-    CommonsBeanUtils = "commons-beanutils", "BEANUTILS"
-    CommonsNet = "commons-net", "NET"
-    Continuum = "continuum", "CONTINUUM"
+    CommonsBeanUtils = Project("commons-beanutils", "BEANUTILS")
+    CommonsNet = Project("commons-net", "NET")
+    Continuum = Project("continuum", "CONTINUUM")
 
 
     # Projects that failed selection
     # new
-    # Groovy = "groovy", "GROOVY"
-    # Ignite = "ignite", "IGNITE"
-    # Bahir = "bahir", "BAHIR"
-    # CommonsDigester = "commons-digester", "DIGESTER"
-    # CommonsDaemon = "commons-daemon", "DAEMON"
-    # Buildr = "buildr", "BUILDR"
-    # Click = "click", "CLK"
-    # Aries = "aries", "ARIES"
-    # Bigtop = "bigtop", "BIGTOP"
-    # VXQuery = "vxquery", "VXQUERY"
-    # Brooklyn = "incubator-brooklyn", "BROOKLYN"
-    # CloudStack = "cloudstack", "CLOUDSTACK"
-    # CommonsCrypto = "commons-crypto", "CRYPTO"
-    # GeodeBenchmarks = "geode-benchmarks", "GEODE"
-    # Mina = "mina", "DIRMINA"
-    # Submarine = "submarine", "SUBMARINE"
-    # Griffin = "griffin", "GRIFFIN"
-    # CommonsImaging = "commons-imaging", "IMAGING"
-    # RocketMQ = "rocketmq", "ROCKETMQ"
-    # Synapse = "synapse", "SYNAPSE"
-    # Fineract = "fineract", "FINERACT"
-    # Dubbo = "dubbo", "DUBBO"
+    # Groovy = Project("groovy", "GROOVY")
+    # Ignite = Project("ignite", "IGNITE")
+    # Bahir = Project("bahir", "BAHIR")
+    # CommonsDigester = Project("commons-digester", "DIGESTER")
+    # CommonsDaemon = Project("commons-daemon", "DAEMON")
+    # Buildr = Project("buildr", "BUILDR")
+    # Click = Project("click", "CLK")
+    # Aries = Project("aries", "ARIES")
+    # Bigtop = Project("bigtop", "BIGTOP")
+    # VXQuery = Project("vxquery", "VXQUERY")
+    # Brooklyn = Project("incubator-brooklyn", "BROOKLYN")
+    # CloudStack = Project("cloudstack", "CLOUDSTACK")
+    # CommonsCrypto = Project("commons-crypto", "CRYPTO")
+    # GeodeBenchmarks = Project("geode-benchmarks", "GEODE")
+    # Mina = Project("mina", "DIRMINA")
+    # Submarine = Project("submarine", "SUBMARINE")
+    # Griffin = Project("griffin", "GRIFFIN")
+    # CommonsImaging = Project("commons-imaging", "IMAGING")
+    # RocketMQ = Project("rocketmq", "ROCKETMQ")
+    # Synapse = Project("synapse", "SYNAPSE")
+    # Fineract = Project("fineract", "FINERACT")
+    # Dubbo = Project("dubbo", "DUBBO")
 
     def github(self):
         return self.value[0]
