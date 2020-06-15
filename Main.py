@@ -2,7 +2,10 @@ import argparse
 from projects import ProjectName, Project
 from data_extractor import DataExtractor
 from version_selector import VersionType
-
+from config import Config
+import os
+from pathlib import Path
+import pandas as pd
 
 class Main():
     def __init__(self):
@@ -17,6 +20,20 @@ class Main():
 
     def get_project(self, github, jira):
         return Project(github, jira)
+
+    def organize_bin_versions(self):
+        data = Config().config['CACHING']['RepositoryData']
+        selected = Config().config['DATA_EXTRACTION']['SelectedVersionsBin']
+        path = os.path.join(data, selected, self.project.github() + ".csv")
+        in_path = Config.get_work_dir_path(path)
+        versions = "versions"
+        Path(versions).mkdir(parents=True, exist_ok=True)
+        dest_path = os.path.join(versions, self.project.github() + ".csv")
+        if os.path.exists(in_path):
+            df = pd.read_csv(in_path)
+            df.head(8).drop(columns=["start", "step", "stop"]).to_csv(dest_path, index=False)
+        return path
+
 
     def main(self):
         parser = argparse.ArgumentParser(description='Execute project data')
