@@ -9,7 +9,7 @@ from commit import Commit
 from config import Config
 from fixing_issues import VersionInfo
 from issues import get_jira_issues
-from version_selector import ConfigurationSelectVersion, BinSelectVersion, QuadraticSelectVersion
+from version_selector import ConfigurationSelectVersion, BinSelectVersion, QuadraticSelectVersion, VersionType, AbstractSelectVersions
 from versions import Version
 from caching import cached
 from repo import Repo
@@ -87,7 +87,7 @@ class DataExtractor(object):
 
     def _store_versions(self, tags):
         columns = ["version_name", "#commited_files_in_version", "#bugged_files_in_version", "bugged_ratio",
-                   "#commits", "#bugged_commits", "#ratio_bugged_commits", "version_date", "version_url"]
+                   "#commits", "#bugged_commits", "#ratio_bugged_commits", "version_date", "version_url", "version_type"]
         df = pd.DataFrame(columns=columns)
         for tag in tags:
             version = {"version_name": tag.version._name,
@@ -98,7 +98,8 @@ class DataExtractor(object):
                        "#bugged_commits": tag.num_bugged_commits,
                        "#ratio_bugged_commits": tag.ratio_bugged_commits,
                        "version_date": tag.version._commit._commit_formatted_date,
-                       "version_url": self.get_commit_url(tag.version._commit._commit_id)}
+                       "version_url": self.get_commit_url(tag.version._commit._commit_id),
+                       "version_type": AbstractSelectVersions.define_version_type(tag.version._name).name}
             df = df.append(version, ignore_index=True)
 
         versions_dir = self._get_caching_path("Versions")
@@ -186,7 +187,7 @@ class DataExtractor(object):
         return commits
 
     def choose_versions(self, repo=None, version_num=5, configurations=False,
-                        algorithm="bin", version_type="all", strict="true"):
+                        algorithm="bin", version_type=VersionType.Untyped, strict="true"):
         tags = self.bugged_files_between_versions
         if repo is None:
             repo = self.repo

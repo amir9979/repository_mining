@@ -13,6 +13,7 @@ sys.path.append("..")
 from config import Config
 from data_extractor import DataExtractor
 from projects import ProjectName, Project
+from version_selector import VersionType
 
 
 done = [
@@ -29,14 +30,14 @@ def select_versions(project_ref):
     general_log.info("{0}:{1}".format(str(index), project.github()))
     extractor = DataExtractor(project)
     try:
-        extractor.choose_versions(version_num=5, algorithm="quadratic", strict="true", version_type="all")
+        extractor.choose_versions(version_num=5, algorithm="quadratic", strict="true", version_type=VersionType.Untyped)
         success_log.info("quadratic | Succeeded to select {0}.".format(project.github()))
     except Exception as e:
         failure_log.error("quadratic | Failed to select {0}.".format(project.github()))
         failure_verbose_log.exception("quadratic | Failed to select {0}.".format(project.github()))
 
     try:
-        extractor.choose_versions(version_num=5, algorithm="bin", strict="false", version_type="all")
+        extractor.choose_versions(version_num=5, algorithm="bin", strict="false", version_type=VersionType.Untyped)
         success_log.info("bin | Succeeded to select {0}.".format(project.github()))
     except Exception as e:
         failure_log.error("bin | Failed to select {0}.".format(project.github()))

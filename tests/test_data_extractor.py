@@ -9,7 +9,7 @@ from config import Config
 from data_extractor import DataExtractor
 from projects import ProjectName
 from repo import Repo
-
+from version_selector import VersionType
 
 class TestDataExtractor:
 
@@ -59,7 +59,7 @@ class TestDataExtractor:
     def test_quadratic_choose_versions(self):
         project = ProjectName.CommonsLang.value
         extractor = DataExtractor(project)
-        extractor.choose_versions(algorithm="quadratic", strict="true", version_type="all")
+        extractor.choose_versions(algorithm="quadratic", strict="true", version_type=VersionType.Untyped)
         assert True
 
     def test_bugged_files_between_versions(self):

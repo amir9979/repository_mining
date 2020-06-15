@@ -2,11 +2,36 @@ import os
 import re
 from abc import ABC, abstractmethod
 from itertools import product
-
 import pandas as pd
-
 from config import Config
-from repo import Repo
+from enum import Enum
+
+class VersionType(Enum):
+    Major = 1
+    Minor = 2
+    Micro = 3
+    Untyped = 4
+
+
+class Version():
+    def __init__(self, name, version_type, major=0, minor=0, micro=0):
+        self.name = name
+        self.version_type = version_type
+        self.major = major
+        self.minor = minor
+        self.micro = micro
+
+    def is_untyped(self):
+        return self.version_type != VersionType.Untyped
+
+    def is_micro(self):
+        return not self.is_untyped()
+
+    def is_minor(self):
+        return self.version_type in [VersionType.Minor, VersionType.Major]
+
+    def is_major(self):
+        return self.version_type == VersionType.Major
 
 
 class AbstractSelectVersions(ABC):
@@ -27,12 +52,8 @@ class AbstractSelectVersions(ABC):
         self._store_versions(self.repo)
         return self.versions_selected
 
-    def _get_versions_by_type(self, versions):
-        if self.type == "all":
-            self.versions_by_type = versions
-            return
-
-        majors, minors, micros = [], [], []
+    @staticmethod
+    def define_version_type(version):
         separators = [r'\.', r'\-', r'\_']
         template_base = [['([0-9])', '([0-9])([0-9])', '([0-9])$'], ['([0-9])', '([0-9])([0-9])$'],
                          ['([0-9])', '([0-9])', '([0-9])([0-9])$'], ['([0-9])([0-9])', '([0-9])$'],
@@ -41,36 +62,39 @@ class AbstractSelectVersions(ABC):
         for base in template_base:
             templates.extend(list(map(lambda sep: sep.join(base), separators)))
         templates.extend(['([0-9])([0-9])([0-9])$', '([0-9])([0-9])$'])
-        for version in versions:
-            for template in templates:
-                values = re.findall(template, version._name)
-                if values:
-                    values = list(map(int, values[0]))
-                    if len(values) == 4:
-                        micros.append(version)
-                        major, minor1, minor2, micro = values
-                        minor = 10 * minor1 + minor2
-                    elif len(values) == 3:
-                        micros.append(version)
-                        major, minor, micro = values
-                    else:
-                        major, minor = values
-                        micro = 0
-                    if micro == 0:
-                        minors.append(version)
-                    if minor == 0 and micro == 0:
-                        majors.append(version)
-                    break
+        for template in templates:
+            values = re.findall(template, version._name)
+            if values:
+                values = list(map(int, values[0]))
+                if len(values) == 4:
+                    major, minor1, minor2, micro = values
+                    minor = 10 * minor1 + minor2
+                elif len(values) == 3:
+                    major, minor, micro = values
+                else:
+                    major, minor = values
+                    micro = 0
+                if micro != 0:
+                    return Version(version, VersionType.Micro, major, minor, micro)
+                elif minor != 0:
+                    return Version(version, VersionType.Minor, major, minor)
+                elif major != 0:
+                    return Version(version, VersionType.Major, major)
+                else:
+                    return Version(version, VersionType.Untyped)
 
+    def _get_versions_by_type(self, versions):
+        if self.type == VersionType.Untyped:
+            self.versions_by_type = versions
+            return
+        typed_versions = list(map(AbstractSelectVersions.define_version_type, versions))
+        if self.type == VersionType.Major:
+            self.versions_by_type = list(map(lambda x: x.name, filter(Version.is_major, typed_versions)))
+        elif self.type == VersionType.Minor:
+            self.versions_by_type = list(map(lambda x: x.name, filter(Version.is_minor, typed_versions)))
+        elif self.type == VersionType.Micro:
+            self.versions_by_type = list(map(lambda x: x.name, filter(Version.is_micro, typed_versions)))
 
-        if self.type == "majors":
-            self.versions_by_type = majors
-        elif self.type == "minors":
-            self.versions_by_type = minors
-        elif self.type == "micros":
-            self.versions_by_type = micros
-        else:
-            raise Exception("Error: " + self.type + " not an option.")
 
     @abstractmethod
     def _select_versions(self, repo, versions_by_type, tags):

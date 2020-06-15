@@ -5,7 +5,7 @@ from config import Config
 
 
 class Project():
-    def __init__(self, github_name, jira_name, description=None):
+    def __init__(self, github_name, jira_name, description=''):
         self._github_name = github_name
         self._jira_name = jira_name
         self._description = description
