@@ -99,7 +99,7 @@ class DataExtractor(object):
                        "#ratio_bugged_commits": tag.ratio_bugged_commits,
                        "version_date": tag.version._commit._commit_formatted_date,
                        "version_url": self.get_commit_url(tag.version._commit._commit_id),
-                       "version_type": AbstractSelectVersions.define_version_type(tag.version).name}
+                       "version_type": AbstractSelectVersions.define_version_type(tag.version)._name}
             df = df.append(version, ignore_index=True)
 
         versions_dir = self._get_caching_path("Versions")
