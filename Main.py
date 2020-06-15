@@ -19,6 +19,8 @@ class Main():
         parser.add_argument('-c', '--choose', dest='choose', action='store', help='choose a project to extract')
         parser.add_argument('-g', '--github_url', dest='github', action='store', help='the git link to the project to extract')
         parser.add_argument('-j', '--jira_url', dest='jira', action='store', help='the jira link to the project to extract')
+        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the algorithm to select the versions : [bin, quadratic]', default='bin')
+        parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the the number of versions to select', default=5, type=int)
         args = parser.parse_args()
         if args.projects:
             self.list_projects()

@@ -82,6 +82,7 @@ class AbstractSelectVersions(ABC):
                     return Version(version, VersionType.Major, major)
                 else:
                     return Version(version, VersionType.Untyped)
+        return Version(version, VersionType.Untyped)
 
     def _get_versions_by_type(self, versions):
         if self.type == VersionType.Untyped:
