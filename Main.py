@@ -81,7 +81,7 @@ class Main():
         if args.select:
             self.extractor.choose_versions(version_num=args.num_versions, algorithm=args.select, strict="false", version_type=VersionType[args.versions_type])
             self.extract()
-            # self.extract_metrics()
+            self.extract_metrics()
 
 
 
