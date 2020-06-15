@@ -14,8 +14,8 @@ class VersionType(Enum):
 
 
 class Version():
-    def __init__(self, name, version_type, major=0, minor=0, micro=0):
-        self.name = name
+    def __init__(self, version, version_type, major=0, minor=0, micro=0):
+        self.version = version
         self.version_type = version_type
         self.major = major
         self.minor = minor
@@ -89,11 +89,11 @@ class AbstractSelectVersions(ABC):
             return
         typed_versions = list(map(AbstractSelectVersions.define_version_type, versions))
         if self.type == VersionType.Major:
-            self.versions_by_type = list(map(lambda x: x.name, filter(Version.is_major, typed_versions)))
+            self.versions_by_type = list(map(lambda x: x.version, filter(Version.is_major, typed_versions)))
         elif self.type == VersionType.Minor:
-            self.versions_by_type = list(map(lambda x: x.name, filter(Version.is_minor, typed_versions)))
+            self.versions_by_type = list(map(lambda x: x.version, filter(Version.is_minor, typed_versions)))
         elif self.type == VersionType.Micro:
-            self.versions_by_type = list(map(lambda x: x.name, filter(Version.is_micro, typed_versions)))
+            self.versions_by_type = list(map(lambda x: x.version, filter(Version.is_micro, typed_versions)))
 
 
     @abstractmethod
@@ -158,6 +158,7 @@ class QuadraticSelectVersion(AbstractSelectVersions):
         def cond1(x, ratio): return x.bugged_ratio <= ratio
         def cond2(x, ratio): return x.bugged_ratio >= ratio
         def cond3(x, num_commits): return x.num_commits >= num_commits
+        def conds(x, max_ratio, min_ratio, num_commits): return all([cond1(x, max_ratio), cond2(x, min_ratio), cond3(x, num_commits)])
         max_ratio, min_ratio = self.max_ratio, self.min_ratio
         min_num_commits = self.min_num_commits
         filtered_tags = []
@@ -165,10 +166,7 @@ class QuadraticSelectVersion(AbstractSelectVersions):
             if min_num_commits <= 0:
                 raise self.NotEnoughVersions("Error: lower the num of versions.")
 
-            filtered_tags = list(filter(lambda tag:
-                                        cond1(tag, max_ratio) and
-                                        cond2(tag, min_ratio) and
-                                        cond3(tag, min_num_commits), tags))
+            filtered_tags = list(filter(lambda tag: conds(tag, max_ratio, min_ratio, min_num_commits) , tags))
 
             max_ratio += self.max_ratio / 10
             min_num_commits -= self.min_num_commits / 10
