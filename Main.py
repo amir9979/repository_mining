@@ -6,6 +6,7 @@ from config import Config
 import os
 from pathlib import Path
 import pandas as pd
+from metrics.version_metrics import Bugged, Checkstyle, Designite, CK, Halstead
 
 class Main():
     def __init__(self):
@@ -16,10 +17,18 @@ class Main():
         print("\n".join(list(map(lambda e: "{0}: {1}".format(e.name, e.value.description()), ProjectName))))
 
     def extract(self):
-        self.extractor = DataExtractor(self.project)
+        self.extractor.extract()
 
-    def get_project(self, github, jira):
-        return Project(github, jira)
+    def set_project(self, github, jira):
+        self.project = Project(github, jira)
+        self.set_extractor()
+
+    def set_project_enum(self, name):
+        self.project = ProjectName[name].value
+        self.set_extractor()
+
+    def set_extractor(self):
+        self.extractor = DataExtractor(self.project)
 
     def organize_bin_versions(self):
         data = Config().config['CACHING']['RepositoryData']
@@ -34,30 +43,45 @@ class Main():
             df.head(8).drop(columns=["start", "step", "stop"]).to_csv(dest_path, index=False)
         return path
 
+    def extract_metrics(self):
+        data = Config().config['CACHING']['RepositoryData']
+        selected = Config().config['DATA_EXTRACTION']['SelectedVersionsBin']
+        path = os.path.join(data, selected, self.project.github() + ".csv")
+        in_path = Config.get_work_dir_path(path)
+        versions = pd.read_csv(in_path)['version']
+        for version in versions:
+            extractors = {
+                "Bugged": Bugged(self.project, version),
+                "Checkstyle": Checkstyle(self.project, version),
+                # "Designite": Designite(project, version),
+                # "Ck": CK(project, version),
+                # "Halstead": Halstead(project, version)
+                # TODO fix "Mood": Mood(project, version),
+            }
+            for extractor_name, extractor in extractors.items():
+                extractor.extract()
 
     def main(self):
         parser = argparse.ArgumentParser(description='Execute project data')
         parser.add_argument('-p', '--projects', dest='projects', action='store_const', const=True, default=False,
                             help='list all aleready defined projects')
-        parser.add_argument('-p', '--projects', dest='projects', action='store_const', const=True, default=False,
-                            help='list all aleready defined projects')
         parser.add_argument('-c', '--choose', dest='choose', action='store', help='choose a project to extract')
         parser.add_argument('-g', '--github_url', dest='github', action='store', help='the git link to the project to extract')
         parser.add_argument('-j', '--jira_url', dest='jira', action='store', help='the jira link to the project to extract')
-        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the algorithm to select the versions : [bin, quadratic]', default='quadratic')
+        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the algorithm to select the versions : [bin]', default='bin')
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
         args = parser.parse_args()
         if args.projects:
             self.list_projects()
         if args.choose:
-            self.project = ProjectName[args.choose]
-            self.extract()
+            self.set_project_enum(args.choose)
         if args.github and args.jira:
-            self.project = self.get_project(args.github, args.jira)
-            self.extract()
+            self.set_project(args.github, args.jira)
         if args.select:
             self.extractor.choose_versions(version_num=args.num_versions, algorithm=args.select, strict="false", version_type=VersionType[args.versions_type])
+            self.extract()
+            # self.extract_metrics()
 
 
 

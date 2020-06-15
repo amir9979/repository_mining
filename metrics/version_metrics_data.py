@@ -135,7 +135,6 @@ class CheckstyleData(Data):
         self.data_type = DataType.CheckstyleDataType.value
         self.raw_data = data
         super().__init__(project, version)
-        pass
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
