@@ -54,9 +54,9 @@ class Extractor(ABC):
         pass
 
     @staticmethod
-    def get_all_extractors(project, version):
+    def get_all_extractors(project, version, repo=None):
         for s in Extractor.__subclasses__():
-            yield s(project, version)
+            yield s(project, version, repo)
 
 
 class Bugged(Extractor):
