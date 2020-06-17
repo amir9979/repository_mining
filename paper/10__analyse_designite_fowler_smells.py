@@ -55,6 +55,23 @@ def build_dataset(version, project):
         db.append(DataName.IntensiveCoupling)
         db.append(DataName.ShotgunSurgery)
         db.append(DataName.BrainMethod)
+        db.append(DataName.ImperativeAbstraction)
+        db.append(DataName.MultifacetedAbstraction)
+        db.append(DataName.UnnecessaryAbstraction)
+        db.append(DataName.UnutilizedAbstraction)
+        db.append(DataName.DeficientEncapsulation)
+        db.append(DataName.UnexploitedEncapsulation)
+        db.append(DataName.BrokenModularization)
+        db.append(DataName.Cyclic_DependentModularization)
+        db.append(DataName.InsufficientModularization)
+        db.append(DataName.Hub_likeModularization)
+        db.append(DataName.BrokenHierarchy)
+        db.append(DataName.CyclicHierarchy)
+        db.append(DataName.DeepHierarchy)
+        db.append(DataName.MissingHierarchy)
+        db.append(DataName.MultipathHierarchy)
+        db.append(DataName.RebelliousHierarchy)
+        db.append(DataName.WideHierarchy)
         db.append(DataName.Bugged)
 
         general_log.info("{0} | {1} | building dataset".format(
@@ -113,7 +130,7 @@ def extract_datasets(project):
         summary_log.info("{0} | project failed.".format(project.github()))
         return
 
-    dataset_dir = Config.get_work_dir_path(os.path.join("paper", "datasets", "fowler", project.github()))
+    dataset_dir = Config.get_work_dir_path(os.path.join("paper", "datasets", "designite_fowler", project.github()))
     Path(dataset_dir).mkdir(parents=True, exist_ok=True)
     training_path = os.path.join(dataset_dir, "training.csv")
     testing_path = os.path.join(dataset_dir, "testing.csv")
@@ -123,7 +140,7 @@ def extract_datasets(project):
 
 
 def execute(project):
-    dataset_dir = Config.get_work_dir_path(os.path.join("paper", "datasets", "fowler", project.github()))
+    dataset_dir = Config.get_work_dir_path(os.path.join("paper", "datasets", "designite_fowler", project.github()))
     Path(dataset_dir).mkdir(parents=True, exist_ok=True)
     training_path = os.path.join(dataset_dir, "training.csv")
     testing_path = os.path.join(dataset_dir, "testing.csv")
@@ -138,14 +155,14 @@ def execute(project):
     training_X, training_y = oversample.fit_resample(training_X, training_y)
 
     models = {
-        # 'LinearDiscriminantAnalysis': LinearDiscriminantAnalysis(),
+        'LinearDiscriminantAnalysis': LinearDiscriminantAnalysis(),
         'QuadraticDiscriminantAnalysis': QuadraticDiscriminantAnalysis(),
-        # 'LogisticRegression': LogisticRegression(),
-        # 'BernoulliNaiveBayes': BernoulliNB(),
-        # 'K-NearestNeighbor': KNeighborsClassifier(),
-        # 'DecisionTree': DecisionTreeClassifier(),
-        # 'RandomForest': RandomForestClassifier(),
-        # 'SupportVectorMachine': SVC(),
+        'LogisticRegression': LogisticRegression(),
+        'BernoulliNaiveBayes': BernoulliNB(),
+        'K-NearestNeighbor': KNeighborsClassifier(),
+        'DecisionTree': DecisionTreeClassifier(),
+        'RandomForest': RandomForestClassifier(),
+        'SupportVectorMachine': SVC(),
         # 'MultilayerPerceptron': MLPClassifier()
     }
     params = {
@@ -193,7 +210,7 @@ def execute(project):
             'brier score': brier_score_loss(testing_y, prediction_y)
         }
         scores = scores.append(scores_dict, ignore_index=True)
-    scores_dir = Config.get_work_dir_path(os.path.join("paper", "scores", "fowler", project.github()))
+    scores_dir = Config.get_work_dir_path(os.path.join("paper", "scores", "designite_fowler", project.github()))
     Path(scores_dir).mkdir(parents=True, exist_ok=True)
     scores_path = os.path.join(scores_dir, "scores.csv")
     training_x_path = os.path.join(scores_dir, "training_x.csv")
@@ -252,10 +269,10 @@ class CreateLoggers:
     def _create_handlers(self):
         self.console = logging.StreamHandler()
         paper_dir = Config.get_work_dir_path(os.path.join("paper", "logs"))
-        self.summary_file = logging.FileHandler(os.path.join(paper_dir, "(6)_summary.log"), "a")
-        self.success_file = logging.FileHandler(os.path.join(paper_dir, "(6)_success.log"), "a")
-        self.failure_file = logging.FileHandler(os.path.join(paper_dir, "(6)_failure.log"), "a")
-        self.failure_verbose_file = logging.FileHandler(os.path.join(paper_dir, "(6)_failure_verbose.log"), "a")
+        self.summary_file = logging.FileHandler(os.path.join(paper_dir, "(10)_summary.log"), "a")
+        self.success_file = logging.FileHandler(os.path.join(paper_dir, "(10)_success.log"), "a")
+        self.failure_file = logging.FileHandler(os.path.join(paper_dir, "(10)_failure.log"), "a")
+        self.failure_verbose_file = logging.FileHandler(os.path.join(paper_dir, "(10)_failure_verbose.log"), "a")
 
     def _set_formatters_to_handlers(self):
         self.console.setFormatter(self.console_formatter)
@@ -291,6 +308,5 @@ if __name__ == "__main__":
     CreateLoggers()
     projects = list(ProjectName)
     projects = list(filter(lambda x: x not in done, projects))
-    projects = [ProjectName.Plc4x]
     with Pool() as p:
         p.map(do, projects)

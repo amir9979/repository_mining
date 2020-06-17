@@ -1,101 +1,222 @@
+import functools
 import logging
+import os
+from multiprocessing import Pool
 from pathlib import Path
 
-import functools
-import os
-import traceback
-from multiprocessing import Pool
-
+import numpy as np
 import pandas as pd
+from imblearn.over_sampling import SMOTE
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import SelectPercentile, chi2, mutual_info_classif, f_classif
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score, brier_score_loss
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 from config import Config
 from metrics.version_metrics_data import DataBuilder
 from metrics.version_metrics_name import DataName
+from paper.utils import EstimatorSelectionHelper, FeatureSelectionHelper
 from projects import ProjectName
 
-
-done = [
-]
+done = []
 
 
-def build_dataset(version, project, slog, flog, fvlog):
-    print("building {0}:{1}".format(project.github(), version))
+def build_dataset(version, project):
+    general_log = logging.getLogger(__name__)
+    success_log = logging.getLogger("success")
+    failure_log = logging.getLogger("failure")
+    failure_verbose_log = logging.getLogger("failure_verbose")
+
     try:
         db = DataBuilder(project, version)
-        db.append(DataName.GodClass)
-        db.append(DataName.ClassDataShouldBePrivate)
-        db.append(DataName.ComplexClass)
-        db.append(DataName.LazyClass)
-        db.append(DataName.RefusedBequest)
-        db.append(DataName.SpaghettiCode)
-        db.append(DataName.SpeculativeGenerality)
-        db.append(DataName.DataClass)
-        db.append(DataName.BrainClass)
-        db.append(DataName.LargeClass)
-        db.append(DataName.SwissArmyKnife)
-        db.append(DataName.AntiSingleton)
-        db.append(DataName.FeatureEnvy)
-        db.append(DataName.LongMethod_Organic)
-        db.append(DataName.LongParameterList_Organic)
-        db.append(DataName.MessageChain)
-        db.append(DataName.DispersedCoupling)
-        db.append(DataName.IntensiveCoupling)
-        db.append(DataName.ShotgunSurgery)
-        db.append(DataName.BrainMethod)
+
+        db.append(DataName.ImperativeAbstraction)
+        db.append(DataName.MultifacetedAbstraction)
+        db.append(DataName.UnnecessaryAbstraction)
+        db.append(DataName.UnutilizedAbstraction)
+        db.append(DataName.DeficientEncapsulation)
+        db.append(DataName.UnexploitedEncapsulation)
+        db.append(DataName.BrokenModularization)
+        db.append(DataName.Cyclic_DependentModularization)
+        db.append(DataName.InsufficientModularization)
+        db.append(DataName.Hub_likeModularization)
+        db.append(DataName.BrokenHierarchy)
+        db.append(DataName.CyclicHierarchy)
+        db.append(DataName.DeepHierarchy)
+        db.append(DataName.MissingHierarchy)
+        db.append(DataName.MultipathHierarchy)
+        db.append(DataName.RebelliousHierarchy)
+        db.append(DataName.WideHierarchy)
         db.append(DataName.Bugged)
+
+        general_log.info("{0} | {1} | building dataset".format(
+            project.github(),
+            version
+        ))
         classes_df, methods_df = db.build()
-        print("succeeded to build {0}:{1}\n".format(
-            project.github(),
-            version))
-        slog.write("succeeded to build {0}:{1}\n".format(
-            project.github(),
-            version))
-        return classes_df
-    except Exception as e:
-        print("failed to build {0}:{1}\n".format(
-            project.github,
-            version))
-        flog.write("failed to build {0}:{1}\n".format(
-            project.github,
-            version))
-        fvlog.write("failed to build {0}:{1}\n {2}\n{3}\n\n").format(
+        if not classes_df.empty:
+            success_log.info("{0} | {1} | succeeded building dataset".format(
                 project.github(),
-                version,
-                e,
-                traceback.format_exc())
+                version
+            ))
+        else:
+            raise Exception("Designite smells dataset is empty.")
+
+        return classes_df
+    except Exception:
+        failure_log.error("{0} | {1} | (exception) failed building dataset".format(
+            project.github(),
+            version
+        ))
+
+        failure_verbose_log.exception("{0} | {1} | failed building dataset".format(
+            project.github(),
+            version
+        ))
         return None
 
-def execute(project):
-    dir = Config.get_work_dir_path(os.path.join("paper", "logs"))
-    slog = open(os.path.join(dir, "(4)_success_xm.log"), "a")
-    flog = open(os.path.join(dir, "(4)_failed_xm.log"), "a")
-    fvlog = open(os.path.join(dir, "(4)_failed_verbose_xm.log"), "a")
+
+def extract_datasets(project):
+    general_log = logging.getLogger(__name__)
+    failure_log = logging.getLogger("failure")
+    summary_log = logging.getLogger("summary")
+
+    general_log.info("{0} | Getting versions ...".format(project.github()))
 
     versions_dir = Config.get_work_dir_path(os.path.join("paper", "versions"))
     versions_path = os.path.join(versions_dir, project.github() + ".csv")
     versions = pd.read_csv(versions_path)['version'].to_list()
-    build = functools.partial(build_dataset,
-                                project=project,
-                                slog=slog,
-                                flog=flog,
-                                fvlog=fvlog)
 
-    dfs = list(map(build, versions))
+    general_log.info("{0} | Building dataset ...".format(project.github()))
+    build = functools.partial(build_dataset, project=project)
+    datasets = list(map(build, versions))
 
-    slog.close()
-    flog.close()
-    fvlog.close()
-
-    if None in dfs:
-        print("project " + project.github() + " failed")
+    if any(dataset is None for dataset in datasets):
+        failure_log.error("{0} | There are missing datasets".format(project.github()))
+        summary_log.info("{0} | project failed.".format(project.github()))
         return
 
-    df = pd.concat(dfs, axis=0, ignore_index=False)
+    dataset_dir = Config.get_work_dir_path(os.path.join("paper", "datasets", "designite", project.github()))
+    Path(dataset_dir).mkdir(parents=True, exist_ok=True)
+    training_path = os.path.join(dataset_dir, "training.csv")
+    testing_path = os.path.join(dataset_dir, "testing.csv")
 
-    dir = Config.get_work_dir_path(os.path.join("paper", "datasets"))
-    Path(dir).mkdir(parents=True, exist_ok=True)
-    path = os.path.join(dir, project.github()+"_fowler" + ".csv")
-    df.to_csv(path)
+    pd.concat(datasets[:-1], ignore_index=True).drop(["File", "Class"], axis=1).to_csv(training_path, index=False)
+    datasets[-1].drop(["File", "Class"], axis=1).to_csv(testing_path, index=False)
+
+
+def execute(project):
+    dataset_dir = Config.get_work_dir_path(os.path.join("paper", "datasets", "designite", project.github()))
+    Path(dataset_dir).mkdir(parents=True, exist_ok=True)
+    training_path = os.path.join(dataset_dir, "training.csv")
+    testing_path = os.path.join(dataset_dir, "testing.csv")
+
+    training_df = pd.read_csv(training_path).dropna().astype(int)
+    testing_df = pd.read_csv(testing_path).dropna().astype(int)
+
+    training_y = training_df.pop('Bugged').values
+    training_X = training_df.values
+
+    selection_methods = {
+        'chi2_5p': SelectPercentile(chi2, percentile=5),
+        'chi2_10p': SelectPercentile(chi2, percentile=10),
+        'chi2_20p': SelectPercentile(chi2, percentile=20),
+        'mutual_info_classif_5p': SelectPercentile(mutual_info_classif, percentile=5),
+        'mutual_info_classif_10p': SelectPercentile(mutual_info_classif, percentile=10),
+        'mutual_info_classif_20p': SelectPercentile(mutual_info_classif, percentile=20),
+        'f_classif_5': SelectPercentile(f_classif, percentile=5),
+        'f_classif_10': SelectPercentile(f_classif, percentile=10),
+        'f_classif_20': SelectPercentile(f_classif, percentile=20),
+    }
+
+    selected_features = FeatureSelectionHelper.select(training_X, training_Y)
+    oversample = SMOTE()
+    training_X, training_y = oversample.fit_resample(training_X, training_y)
+
+    models = {
+        'LinearDiscriminantAnalysis': LinearDiscriminantAnalysis(),
+        'QuadraticDiscriminantAnalysis': QuadraticDiscriminantAnalysis(),
+        'LogisticRegression': LogisticRegression(),
+        'BernoulliNaiveBayes': BernoulliNB(),
+        'K-NearestNeighbor': KNeighborsClassifier(),
+        'DecisionTree': DecisionTreeClassifier(),
+        'RandomForest': RandomForestClassifier(),
+        'SupportVectorMachine': SVC(),
+        'MultilayerPerceptron': MLPClassifier()
+    }
+    params = {
+        'LinearDiscriminantAnalysis': {},
+         'QuadraticDiscriminantAnalysis': {},
+        'LogisticRegression': {'C': list(np.logspace(-4, 4, 3))},
+        'BernoulliNaiveBayes': {},
+        'K-NearestNeighbor': {},
+        'DecisionTree': {'criterion': ['gini', 'entropy'], },
+        'RandomForest': {'n_estimators': [10, 100]},
+        'SupportVectorMachine': {'C': [0.1, 100]},
+        'MultilayerPerceptron': {'hidden_layer_sizes': [(17, 8, 17)],
+                                'activation': ['tanh', 'relu']}
+    }
+
+    helper = EstimatorSelectionHelper(models, params)
+    helper.fit(training_X, training_y, scoring='f1')
+    summary = helper.score_summary()
+    top_summary = summary[:10]
+    top_summary_iter = top_summary.drop(EstimatorSelectionHelper.get_scores_info(), axis=1)\
+                                  .where(pd.notnull(top_summary), None)\
+                                  .iterrows()
+
+    testing_y = testing_df.pop('Bugged').values
+    testing_X = testing_df.values
+    models_info = list(map(lambda x: x[1].to_dict(), top_summary_iter))
+
+    columns = ['estimator', 'configuration', 'precision', 'recall', 'f1-measure', 'auc-roc', 'brier score']
+    scores = pd.DataFrame(columns=columns)
+    predictions = []
+    for model_info in models_info:
+        estimator = models[model_info['estimator']]
+        params = {key: val for key, val in model_info.items() if not (val is None or key == 'estimator')}
+        estimator.set_params(**params)
+        estimator.fit(training_X, training_y)
+        prediction_y = estimator.predict(testing_X)
+        predictions.append(prediction_y)
+        scores_dict = {
+            'estimator': model_info['estimator'],
+            'configuration': str(params),
+            'precision': precision_score(testing_y, prediction_y),
+            'recall': recall_score(testing_y, prediction_y),
+            'f1-measure': f1_score(testing_y, prediction_y),
+            'auc-roc': roc_auc_score(testing_y, prediction_y),
+            'brier score': brier_score_loss(testing_y, prediction_y)
+        }
+        scores = scores.append(scores_dict, ignore_index=True)
+    pass
+    scores_dir = Config.get_work_dir_path(os.path.join("paper", "scores", "designite", project.github()))
+    Path(scores_dir).mkdir(parents=True, exist_ok=True)
+    scores_path = os.path.join(scores_dir, "scores.csv")
+    training_x_path = os.path.join(scores_dir, "training_x.csv")
+    training_y_path = os.path.join(scores_dir, "training_y.csv")
+    testing_x_path = os.path.join(scores_dir, "testing_x.csv")
+    testing_y_path = os.path.join(scores_dir, "testing_y.csv")
+    prediction_y_path = os.path.join(scores_dir, "prediction_y.csv")
+    prediction_real_y_path = os.path.join(scores_dir, "prediction_real_y.csv")
+    summary_path = os.path.join(scores_dir, "summary.csv")
+    scores.to_csv(scores_path, index=False)
+    pd.DataFrame(data=training_X, columns=training_df.columns).to_csv(training_x_path, index=False)
+    pd.DataFrame(data=training_y, columns=['Bugged']).to_csv(training_y_path, index=False)
+    pd.DataFrame(data=testing_X, columns=training_df.columns).to_csv(testing_x_path, index=False)
+    pd.DataFrame(data=testing_y, columns=['Bugged']).to_csv(testing_y_path, index=False)
+    columns = list(map(lambda x: str(x), models_info))
+    pd.DataFrame(data=np.array(predictions).transpose(), columns=columns).to_csv(prediction_y_path, index=False)
+    predictions.append(testing_y)
+    columns.append("real")
+    pd.DataFrame(data=np.array(predictions).transpose(), columns=columns).to_csv(prediction_real_y_path, index=False)
+    summary.to_csv(summary_path, index=False)
 
 
 class CreateLoggers:
@@ -164,9 +285,15 @@ class CreateLoggers:
         self.failure_verbose_log.addHandler(self.failure_verbose_file)
 
 
+def do(project):
+    extract_datasets(project)
+    execute(project)
+
+
 if __name__ == "__main__":
+    CreateLoggers()
     projects = list(ProjectName)
     projects = list(filter(lambda x: x not in done, projects))
     with Pool() as p:
-        ris = p.map(execute, projects)
-        print(ris)
+        p.map(do, projects)
+

@@ -211,8 +211,8 @@ if __name__ == "__main__":
         # (ProjectName.Storm, ["v0.9.2-incubating-security", "v0.9.4", "v1.2.3", "v0.9.3", "v1.0.1"]),
         # (ProjectName.Struts, ["STRUTS_2_1_0", "STRUTS_2_1_6", "STRUTS_2_0_8"]),
         # (ProjectName.Tez, ["release-0.5.2", "release-0.5.1-rc0", "release-0.6.0-rc0", "release-0.9.1-rc2", "release-0.5.3-rc1"]),
-        # (ProjectName.TinkerPop, ["3.4.2", "3.0.0.M8", "3.0.2-incubating", "3.4.3", "3.4.0"]),
-        (ProjectName.Tomee, ["tomee-1.5.2", "tomee-1.6.0"]),
+        # (ProjectName.TinkerPop, ["3.4.2"]),
+        # (ProjectName.Tomee, ["tomee-1.5.2", "tomee-1.6.0"]),
         # (ProjectName.UimaRuta, ["ruta-2.6.1", "ruta-2.8.0", "ruta-2.7.0"]),
         # (ProjectName.Wicket, ["wicket-6.8.0", "rel/wicket-6.23.0", "wicket-1.3.0-beta3", "wicket-1.5.7", "wicket-7.0.0-M2"]),
         # (ProjectName.FOP, ["fop-1_1", "RELEASE_0_12_0", "fop-2_2", "fop-0_95", "fop-2_3"])
@@ -232,7 +232,10 @@ if __name__ == "__main__":
         # (ProjectName.CommonsNet, ["NET_3_3", "NET_2_2", "NET_2_0_RC_3", "NET_3_1", "NET_3_0_1"]),
         # (ProjectName.Continuum,
         #  ["continuum-1.3.2", "continuum-parent-1.1-beta-3", "continuum-1.4.0", "continuum-1.3.1", "continuum-1.3.8"])
-        # (ProjectName.ServiceComb, ["1.1.0", "1.3.0"]),
+        # (ProjectName.ServiceComb, ["0.1.0-m2"]),
+        # (ProjectName.CommonsCompress, ["rel/1.3", "rel/1.4.1", "rel/1.5", "rel/1.19"]),
+        # (ProjectName.Drill, ["drill-0.1.0", "0.6.0-incubating", "drill-0.9.0", "drill-1.1.0", "drill-1.11.0"])
+        # (ProjectName.Tapestry5, ["5.0.4", "5.0.5", "5.0.6", "5.0.10", "5.1-dev-branch-base"])
 
 
     ]

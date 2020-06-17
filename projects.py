@@ -12,7 +12,6 @@ class ProjectName(Enum):
     OpenMeetings = "openmeetings", "OPENMEETINGS"
     Karaf = "karaf", "KARAF"
     Hbase = "hbase", "HBASE"
-    Netbeans = "netbeans", "NETBEANS"
     UimaRuta = "uima-ruta", "UIMA"
     Lucene = "lucene-solr", "LUCENE"
     DeltaSpike = "deltaspike", "DELTASPIKE"
@@ -42,7 +41,6 @@ class ProjectName(Enum):
     Clerezza = "clerezza", "CLEREZZA"
     SystemML = "systemml", "SYSTEMML"
     AsterixDB = "asterixdb", "ASTERIXDB"
-    Unomi = "unomi", "UNOMI"
     Maven = "maven", "MNG"
     Zeppelin = "zeppelin", "ZEPPELIN"
     CommonsCollections = "commons-collections", "COLLECTIONS"
@@ -97,16 +95,13 @@ class ProjectName(Enum):
     CommonsJexl = "commons-jexl", "JEXL"
     Roller = "roller", "ROL"
     Reef = "reef", "REEF"
-
     ActiveMQArtemis = "activemq-artemis", "ARTEMIS"
     Beam = "beam", "BEAM"
     Metron = "metron", "METRON"
     Plc4x = "plc4x", "PLC4X"
-
     Cocoon = "cocoon", "COCOON"
     CarbonData = "carbondata", "CARBONDATA"
     CommonsCSV = "commons-csv", "CSV"
-
     CommonsBeanUtils = "commons-beanutils", "BEANUTILS"
     CommonsNet = "commons-net", "NET"
     Continuum = "continuum", "CONTINUUM"
@@ -114,11 +109,13 @@ class ProjectName(Enum):
 
     # Projects that failed selection
     # new
+    # Unomi = "unomi", "UNOMI"
     # Groovy = "groovy", "GROOVY"
     # Ignite = "ignite", "IGNITE"
     # Bahir = "bahir", "BAHIR"
     # CommonsDigester = "commons-digester", "DIGESTER"
     # CommonsDaemon = "commons-daemon", "DAEMON"
+    # Netbeans = "netbeans", "NETBEANS"
     # Buildr = "buildr", "BUILDR"
     # Click = "click", "CLK"
     # Aries = "aries", "ARIES"

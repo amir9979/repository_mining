@@ -16,13 +16,13 @@ def check_path(component, project, version, path):
     component_path = os.path.join(path, component)
     if not os.path.exists(component_path):
         logging.getLogger("failure").error("{0} | {1} | {2} not found.".format(
-            project,
+            project.github(),
             version,
             component
         ))
         return False
     logging.getLogger("success").info("{0} | {1} | {2} found.".format(
-        project,
+        project.github(),
         version,
         component
     ))
@@ -31,8 +31,10 @@ def check_path(component, project, version, path):
 
 def sanity_check(version, project):
     repository_data = Config().config["CACHING"]["RepositoryData"]
+    metrics_dir = Config().config["VERSION_METRICS"]["MetricsDir"]
+    repository_data = os.path.join(repository_data, metrics_dir)
     repository_data = Config.get_work_dir_path(repository_data)
-    path = os.path.join(repository_data, project, version)
+    path = os.path.join(repository_data, project.github(), version)
     components = [
         "bugged.csv",
         "checkstyle.csv",
@@ -48,7 +50,7 @@ def sanity_check(version, project):
 
     if not os.path.exists(path) or not os.path.isdir(path):
         logging.getLogger("failure").error("{0} | {1} | Path not found.".format(
-            project,
+            project.github(),
             version
         ))
         return False
@@ -68,7 +70,12 @@ def execute(project):
 
     versions_dir = Config.get_work_dir_path(os.path.join("paper", "versions"))
     versions_path = os.path.join(versions_dir, project.github() + ".csv")
-    versions = pd.read_csv(versions_path)['version'].to_list()
+    try:
+        versions = pd.read_csv(versions_path)['version'].to_list()
+    except Exception:
+        logging.getLogger("failure").error("{0} | Project does not exist.".format(project.github()))
+        summary_log.info("Project {0} failed.".format(project.github()))
+        return
 
     extract = functools.partial(sanity_check,
                                 project=project)
@@ -141,7 +148,7 @@ class CreateLoggers:
 if __name__ == "__main__":
     CreateLoggers()
 
-    projects = [list(ProjectName)[0]]
-    with Pool(1) as p:
+    projects = list(ProjectName)
+    with Pool() as p:
         ris = p.map(execute, projects)
         print(ris)

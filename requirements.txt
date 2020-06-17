@@ -11,6 +11,10 @@ pandas
 junitparser
 click
 tqdm
+jupyter
+scikit-learn
+plotnine
+imblearn
 
 # testing requirements
 pytest

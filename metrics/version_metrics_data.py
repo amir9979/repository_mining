@@ -9,6 +9,7 @@ import pandas as pd
 from config import Config
 from metrics.version_metrics_name import DataName
 from metrics.version_metrics_name import DataType
+from projects import ProjectName
 
 
 class Data(ABC):
@@ -49,7 +50,10 @@ class Data(ABC):
     def build(self, values, column_names) -> pd.DataFrame:
         df = pd.read_csv(self.path)
         id = df.columns[0]
-        return df[[id] + values]
+        try:
+            return df[[id] + values]
+        except Exception as e:
+            pass
 
 
 class CompositeData(Data):
@@ -74,8 +78,8 @@ class CompositeData(Data):
             .add(DesigniteTypeMetricsData(project, version)) \
             .add(DesigniteMethodMetricsData(project, version)) \
             .add(CKData(project, version)) \
-            .add(MoodData(project, version)) \
             .add(HalsteadData(project, version))
+            # .add(MoodData(project, version)) \
         return self
 
     def build(self, data, column_names):
@@ -101,7 +105,7 @@ class CompositeData(Data):
                 classes_df = classes_df.merge(classes_dfs.pop(0), on=['File', 'Class'], how='outer')
 
         if files_dfs:
-            classes_df = files_dfs.pop(0) if not classes_dfs else classes_df
+            classes_df = files_dfs.pop(0) if classes_df is None else classes_df
             while files_dfs:
                 classes_df = classes_df.merge(files_dfs.pop(0), on=['File'], how='outer')
 
@@ -376,8 +380,9 @@ class HalsteadData(Data):
 
 
 class DataBuilder:
-    def __init__(self, project, version):
-        self.data_collection = CompositeData().add_all(project, version)
+    def __init__(self, project: ProjectName, version):
+        project_name = project.github()
+        self.data_collection = CompositeData().add_all(project_name, version)
         self.metrics = pd.DataFrame(columns=['data_value', 'data_type', 'data_column'])
 
     def append(self, metric_name: DataName):
@@ -388,6 +393,7 @@ class DataBuilder:
         self.metrics = self.metrics.append(data_dict, ignore_index=True)
 
     def build(self):
+        # TODO Give option to merge classes and methods
         self.metrics = self.metrics.drop_duplicates().reset_index(drop=True)
         data = self.metrics.groupby('data_type')['data_column'] \
             .apply(lambda x: x.values.tolist()).to_dict()
