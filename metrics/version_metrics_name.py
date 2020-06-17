@@ -89,7 +89,7 @@ class DataName(Enum):
     NumberOfParameters_Designite = auto(), DataType.DesigniteMethodMetricsDataType.value, "PC"
 
     NCSSForThisFile = auto(), DataType.CheckstyleDataType.value, "NCSS_for_this_file"
-    NestedIfElseDepth = auto(), DataType.CheckstyleDataType.value, "Nested_if - else_depth"
+    NestedIfElseDepth = auto(), DataType.CheckstyleDataType.value, "Nested_if-else_depth"
     BooleanExpressionComplexity = auto(), DataType.CheckstyleDataType.value, "Boolean_expression_complexity"
     CyclomaticComplexity = auto(), DataType.CheckstyleDataType.value, "Cyclomatic_Complexity"
     NCSSForThisMethod = auto(), DataType.CheckstyleDataType.value, "NCSS_for_this_method"
@@ -105,7 +105,7 @@ class DataName(Enum):
     AnonymousInnerClassLength = auto(), DataType.CheckstyleDataType.value, "Anonymous_inner_class_length"
     NumberOfMethods_Checkstyle = auto(), DataType.CheckstyleDataType.value, "Total_number_of_methods"
     NumberOfPublicMethods_Checkstyle = auto(), DataType.CheckstyleDataType.value, "Number_of_public_methods"
-    ClassFanOutComplexity = auto(), DataType.CheckstyleDataType.value, "Class_Fan - Out_Complexity"
+    ClassFanOutComplexity = auto(), DataType.CheckstyleDataType.value, "Class_Fan-Out_Complexity"
     NestedTryDepth = auto(), DataType.CheckstyleDataType.value, "Nested_try_depth"
     ClassDataAbstractionCoupling = auto(), DataType.CheckstyleDataType.value, "Class_Data_Abstraction_Coupling"
     NestedForDepth = auto(), DataType.CheckstyleDataType.value, "Nested_for_depth"

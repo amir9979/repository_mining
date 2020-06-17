@@ -28,15 +28,16 @@ from .java_analyser import JavaParserFileAnalyser
 
 
 class Extractor(ABC):
-    def __init__(self, extractor_name, project: Project, version):
+    def __init__(self, extractor_name, project: Project, version, repo=None):
         self.extractor_name = extractor_name
         self.project = project
         self.project_name = project.github()
         self.version = version
         self.config = Config().config
         self.runner = self._get_runner(self.config, extractor_name)
-        repo = Repo(project.jira(), project.github(), project.path(), version)
-        self.local_path = repo.local_path
+        if repo is None:
+            repo = Repo(project.jira(), project.github(), project.path(), version)
+        self.local_path = os.path.realpath(repo.local_path)
         self.file_analyser = JavaParserFileAnalyser(self.local_path, self.project_name, self.version)
         self.data: Data = None
 
@@ -52,6 +53,11 @@ class Extractor(ABC):
     def extract(self):
         pass
 
+    @staticmethod
+    def get_all_extractors(project, version):
+        for s in Extractor.__subclasses__():
+            yield s(project, version)
+
 
 class Bugged(Extractor):
     def __init__(self, project: Project, version):
@@ -62,19 +68,19 @@ class Bugged(Extractor):
         extractor.extract()
         path = extractor.get_bugged_files_path(self.version)
         bugged = pd.read_csv(path).groupby('file_name').apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
-        self.data = BuggedData(self.project_name, self.version, data=bugged)
+        self.data = BuggedData(self.project, self.version, data=bugged)
         self.data.store()
 
 
 class Checkstyle(Extractor):
-    def __init__(self, project: Project, version):
-        super().__init__("Checkstyle", project, version)
+    def __init__(self, project: Project, version, repo=None):
+        super().__init__("Checkstyle", project, version, repo)
 
     def extract(self):
         all_checks_xml = self._get_all_checks_xml(self.config)
         out_path_to_xml = self._execute_command(self.runner, all_checks_xml, self.local_path)
         checkstyle = self._process_checkstyle_data(out_path_to_xml)
-        self.data = CheckstyleData(self.project_name, self.version, data=checkstyle)
+        self.data = CheckstyleData(self.project, self.version, data=checkstyle)
         self.data.store()
 
     @staticmethod
@@ -102,7 +108,7 @@ class Checkstyle(Extractor):
         files = {}
         tmp = {}
         keys = set()
-        with(open(out_path_to_xml)) as file:
+        with open(out_path_to_xml) as file:
             root = ElementTree.parse(file).getroot()
             for file_element in root:
                 try:
@@ -111,8 +117,7 @@ class Checkstyle(Extractor):
                     continue
                 if not filepath.endswith(".java"):
                     continue
-                print(filepath)
-                items, tmp, keys = self._get_items(file_element, filepath, tmp, keys)
+                items, tmp, keys = self._get_items(file_element, os.path.realpath(filepath), tmp, keys)
                 files[filepath] = items
         checkstyle = {}
         for method_id in tmp:
@@ -142,7 +147,7 @@ class Checkstyle(Extractor):
                 'line': line,
                 'key': key,
                 'value': value,
-                'file': file_path[len(self.local_path) + 1:],
+                'file': file_path[len(os.path.realpath(self.local_path))+1:],
             })
             keys.add(key)
             method_id = self.file_analyser.get_closest_id(file_path, line)
@@ -152,8 +157,8 @@ class Checkstyle(Extractor):
 
 
 class Designite(Extractor):
-    def __init__(self, project: Project, version):
-        super().__init__("Designite", project, version)
+    def __init__(self, project: Project, version, repo=None):
+        super().__init__("Designite", project, version, repo)
 
     def extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
@@ -166,12 +171,12 @@ class Designite(Extractor):
 
         self.data = CompositeData()
         self.data \
-            .add(DesigniteDesignSmellsData(self.project_name, self.version, data=design_code_smells)) \
-            .add(DesigniteImplementationSmellsData(self.project_name, self.version, data=implementation_code_smells)) \
-            .add(DesigniteOrganicTypeSmellsData(self.project_name, self.version, data=organic_type_code_smells)) \
-            .add(DesigniteOrganicMethodSmellsData(self.project_name, self.version, data=organic_method_code_smells)) \
-            .add(DesigniteTypeMetricsData(self.project_name, self.version, data=type_metrics)) \
-            .add(DesigniteMethodMetricsData(self.project_name, self.version, data=method_metrics)) \
+            .add(DesigniteDesignSmellsData(self.project, self.version, data=design_code_smells)) \
+            .add(DesigniteImplementationSmellsData(self.project, self.version, data=implementation_code_smells)) \
+            .add(DesigniteOrganicTypeSmellsData(self.project, self.version, data=organic_type_code_smells)) \
+            .add(DesigniteOrganicMethodSmellsData(self.project, self.version, data=organic_method_code_smells)) \
+            .add(DesigniteTypeMetricsData(self.project, self.version, data=type_metrics)) \
+            .add(DesigniteMethodMetricsData(self.project, self.version, data=method_metrics)) \
             .store()
 
     @staticmethod
@@ -273,8 +278,8 @@ class Designite(Extractor):
 
 
 class SourceMonitor(Extractor):
-    def __init__(self, project: Project, version):
-        super().__init__("SourceMonitor", project, version)
+    def __init__(self, project: Project, version, repo=None):
+        super().__init__("SourceMonitor", project, version, repo)
 
     def extract(self):
         if not os.name == "dt":
@@ -285,8 +290,8 @@ class SourceMonitor(Extractor):
         source_monitor_files, source_monitor = self._process_metrics(out_dir)
         self.data = CompositeData()
         self.data \
-            .add(SourceMonitorFilesData(self.project_name, self.version, data=source_monitor_files)) \
-            .add(SourceMonitorData(self.project_name, self.version, data=source_monitor)) \
+            .add(SourceMonitorFilesData(self.project, self.version, data=source_monitor_files)) \
+            .add(SourceMonitorData(self.project, self.version, data=source_monitor)) \
             .store()
 
     @staticmethod
@@ -347,13 +352,13 @@ class SourceMonitor(Extractor):
 
 
 class CK(Extractor):
-    def __init__(self, project: Project, version):
-        super().__init__("CK", project, version)
+    def __init__(self, project: Project, version, repo=None):
+        super().__init__("CK", project, version, repo)
 
     def extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         ck = self._process_metrics(out_dir)
-        self.data = CKData(self.project_name, self.version, data=ck)
+        self.data = CKData(self.project, self.version, data=ck)
         self.data.store()
 
     @staticmethod
@@ -384,13 +389,13 @@ class CK(Extractor):
 
 
 class Mood(Extractor):
-    def __init__(self, project: Project, version):
-        super().__init__("MOOD", project, version)
+    def __init__(self, project: Project, version, repo=None):
+        super().__init__("MOOD", project, version, repo)
 
     def extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         mood = self._process_metrics(out_dir)
-        self.data = MoodData(self.project_name, self.version, data=mood)
+        self.data = MoodData(self.project, self.version, data=mood)
         self.data.store()
 
     @staticmethod
@@ -412,10 +417,10 @@ class Mood(Extractor):
 
 
 class Halstead(Extractor):
-    def __init__(self, project: Project, version):
-        super().__init__("Halstead", project, version)
+    def __init__(self, project: Project, version, repo=None):
+        super().__init__("Halstead", project, version, repo)
 
     def extract(self):
         halstead = metrics_for_project(self.local_path)
-        self.data = HalsteadData(self.project_name, self.version, data=halstead)
+        self.data = HalsteadData(self.project, self.version, data=halstead)
         self.data.store()

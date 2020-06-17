@@ -6,7 +6,9 @@ from config import Config
 import os
 from pathlib import Path
 import pandas as pd
-from metrics.version_metrics import Bugged, Checkstyle, Designite, CK, Halstead
+from metrics.version_metrics import Extractor
+from metrics.version_metrics_data import DataBuilder
+from metrics.version_metrics_name import DataName
 
 class Main():
     def __init__(self):
@@ -44,22 +46,23 @@ class Main():
         return path
 
     def extract_metrics(self):
-        data = Config().config['CACHING']['RepositoryData']
+        repo_data = Config().config['CACHING']['RepositoryData']
         selected = Config().config['DATA_EXTRACTION']['SelectedVersionsBin']
-        path = os.path.join(data, selected, self.project.github() + ".csv")
+        path = os.path.join(repo_data, selected, self.project.github() + ".csv")
         in_path = Config.get_work_dir_path(path)
+        classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['ClassesData'], self.project.github()))
+        method_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['MethodData'], self.project.github()))
+        Path(classes_data).mkdir(parents=True, exist_ok=True)
+        Path(method_data).mkdir(parents=True, exist_ok=True)
         versions = pd.read_csv(in_path)['version']
         for version in versions:
-            extractors = {
-                "Bugged": Bugged(self.project, version),
-                "Checkstyle": Checkstyle(self.project, version),
-                # "Designite": Designite(project, version),
-                # "Ck": CK(project, version),
-                # "Halstead": Halstead(project, version)
-                # TODO fix "Mood": Mood(project, version),
-            }
-            for extractor_name, extractor in extractors.items():
+            for extractor in Extractor.get_all_extractors(self.project, version):
                 extractor.extract()
+            db = DataBuilder(self.project, version)
+            list(map(lambda d: db.append(d), DataName))
+            classes_df, methods_df = db.build()
+            classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False)
+            methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False)
 
     def main(self):
         parser = argparse.ArgumentParser(description='Execute project data')

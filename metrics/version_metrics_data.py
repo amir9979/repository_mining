@@ -26,7 +26,7 @@ class Data(ABC):
         metrics_dirname = config['VERSION_METRICS']['MetricsDir']
         metrics_dir = os.path.join(repository_data, metrics_dirname)
         metrics_dir_path = Config().get_work_dir_path(metrics_dir)
-        version_dir_path = os.path.join(metrics_dir_path, project, version)
+        version_dir_path = os.path.join(metrics_dir_path, project.github(), version)
         Path(version_dir_path).mkdir(parents=True, exist_ok=True)
         path = os.path.join(version_dir_path, data_type + ".csv")
         return path
@@ -49,7 +49,8 @@ class Data(ABC):
     def build(self, values, column_names) -> pd.DataFrame:
         df = pd.read_csv(self.path)
         id = df.columns[0]
-        return df[[id] + values]
+        metrics = list(filter(lambda x: x in df.columns, [id] + values))
+        return df[metrics]
 
 
 class CompositeData(Data):
