@@ -1,11 +1,12 @@
 from metrics.version_metrics_data import DataBuilder, CheckstyleData
 from metrics.version_metrics_name import DataName
+from projects import ProjectName
 
 
 class TestDataBuilder:
     @staticmethod
     def get_data_builder():
-        return DataBuilder("commons-lang", "LANG_3_4_RC1")
+        return DataBuilder(ProjectName.CommonsLang, "LANG_3_4_RC1")
 
     @staticmethod
     def add_single_metric(db: DataBuilder) -> DataBuilder:
@@ -86,7 +87,7 @@ class TestDataBuilder:
         db.build()
 
     def test_data_builder_bugged_item(self):
-        db = DataBuilder("commons-lang", "LANG_3_4_RC1")
+        db = DataBuilder(ProjectName.CommonsLang, "LANG_3_4_RC1")
         db.append(DataName.Bugged)
         db.build()
 
@@ -103,9 +104,9 @@ class TestCheckstyleData:
     DATA_TYPE = "checkstyle"
 
     def test_checkstyle_data_type(self):
-        c = CheckstyleData(TestCheckstyleData.PROJECT, TestCheckstyleData.VERSION)
+        c = CheckstyleData(ProjectName.CommonsLang.value, TestCheckstyleData.VERSION)
         assert c.data_type == TestCheckstyleData.DATA_TYPE
 
     def test_checkstyle_data_column_dimension(self):
-        c = CheckstyleData(TestCheckstyleData.PROJECT, TestCheckstyleData.VERSION)
+        c = CheckstyleData(ProjectName.CommonsLang.value, TestCheckstyleData.VERSION)
         assert len(c.data.columns) == TestCheckstyleData.COLUMN_DIMENSION
