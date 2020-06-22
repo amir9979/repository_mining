@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from imblearn.over_sampling import SMOTE
+from sklearn import preprocessing
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -23,7 +24,8 @@ from metrics.version_metrics_name import DataName
 from paper.utils import EstimatorSelectionHelper
 from projects import ProjectName
 
-done = []
+done = [
+]
 
 
 def build_dataset(version, project):
@@ -34,7 +36,23 @@ def build_dataset(version, project):
 
     try:
         db = DataBuilder(project, version)
-
+        db.append(DataName.ImperativeAbstraction)
+        db.append(DataName.MultifacetedAbstraction)
+        db.append(DataName.UnnecessaryAbstraction)
+        db.append(DataName.UnutilizedAbstraction)
+        db.append(DataName.DeficientEncapsulation)
+        db.append(DataName.UnexploitedEncapsulation)
+        db.append(DataName.BrokenModularization)
+        db.append(DataName.Cyclic_DependentModularization)
+        db.append(DataName.InsufficientModularization)
+        db.append(DataName.Hub_likeModularization)
+        db.append(DataName.BrokenHierarchy)
+        db.append(DataName.CyclicHierarchy)
+        db.append(DataName.DeepHierarchy)
+        db.append(DataName.MissingHierarchy)
+        db.append(DataName.MultipathHierarchy)
+        db.append(DataName.RebelliousHierarchy)
+        db.append(DataName.WideHierarchy)
         db.append(DataName.GodClass)
         db.append(DataName.ClassDataShouldBePrivate)
         db.append(DataName.ComplexClass)
@@ -55,6 +73,62 @@ def build_dataset(version, project):
         db.append(DataName.IntensiveCoupling)
         db.append(DataName.ShotgunSurgery)
         db.append(DataName.BrainMethod)
+        db.append(DataName.CBO)
+        db.append(DataName.WMC_CK)
+        db.append(DataName.RFC)
+        db.append(DataName.LOCMethod_CK)
+        db.append(DataName.Returns)
+        db.append(DataName.NumberOfVariables)
+        db.append(DataName.NumberOfParameters_CK)
+        db.append(DataName.NumberOfLoops)
+        db.append(DataName.NumberOfComparisons)
+        db.append(DataName.NumberOfTryCatch)
+        db.append(DataName.NumberOfParenthesizedExps)
+        db.append(DataName.NumberOfStringLiterals)
+        db.append(DataName.NumberOfNumbers)
+        db.append(DataName.NumberOfAssignments)
+        db.append(DataName.NumberOfMathOperations)
+        db.append(DataName.MaxNumberOfNestedBlocks)
+        db.append(DataName.NumberOfAnonymousClasses)
+        db.append(DataName.NumberOfInnerClasses)
+        db.append(DataName.NumberOfLambdas)
+        db.append(DataName.NumberOfUniqueWords)
+        db.append(DataName.NumberOfModifiers)
+        db.append(DataName.NumberOfLogStatements)
+        db.append(DataName.NumberOfFields)
+        db.append(DataName.NumberOfPublicFields)
+        db.append(DataName.NumberOfMethods_Designite)
+        db.append(DataName.NumberOfPublicMethods_Designite)
+        db.append(DataName.NumberOfChildren)
+        db.append(DataName.DepthOfInheritance)
+        db.append(DataName.LOCClass)
+        db.append(DataName.LCOM)
+        db.append(DataName.FANIN)
+        db.append(DataName.FANOUT)
+        db.append(DataName.TotalNumberOfOperators)
+        db.append(DataName.NumberOfDistinctOperators)
+        db.append(DataName.TotalNumberOfOperands)
+        db.append(DataName.NumberOfDistinctOperands)
+        db.append(DataName.Length)
+        db.append(DataName.Vocabulary)
+        db.append(DataName.Volume)
+        db.append(DataName.Difficulty)
+        db.append(DataName.Effort)
+        db.append(DataName.NCSSForThisFile)
+        db.append(DataName.NestedIfElseDepth)
+        db.append(DataName.BooleanExpressionComplexity)
+        db.append(DataName.CyclomaticComplexity)
+        db.append(DataName.NCSSForThisMethod)
+        db.append(DataName.NPathComplexity)
+        db.append(DataName.ThrowsCount)
+        db.append(DataName.NCSSForThisClass)
+        db.append(DataName.ExecutableStatementCount)
+        db.append(DataName.MethodLength)
+        db.append(DataName.FileLength)
+        db.append(DataName.NumberOfMethods_Checkstyle)
+        db.append(DataName.NumberOfPublicMethods_Checkstyle)
+        db.append(DataName.ClassFanOutComplexity)
+        db.append(DataName.ClassDataAbstractionCoupling)
         db.append(DataName.Bugged)
 
         general_log.info("{0} | {1} | building dataset".format(
@@ -70,14 +144,24 @@ def build_dataset(version, project):
         else:
             raise Exception("Fowler smells dataset is empty.")
 
-        def union_smell(value):
-            return any(value)
-
-        aggregation_fns = {feature: union_smell for feature in list(methods_df.columns)[3:]}
-        aggregated_methods_df = methods_df.groupby(['File', 'Class']).aggregate(aggregation_fns).reset_index()
+        def mean_or_union(rows):
+            if rows.dtypes.name == 'bool':
+                return any(rows)
+            try:
+                return np.mean(rows)
+            except TypeError as e:
+                rows = rows.astype('int64')
+                return np.mean(rows)
+        # file-class conversion leaves rows without values(nan) - drop them
         classes_df.dropna(inplace=True)
+        values = {feature: 0 for feature in list(methods_df.columns)}
+        values.update(dict(zip(('File', 'Class', 'Method'), ['nan']*3)))
+        methods_df.fillna(value=values, inplace=True)
+        methods_df.dropna(inplace=True)
+        aggregation_fns = {feature: mean_or_union for feature in list(methods_df.columns)[3:]}
+        aggregated_methods_df = methods_df.groupby(['File', 'Class']).aggregate(aggregation_fns).reset_index()
         dataset = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
-        dataset.fillna(False, inplace=True)
+        dataset.dropna(inplace=True)
         return dataset
 
     except Exception:
@@ -113,7 +197,7 @@ def extract_datasets(project):
         summary_log.info("{0} | project failed.".format(project.github()))
         return
 
-    dataset_dir = Config.get_work_dir_path(os.path.join("paper", "datasets", "fowler", project.github()))
+    dataset_dir = Config.get_work_dir_path(os.path.join("paper", "datasets", "traditional_designite_fowler", project.github()))
     Path(dataset_dir).mkdir(parents=True, exist_ok=True)
     training_path = os.path.join(dataset_dir, "training.csv")
     testing_path = os.path.join(dataset_dir, "testing.csv")
@@ -123,29 +207,30 @@ def extract_datasets(project):
 
 
 def execute(project):
-    dataset_dir = Config.get_work_dir_path(os.path.join("paper", "datasets", "fowler", project.github()))
+    dataset_dir = Config.get_work_dir_path(os.path.join("paper", "datasets", "traditional_designite_fowler", project.github()))
     Path(dataset_dir).mkdir(parents=True, exist_ok=True)
     training_path = os.path.join(dataset_dir, "training.csv")
     testing_path = os.path.join(dataset_dir, "testing.csv")
 
-    training_df = pd.read_csv(training_path).dropna().astype(int)
-    testing_df = pd.read_csv(testing_path).dropna().astype(int)
+    training_df = pd.read_csv(training_path).dropna().replace({'True': 1, 'False': 0})
+    testing_df = pd.read_csv(testing_path).dropna().replace({'True': 1, 'False': 0})
 
     training_y = training_df.pop('Bugged').values
     training_X = training_df.values
+    training_X = preprocessing.scale(training_X)
 
     oversample = SMOTE()
     training_X, training_y = oversample.fit_resample(training_X, training_y)
 
     models = {
-        # 'LinearDiscriminantAnalysis': LinearDiscriminantAnalysis(),
+        'LinearDiscriminantAnalysis': LinearDiscriminantAnalysis(),
         'QuadraticDiscriminantAnalysis': QuadraticDiscriminantAnalysis(),
-        # 'LogisticRegression': LogisticRegression(),
-        # 'BernoulliNaiveBayes': BernoulliNB(),
-        # 'K-NearestNeighbor': KNeighborsClassifier(),
-        # 'DecisionTree': DecisionTreeClassifier(),
-        # 'RandomForest': RandomForestClassifier(),
-        # 'SupportVectorMachine': SVC(),
+        'LogisticRegression': LogisticRegression(),
+        'BernoulliNaiveBayes': BernoulliNB(),
+        'K-NearestNeighbor': KNeighborsClassifier(),
+        'DecisionTree': DecisionTreeClassifier(),
+        'RandomForest': RandomForestClassifier(),
+        'SupportVectorMachine': SVC(),
         # 'MultilayerPerceptron': MLPClassifier()
     }
     params = {
@@ -157,8 +242,8 @@ def execute(project):
         'DecisionTree': {'criterion': ['gini', 'entropy'], },
         'RandomForest': {'n_estimators': [10, 100]},
         'SupportVectorMachine': {'C': [0.1, 100]},
-        # 'MultilayerPerceptron': {'hidden_layer_sizes': [(17, 8, 17)],
-        #                          'activation': ['tanh', 'relu']}
+        # 'MultilayerPerceptron': {'hidden_layer_sizes': [(55, 27, 55)],
+        #                         'activation': ['tanh', 'relu']}
     }
 
     helper = EstimatorSelectionHelper(models, params)
@@ -170,7 +255,7 @@ def execute(project):
                                   .iterrows()
 
     testing_y = testing_df.pop('Bugged').values
-    testing_X = testing_df.values
+    testing_X = preprocessing.scale(testing_df.values)
     models_info = list(map(lambda x: x[1].to_dict(), top_summary_iter))
 
     columns = ['estimator', 'configuration', 'precision', 'recall', 'f1-measure', 'auc-roc', 'brier score']
@@ -193,7 +278,7 @@ def execute(project):
             'brier score': brier_score_loss(testing_y, prediction_y)
         }
         scores = scores.append(scores_dict, ignore_index=True)
-    scores_dir = Config.get_work_dir_path(os.path.join("paper", "scores", "fowler", project.github()))
+    scores_dir = Config.get_work_dir_path(os.path.join("paper", "scores", "traditional_designite_fowler", project.github()))
     Path(scores_dir).mkdir(parents=True, exist_ok=True)
     scores_path = os.path.join(scores_dir, "scores.csv")
     training_x_path = os.path.join(scores_dir, "training_x.csv")
@@ -252,10 +337,10 @@ class CreateLoggers:
     def _create_handlers(self):
         self.console = logging.StreamHandler()
         paper_dir = Config.get_work_dir_path(os.path.join("paper", "logs"))
-        self.summary_file = logging.FileHandler(os.path.join(paper_dir, "(6)_summary.log"), "a")
-        self.success_file = logging.FileHandler(os.path.join(paper_dir, "(6)_success.log"), "a")
-        self.failure_file = logging.FileHandler(os.path.join(paper_dir, "(6)_failure.log"), "a")
-        self.failure_verbose_file = logging.FileHandler(os.path.join(paper_dir, "(6)_failure_verbose.log"), "a")
+        self.summary_file = logging.FileHandler(os.path.join(paper_dir, "(13)_summary.log"), "a")
+        self.success_file = logging.FileHandler(os.path.join(paper_dir, "(13)_success.log"), "a")
+        self.failure_file = logging.FileHandler(os.path.join(paper_dir, "(13)_failure.log"), "a")
+        self.failure_verbose_file = logging.FileHandler(os.path.join(paper_dir, "(13)_failure_verbose.log"), "a")
 
     def _set_formatters_to_handlers(self):
         self.console.setFormatter(self.console_formatter)
@@ -285,12 +370,13 @@ class CreateLoggers:
 def do(project):
     extract_datasets(project)
     execute(project)
+    return
 
 
 if __name__ == "__main__":
     CreateLoggers()
     projects = list(ProjectName)
     projects = list(filter(lambda x: x not in done, projects))
-    projects = [ProjectName.Plc4x]
     with Pool() as p:
         p.map(do, projects)
+
