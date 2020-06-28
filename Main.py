@@ -9,8 +9,8 @@ import pandas as pd
 from metrics.version_metrics import Extractor
 from metrics.version_metrics_data import DataBuilder
 from metrics.version_metrics_name import DataName
-from sklearn.ensemble import RandomForestClassifier
-import numpy as np
+from classification_instance import ClassificationInstance
+
 
 class Main():
     def __init__(self):
@@ -61,18 +61,8 @@ class Main():
             methods_datasets.append(methods_df)
             classes_datasets.append(classes_df)
 
-        classes_training, classes_testing, methods_training, methods_testing = self.extract_datasets(classes_datasets, methods_datasets)
-        training_y = classes_training.pop('Bugged').values
-        training_X = classes_training.values
-        testing_y = classes_testing.pop('Bugged').values
-        testing_X = classes_testing.values
-        self.predict(training_X, training_y, testing_X)
-
-
-    def predict(self, training_features, training_labels, testing_features):
-        classifier = RandomForestClassifier(n_estimators=100, random_state=42)
-        model = classifier.fit(training_features, training_labels)
-        return classifier.predict_proba(testing_features)
+        classes_instance = self.extract_classes_datasets(classes_datasets)
+        classes_instance.predict()
 
 
     def extract_features_to_version(self, classes_data, method_data, version):
@@ -93,26 +83,33 @@ class Main():
 
         return classes_df, methods_df
 
-    def extract_datasets(self, classes_datasets, methods_datasets):
+    def extract_classes_datasets(self, classes_datasets):
         dataset_dir = Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['Dataset'],
                          self.project.github()))
         classes_dataset_dir = os.path.join(dataset_dir, "classes")
         Path(classes_dataset_dir).mkdir(parents=True, exist_ok=True)
+        classes_training = pd.concat(classes_datasets[:-1], ignore_index=True).drop(["File", "Class"], axis=1)
+        classes_testing = classes_datasets[-1]
+        classes_testing_names = classes_testing.pop(["File", "Class"])
+        return ClassificationInstance(classes_training, classes_testing, classes_testing_names,
+                                      os.path.join(classes_dataset_dir, "training.csv"),
+                                      os.path.join(classes_dataset_dir, "testing.csv"),
+                                      os.path.join(classes_dataset_dir, "prediction.csv"))
+
+    def extract_methods_datasets(self, methods_datasets):
+        dataset_dir = Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['Dataset'],
+                         self.project.github()))
         methods_dataset_dir = os.path.join(dataset_dir, "methods")
         Path(methods_dataset_dir).mkdir(parents=True, exist_ok=True)
-
-        classes_training = pd.concat(classes_datasets[:-1], ignore_index=True).drop(["File", "Class"], axis=1)
-        classes_testing = classes_datasets[-1].drop(["File", "Class"], axis=1)
         methods_training = pd.concat(methods_datasets[:-1], ignore_index=True).drop(["File", "Class"], axis=1)
-        methods_testing = methods_datasets[-1].drop(["File", "Class"], axis=1)
-
-        classes_training.to_csv(os.path.join(classes_dataset_dir, "training.csv"), index=False)
-        classes_testing.to_csv(os.path.join(classes_dataset_dir, "testing.csv"), index=False)
-        methods_training.to_csv(os.path.join(methods_dataset_dir, "training.csv"), index=False)
-        methods_testing.to_csv(os.path.join(methods_dataset_dir, "testing.csv"), index=False)
-
-        return classes_training, classes_testing, methods_training, methods_testing
+        methods_testing = methods_datasets[-1]
+        methods_testing_names = methods_testing.pop(["File", "Class"])
+        return ClassificationInstance(methods_training, methods_testing, methods_testing_names,
+                                      os.path.join(methods_dataset_dir, "training.csv"),
+                                      os.path.join(methods_dataset_dir, "testing.csv"),
+                                      os.path.join(methods_dataset_dir, "prediction.csv"))
 
 
     def get_selected_versions(self):
@@ -122,23 +119,6 @@ class Main():
         in_path = Config.get_work_dir_path(path)
         return pd.read_csv(in_path)['version'].to_list()
 
-    def extract_dataset(self):
-        pass
-
-    def create_models(self):
-        params = {
-            'LinearDiscriminantAnalysis': {},
-            'QuadraticDiscriminantAnalysis': {},
-            'LogisticRegression': {'C': list(np.logspace(-4, 4, 3))},
-            'BernoulliNaiveBayes': {},
-            'K-NearestNeighbor': {},
-            'DecisionTree': {'criterion': ['gini', 'entropy'], },
-            'RandomForest': {'n_estimators': [10, 100]},
-            'SupportVectorMachine': {'C': [0.1, 100]},
-            # 'MultilayerPerceptron': {'hidden_layer_sizes': [(17, 8, 17)],
-            #                          'activation': ['tanh', 'relu']}
-        }
-        pass
 
     def main(self):
         parser = argparse.ArgumentParser(description='Execute project data')
@@ -161,7 +141,6 @@ class Main():
             self.extractor.choose_versions(version_num=args.num_versions, algorithm=args.select, strict="false", version_type=VersionType[args.versions_type])
             self.extract()
             self.extract_metrics()
-
 
 
 if __name__ == "__main__":
