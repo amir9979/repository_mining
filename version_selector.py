@@ -48,7 +48,7 @@ class AbstractSelectVersions(ABC):
     def select(self):
         self._get_versions_by_type(self.versions)
         self.tags = list(filter(lambda x: x.version in self.versions_by_type, self.tags))
-        self._select_versions(self.repo, self.versions_by_type, self.tags)
+        self.versions_selected = self._select_versions(self.repo, self.versions_by_type, self.tags)
         self._store_versions(self.repo)
         return self.versions_selected
 
@@ -128,15 +128,19 @@ class BinSelectVersion(AbstractSelectVersions):
                 if len(bin_) < self.version_num:
                     continue
                 selected_versions = list(bin_)
+                if self.strict:
+                    selected_versions = selected_versions[:self.version_num + 1]
                 configuration = {'start': start, 'step': step, 'stop': stop, 'versions': selected_versions}
                 self.selected_versions.append(configuration)
+        return list(map(lambda x: x['versions'], self.selected_versions))[0]
+
 
     def _store_versions(self, repo):
         configuration = self.selected_versions[0]
         values = list(product([configuration['start']], [configuration['step']],
                               [configuration['stop']], configuration['versions']))
         columns = ["start", "step", "stop", "version"]
-        df = pd.DataFrame(values, columns=columns)
+        df = pd.DataFrame(values, dtype=str, columns=columns)
         config = Config().config
         repository_data = config["CACHING"]["RepositoryData"]
         selected_versions = config["DATA_EXTRACTION"]["SelectedVersionsBin"]
@@ -172,8 +176,8 @@ class QuadraticSelectVersion(AbstractSelectVersions):
             max_ratio += self.max_ratio / 10
             min_num_commits -= self.min_num_commits / 10
 
-        if (not self.strict) or (self.strict and len(filtered_tags) == self.version_num):
-            self.versions_selected = list(map(lambda x: x.version._name, filtered_tags))
+        if (not self.strict) or (self.strict and len(filtered_tags) >= self.version_num):
+            self.versions_selected = list(map(lambda x: x.version._name, filtered_tags[:self.version_num+1]))
             return
 
         # The #commits formula is f(x) = 100*x, f(x) > 0 and x > 0

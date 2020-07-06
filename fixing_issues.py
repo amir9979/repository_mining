@@ -2,7 +2,7 @@ from functools import reduce
 
 
 class VersionInfo(object):
-    def __init__(self, version, commits):
+    def __init__(self, version, commits, repo, analyze_methods=False):
         self.version = version
         self.commits_shas = list(map(lambda commit: (commit._commit_id, commit._bug_id != "0"), commits))
         self.num_commits = len(commits)
@@ -16,6 +16,15 @@ class VersionInfo(object):
         self.ratio_bugged_commits = 0
         if self.num_commits:
             self.ratio_bugged_commits = 1.0 * self.num_bugged_commits / self.num_commits
+        if analyze_methods:
+            list(map(lambda c: c.get_commit_methods(), commits))
+            self.committed_methods = reduce(list.__add__, list(map(lambda c: c.get_commit_methods(), commits)), list())
+            self.bugged_methods = list(filter(lambda m: m.changed, self.committed_methods))
+            self.version_methods = self.version.get_version_methods(repo)
+            self.all_methods = self.committed_methods + self.version_methods
+            self.methods_bugged_ratio = 0
+            if len(self.all_methods) != 0:
+                self.methods_bugged_ratio = 1.0 * len(set(map(lambda m: m.id, self.bugged_methods))) / len(set(map(lambda m: m.id, self.all_methods)))
 
     @staticmethod
     def get_commits_files(commits):

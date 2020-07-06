@@ -50,8 +50,19 @@ class Extractor(ABC):
         return runner
 
     @abstractmethod
-    def extract(self):
+    def _extract(self):
         pass
+
+    @abstractmethod
+    def _set_data(self):
+        pass
+
+    def extract(self):
+        self._set_data()
+        if hasattr(self.data, "path") and os.path.exists(self.data.path):
+            return
+        self._extract()
+        self.data.store()
 
     @staticmethod
     def get_all_extractors(project, version, repo=None):
@@ -60,28 +71,47 @@ class Extractor(ABC):
 
 
 class Bugged(Extractor):
-    def __init__(self, project: Project, version):
-        super().__init__("Bugged", project, version)
+    def __init__(self, project: Project, version, repo=None):
+        super().__init__("Bugged", project, version, repo=repo)
 
-    def extract(self):
+    def _set_data(self):
+        self.data = BuggedData(self.project, self.version)
+
+    def _extract(self):
         extractor = DataExtractor(self.project)
         extractor.extract()
-        path = extractor.get_bugged_files_path(self.version)
+        path = extractor.get_bugged_files_path(self.version, True)
         bugged = pd.read_csv(path).groupby('file_name').apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
-        self.data = BuggedData(self.project, self.version, data=bugged)
-        self.data.store()
+        self.data.raw_data = bugged
+
+
+class BuggedMethods(Extractor):
+    def __init__(self, project: Project, version, repo=None):
+        super().__init__("BuggedMethods", project, version, repo=repo)
+
+    def _set_data(self):
+        self.data = BuggedData(self.project, self.version)
+
+    def _extract(self):
+        extractor = DataExtractor(self.project)
+        extractor.extract()
+        path = extractor.get_bugged_files_path(self.version, True)
+        bugged = pd.read_csv(path).groupby('method_id').apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
+        self.data.raw_data = bugged
 
 
 class Checkstyle(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("Checkstyle", project, version, repo)
 
-    def extract(self):
+    def _set_data(self):
+        self.data = CheckstyleData(self.project, self.version)
+
+    def _extract(self):
         all_checks_xml = self._get_all_checks_xml(self.config)
         out_path_to_xml = self._execute_command(self.runner, all_checks_xml, self.local_path)
         checkstyle = self._process_checkstyle_data(out_path_to_xml)
-        self.data = CheckstyleData(self.project, self.version, data=checkstyle)
-        self.data.store()
+        self.data.raw_data = checkstyle
 
     @staticmethod
     def _get_all_checks_xml(config):
@@ -160,7 +190,10 @@ class Designite(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("Designite", project, version, repo)
 
-    def extract(self):
+    def _set_data(self):
+        self.data = CompositeData()
+
+    def _extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         design_code_smells = self._extract_design_code_smells(out_dir)
         implementation_code_smells = self._extract_implementation_code_smells(out_dir)
@@ -168,16 +201,13 @@ class Designite(Extractor):
         organic_method_code_smells = self._extract_organic_method_code_smells(out_dir)
         type_metrics = self._extract_type_metrics(out_dir)
         method_metrics = self._extract_method_metrics(out_dir)
-
-        self.data = CompositeData()
         self.data \
             .add(DesigniteDesignSmellsData(self.project, self.version, data=design_code_smells)) \
             .add(DesigniteImplementationSmellsData(self.project, self.version, data=implementation_code_smells)) \
             .add(DesigniteOrganicTypeSmellsData(self.project, self.version, data=organic_type_code_smells)) \
             .add(DesigniteOrganicMethodSmellsData(self.project, self.version, data=organic_method_code_smells)) \
             .add(DesigniteTypeMetricsData(self.project, self.version, data=type_metrics)) \
-            .add(DesigniteMethodMetricsData(self.project, self.version, data=method_metrics)) \
-            .store()
+            .add(DesigniteMethodMetricsData(self.project, self.version, data=method_metrics))
 
     @staticmethod
     def _execute_command(designite_runner, local_path):
@@ -281,18 +311,19 @@ class SourceMonitor(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("SourceMonitor", project, version, repo)
 
-    def extract(self):
+    def _set_data(self):
+        self.data = CompositeData()
+
+    def _extract(self):
         if not os.name == "dt":
             # TODO Create an EmptyData class
             return
 
         out_dir = self._execute_command(self.runner, self.local_path)
         source_monitor_files, source_monitor = self._process_metrics(out_dir)
-        self.data = CompositeData()
         self.data \
             .add(SourceMonitorFilesData(self.project, self.version, data=source_monitor_files)) \
-            .add(SourceMonitorData(self.project, self.version, data=source_monitor)) \
-            .store()
+            .add(SourceMonitorData(self.project, self.version, data=source_monitor))
 
     @staticmethod
     def _execute_command(source_monitor_runner, local_path):
@@ -355,11 +386,13 @@ class CK(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("CK", project, version, repo)
 
-    def extract(self):
+    def _set_data(self):
+        self.data = CKData(self.project, self.version)
+
+    def _extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         ck = self._process_metrics(out_dir)
-        self.data = CKData(self.project, self.version, data=ck)
-        self.data.store()
+        self.raw_data = ck
 
     @staticmethod
     def _execute_command(ck_runner, local_path):
@@ -392,11 +425,13 @@ class Mood(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("MOOD", project, version, repo)
 
-    def extract(self):
+    def _set_data(self):
+        self.data = MoodData(self.project, self.version)
+
+    def _extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         mood = self._process_metrics(out_dir)
-        self.data = MoodData(self.project, self.version, data=mood)
-        self.data.store()
+        self.raw_data = mood
 
     @staticmethod
     def _execute_command(mood_runner, local_path):
@@ -420,7 +455,9 @@ class Halstead(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("Halstead", project, version, repo)
 
-    def extract(self):
+    def _set_data(self):
+        self.data = HalsteadData(self.project, self.version)
+
+    def _extract(self):
         halstead = metrics_for_project(self.local_path)
-        self.data = HalsteadData(self.project, self.version, data=halstead)
-        self.data.store()
+        self.raw_data = halstead

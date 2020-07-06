@@ -9,14 +9,17 @@ import pandas as pd
 from config import Config
 from metrics.version_metrics_name import DataName
 from metrics.version_metrics_name import DataType
-from projects import ProjectName
+from projects import ProjectName, Project
 
 
 class Data(ABC):
-    def __init__(self, project: str, version: str):
+    def __init__(self, project: Project, version: str):
         self.path = self._get_path(self.data_type, project, version)
         if self.raw_data is None:
-            self.data = self._read_data_to_df()
+            try:
+                self.data = self._read_data_to_df()
+            except:
+                pass
         else:
             self.data = self._convert_to_df(self.raw_data)
 
@@ -85,6 +88,8 @@ class CompositeData(Data):
         classes_dfs = []
         methods_dfs = []
         for data_type, data_values in data.items():
+            if self.data_collection.get(data_type) is None:
+                continue
             df = self.data_collection\
                      .get(data_type)\
                      .build(data_values, column_names)
@@ -117,7 +122,7 @@ class CompositeData(Data):
 
 
 class BuggedData(Data):
-    def __init__(self, project, version, data=None):
+    def __init__(self, project: Project, version, data=None):
         self.data_type = DataType.BuggedDataType.value
         self.raw_data = data
         super().__init__(project, version)
@@ -378,8 +383,7 @@ class HalsteadData(Data):
 
 class DataBuilder:
     def __init__(self, project: ProjectName, version):
-        project_name = project.github()
-        self.data_collection = CompositeData().add_all(project_name, version)
+        self.data_collection = CompositeData().add_all(project, version)
         self.metrics = pd.DataFrame(columns=['data_value', 'data_type', 'data_column'])
 
     def append(self, metric_name: DataName):

@@ -20,6 +20,7 @@ class DataType(Enum):
 class DataName(Enum):
     # TODO create accessors for each enumeration
     Bugged = auto(), DataType.BuggedDataType.value, "is_buggy"
+    BuggedMethods = auto(), DataType.BuggedDataType.value, "is_method_buggy"
 
     ImperativeAbstraction = auto(), DataType.DesigniteDesignSmellsDataType.value, "Imperative Abstraction"
     MultifacetedAbstraction = auto(), DataType.DesigniteDesignSmellsDataType.value, "Multifaceted Abstraction"

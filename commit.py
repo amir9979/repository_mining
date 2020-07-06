@@ -1,13 +1,23 @@
 import re
 import time
 from datetime import datetime
+from javadiff.diff import get_commit_methods
+try:
+    from javadiff.javadiff.SourceFile import SourceFile
+except:
+    from javadiff.SourceFile import SourceFile
 
 
 class Commit(object):
-    def __init__(self, bug_id, git_commit, issue=None):
+    def __init__(self, bug_id, git_commit, issue=None, files=None):
         self._commit_id = git_commit.hexsha
+        self._repo_dir = git_commit.repo.working_dir
         self._bug_id = bug_id
-        self._files = Commit.fix_renamed_files(git_commit.stats.files.keys())
+        if files:
+            self._files = Commit.fix_renamed_files(files)
+        else:
+            self._files = Commit.fix_renamed_files(git_commit.stats.files.keys())
+        self._methods = list()
         self._commit_date = time.mktime(git_commit.committed_datetime.timetuple())
         self._commit_formatted_date = datetime.utcfromtimestamp(self._commit_date).strftime('%Y-%m-%d %H:%M:%S')
         self.issue = issue
@@ -20,9 +30,15 @@ class Commit(object):
             return self.issue.url
         return ""
 
+    def get_commit_methods(self):
+        if self.is_bug():
+            if len(self._methods) == 0:
+                self._methods = get_commit_methods(self._repo_dir, self._commit_id, analyze_source_lines=False)
+        return self._methods
+
     @classmethod
-    def init_commit_by_git_commit(cls, git_commit, bug_id=0, issue=None):
-        return Commit(bug_id, git_commit, issue)
+    def init_commit_by_git_commit(cls, git_commit, bug_id=0, issue=None, files=None):
+        return Commit(bug_id, git_commit, issue, files=files)
 
     def to_list(self):
         return [self._commit_id, str(self._bug_id), ";".join(self._files)]
