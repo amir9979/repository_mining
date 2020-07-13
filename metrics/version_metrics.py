@@ -13,9 +13,9 @@ from data_extractor import DataExtractor
 from metrics.rsc import source_monitor_xml
 from metrics.version_metrics_data import (
     Data,
-    CompositeData, HalsteadData, MoodData, CKData, SourceMonitorFilesData, SourceMonitorData, DesigniteDesignSmellsData,
+    CompositeData, HalsteadData, CKData, SourceMonitorFilesData, SourceMonitorData, DesigniteDesignSmellsData,
     DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData,
-    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData)
+    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData, BuggedMethodData)
 from projects import Project
 from repo import Repo
 from .commented_code_detector import metrics_for_project
@@ -57,12 +57,16 @@ class Extractor(ABC):
     def _set_data(self):
         pass
 
+    def store(self):
+        self.data.store()
+
     def extract(self):
         self._set_data()
         if hasattr(self.data, "path") and os.path.exists(self.data.path):
             return
         self._extract()
-        self.data.store()
+        self.store()
+
 
     @staticmethod
     def get_all_extractors(project, version, repo=None):
@@ -81,8 +85,12 @@ class Bugged(Extractor):
         extractor = DataExtractor(self.project)
         extractor.extract()
         path = extractor.get_bugged_files_path(self.version, True)
-        bugged = pd.read_csv(path).groupby('file_name').apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
-        self.data.raw_data = bugged
+        df = pd.read_csv(path)
+        key = 'file_name'
+        if 'method_id' in df.columns:
+            key = 'method_id'
+        bugged = df.groupby(key).apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
+        self.data.set_raw_data(bugged)
 
 
 class BuggedMethods(Extractor):
@@ -90,14 +98,16 @@ class BuggedMethods(Extractor):
         super().__init__("BuggedMethods", project, version, repo=repo)
 
     def _set_data(self):
-        self.data = BuggedData(self.project, self.version)
+        self.data = BuggedMethodData(self.project, self.version)
 
     def _extract(self):
         extractor = DataExtractor(self.project)
         extractor.extract()
-        path = extractor.get_bugged_files_path(self.version, True)
-        bugged = pd.read_csv(path).groupby('method_id').apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
-        self.data.raw_data = bugged
+        path = extractor.get_bugged_methods_path(self.version, True)
+        df = pd.read_csv(path)
+        key = 'method_id'
+        bugged = df.groupby(key).apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
+        self.data.set_raw_data(bugged)
 
 
 class Checkstyle(Extractor):
@@ -111,7 +121,7 @@ class Checkstyle(Extractor):
         all_checks_xml = self._get_all_checks_xml(self.config)
         out_path_to_xml = self._execute_command(self.runner, all_checks_xml, self.local_path)
         checkstyle = self._process_checkstyle_data(out_path_to_xml)
-        self.data.raw_data = checkstyle
+        self.data.set_raw_data(checkstyle)
 
     @staticmethod
     def _get_all_checks_xml(config):
@@ -392,7 +402,7 @@ class CK(Extractor):
     def _extract(self):
         out_dir = self._execute_command(self.runner, self.local_path)
         ck = self._process_metrics(out_dir)
-        self.raw_data = ck
+        self.data.set_raw_data(ck)
 
     @staticmethod
     def _execute_command(ck_runner, local_path):
@@ -421,34 +431,35 @@ class CK(Extractor):
         return ck
 
 
-class Mood(Extractor):
-    def __init__(self, project: Project, version, repo=None):
-        super().__init__("MOOD", project, version, repo)
-
-    def _set_data(self):
-        self.data = MoodData(self.project, self.version)
-
-    def _extract(self):
-        out_dir = self._execute_command(self.runner, self.local_path)
-        mood = self._process_metrics(out_dir)
-        self.raw_data = mood
-
-    @staticmethod
-    def _execute_command(mood_runner, local_path):
-        out_dir = tempfile.mkdtemp()
-        command = ["java", "-jar", mood_runner, local_path, out_dir]
-        Popen(command).communicate()
-        return out_dir
-
-    # TODO There is a but with the Mood id
-    def _process_metrics(self, out_dir):
-        with open(os.path.join(out_dir, "_metrics.json")) as file:
-            mood = dict(map(lambda x: (
-                self.file_analyser.classes_paths.get(x[0].lower()),
-                x[1]),
-                            json.loads(file.read()).items()))
-        shutil.rmtree(out_dir)
-        return mood
+# class Mood(Extractor):
+#     def __init__(self, project: Project, version, repo=None):
+#         super().__init__("MOOD", project, version, repo)
+#
+#     def _set_data(self):
+#         from metrics.version_metrics_data import MoodData
+#         self.data = MoodData(self.project, self.version)
+#
+#     def _extract(self):
+#         out_dir = self._execute_command(self.runner, self.local_path)
+#         mood = self._process_metrics(out_dir)
+#         self.data.set_raw_data(mood)
+#
+#     @staticmethod
+#     def _execute_command(mood_runner, local_path):
+#         out_dir = tempfile.mkdtemp()
+#         command = ["java", "-jar", mood_runner, local_path, out_dir]
+#         Popen(command).communicate()
+#         return out_dir
+#
+#     # TODO There is a but with the Mood id
+#     def _process_metrics(self, out_dir):
+#         with open(os.path.join(out_dir, "_metrics.json")) as file:
+#             mood = dict(map(lambda x: (
+#                 self.file_analyser.classes_paths.get(x[0].lower()),
+#                 x[1]),
+#                             json.loads(file.read()).items()))
+#         shutil.rmtree(out_dir)
+#         return mood
 
 
 class Halstead(Extractor):
@@ -460,4 +471,4 @@ class Halstead(Extractor):
 
     def _extract(self):
         halstead = metrics_for_project(self.local_path)
-        self.raw_data = halstead
+        self.data.set_raw_data(halstead)

@@ -10,7 +10,7 @@ from metrics.version_metrics import Extractor
 from metrics.version_metrics_data import DataBuilder
 from metrics.version_metrics_name import DataName
 from classification_instance import ClassificationInstance
-
+from itertools import tee
 
 class Main():
     def __init__(self):
@@ -43,7 +43,7 @@ class Main():
         classes_datasets = []
         methods_datasets = []
 
-        for version in self.extractor.selected_versions:
+        for version in self.extractor.get_selected_versions()[:-1]:
             classes_df, methods_df = self.extract_features_to_version(classes_data, method_data, version)
             classes_datasets.append(classes_df)
             methods_datasets.append(methods_df)
@@ -63,8 +63,14 @@ class Main():
         classes_df, methods_df = db.build()
         methods_df.fillna(False, inplace=True)
         methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False)
-
-        aggregation_fns = {feature: lambda value: any(value) for feature in list(methods_df.columns)[3:]}
+        columns = list(filter(lambda x: x not in ['File', 'Class'], methods_df.columns.values.tolist()))
+        aggregation_fns = {feature: lambda value: any(value) for feature in columns}
+        ids = methods_df['Method_ids'].iteritems()
+        files_id, classes_id = tee(ids, 2)
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
+        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
+        methods_df.insert(0, 'File', files)
+        methods_df.insert(0, 'Class', classes)
         aggregated_methods_df = methods_df.groupby(['File', 'Class']).aggregate(aggregation_fns).reset_index()
         classes_df.dropna(inplace=True)
         classes_df = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
@@ -104,7 +110,7 @@ class Main():
         return ClassificationInstance(methods_training, methods_testing, methods_testing_names,
                                       os.path.join(methods_dataset_dir, "training.csv"),
                                       os.path.join(methods_dataset_dir, "testing.csv"),
-                                      os.path.join(methods_dataset_dir, "prediction.csv"))
+                                      os.path.join(methods_dataset_dir, "prediction.csv"), "BuggedMethods")
 
     def choose_versions(self, version_num=5, algorithm="bin", version_type=VersionType.Untyped):
         self.extractor.choose_versions(version_num=version_num, algorithm=algorithm, strict=True, version_type=version_type)

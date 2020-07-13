@@ -10,7 +10,8 @@ from config import Config
 from metrics.version_metrics_name import DataName
 from metrics.version_metrics_name import DataType
 from projects import ProjectName, Project
-
+import gc
+import tempfile
 
 class Data(ABC):
     def __init__(self, project: Project, version: str):
@@ -18,7 +19,7 @@ class Data(ABC):
         if self.raw_data is None:
             try:
                 self.data = self._read_data_to_df()
-            except:
+            except Exception as e:
                 pass
         else:
             self.data = self._convert_to_df(self.raw_data)
@@ -45,6 +46,10 @@ class Data(ABC):
         df.rename(columns={"index": "id"}, inplace=True)
         return df
 
+    def set_raw_data(self, raw):
+        self.raw_data = raw
+        self.data = self._convert_to_df(raw)
+
     def store(self):
         self.data.dropna(inplace=True)
         self.data.to_csv(self.path, index=False)
@@ -55,6 +60,15 @@ class Data(ABC):
         id = df.columns[0]
         metrics = list(filter(lambda x: x in df.columns, [id] + values))
         return df[metrics]
+
+
+    @staticmethod
+    def get_all_datas(project, version):
+        for s in Data.__subclasses__():
+            if s.__name__ == "CompositeData":
+                # skip Compisite
+                continue
+            yield s(project, version)
 
 
 class CompositeData(Data):
@@ -70,18 +84,33 @@ class CompositeData(Data):
         return self
 
     def add_all(self, project, version):
-        self.add(BuggedData(project, version))\
-            .add(CheckstyleData(project, version)) \
-            .add(DesigniteDesignSmellsData(project, version)) \
-            .add(DesigniteImplementationSmellsData(project, version)) \
-            .add(DesigniteOrganicTypeSmellsData(project, version)) \
-            .add(DesigniteOrganicMethodSmellsData(project, version)) \
-            .add(DesigniteTypeMetricsData(project, version)) \
-            .add(DesigniteMethodMetricsData(project, version)) \
-            .add(CKData(project, version)) \
-            .add(HalsteadData(project, version))
-            # .add(MoodData(project, version)) \
+        for d in Data.get_all_datas(project, version):
+            self.add(d)
         return self
+
+    def merge(self, merge_on, dfs):
+        data = dict()
+        df = dfs.pop(0)
+        for ind, row in df.iterrows():
+            d = row.to_dict()
+            key = tuple(map(d.get, merge_on))
+            data[key] = d
+        while dfs:
+            gc.collect()
+            iter_df = dfs.pop(0)
+            for ind, row in iter_df.iterrows():
+                d = row.to_dict()
+                key = tuple(map(d.get, merge_on))
+                data.setdefault(key, dict()).update(d)
+            # f, path = tempfile.mkstemp()
+            # os.close(f)
+            # os.remove(path)
+            # iter_df.to_csv(path, index_label=False)
+            # del(iter_df)
+            # for r in pd.read_csv(path, chunksize=1000):
+            #     df = df.merge(r, on=merge_on, how='outer')
+            #     gc.collect()
+        return pd.DataFrame(list(data.values()))
 
     def build(self, data, column_names):
         files_dfs = []
@@ -90,33 +119,51 @@ class CompositeData(Data):
         for data_type, data_values in data.items():
             if self.data_collection.get(data_type) is None:
                 continue
-            df = self.data_collection\
-                     .get(data_type)\
-                     .build(data_values, column_names)
-            if "Method" in df.columns:
-                methods_dfs.append(df.drop(columns="Package"))
-            elif "Class" in df.columns:
+            df = self.data_collection.get(data_type).build(data_values, column_names)
+            if "Method_ids" in df.columns:
+                methods_dfs.append(df)
+            if "Class" in df.columns:
                 classes_dfs.append(df.drop(columns="Package"))
-            else:
+            elif "File" in df.columns:
                 files_dfs.append(df)
         classes_df = None
         methods_df = None
 
         if classes_dfs:
-            classes_df = classes_dfs.pop(0)
-            while classes_dfs:
-                classes_df = classes_df.merge(classes_dfs.pop(0), on=['File', 'Class'], how='outer')
+            classes_df = self.merge(['File', 'Class'], classes_dfs)
+            # classes_df = classes_dfs.pop(0)
+            # while classes_dfs:
+            #     gc.collect()
+            #     f, path = tempfile.mkstemp()
+            #     os.close(f)
+            #     os.remove(path)
+            #     df = classes_dfs.pop(0)
+            #     f, df_path = tempfile.mkstemp()
+            #     os.close(f)
+            #     os.remove(df_path)
+            #     df.to_csv(df_path, index=False)
+            #     df_result = pd.DataFrame(columns=(classes_df.columns.append(df.columns)).unique())
+            #     df_result.to_csv(path, index_label=False)
+            #     del(df)
+            #     reader = pd.read_csv(df_path, chunksize=1000)
+            #     for r in reader:
+            #         df2 = pd.merge(classes_df, r, on=['File', 'Class'], how='outer')
+            #         df2.to_csv(path, mode="a", header=False, index=False)
+            #
+            #     # classes_df = classes_df.merge(df, on=['File', 'Class'], how='outer')
+            #     classes_df = pd.read_csv(path)
+
 
         if files_dfs:
-            classes_df = files_dfs.pop(0) if classes_df is None else classes_df
-            while files_dfs:
-                classes_df = classes_df.merge(files_dfs.pop(0), on=['File'], how='outer')
+            classes_df = self.merge(['File'], [classes_df] + files_dfs)
 
         if methods_dfs:
             methods_df = methods_dfs.pop(0)
             while methods_dfs:
+                gc.collect()
                 method_df = methods_dfs.pop(0)
-                methods_df = methods_df.merge(method_df, on=['File', 'Class', 'Method'], how='outer')
+                method_df = method_df.drop(["File", "Class", "Package", "Method"], axis=1, errors='ignore')
+                methods_df = methods_df.merge(method_df, on=['Method_ids'], how='outer')
 
         return classes_df, methods_df
 
@@ -137,6 +184,24 @@ class BuggedData(Data):
         return df
 
 
+class BuggedMethodData(Data):
+    def __init__(self, project: Project, version, data=None):
+        self.data_type = DataType.BuggedMethodsDataType.value
+        self.raw_data = data
+        super().__init__(project, version)
+
+    def build(self, values, column_names):
+        df = super().build(values, column_names)
+        id = df['id'].iteritems()
+        methods = pd.Series(list(map(lambda x: x[1], id))).values
+        ids = df['id']
+        df = df.drop(columns='id')
+        df.insert(0, 'Method', methods)
+        df.insert(0, 'Method_ids', ids)
+        df = df.rename(columns=column_names)
+        return df
+
+
 class CheckstyleData(Data):
     def __init__(self, project, version, data=None):
         self.data_type = DataType.CheckstyleDataType.value
@@ -151,8 +216,10 @@ class CheckstyleData(Data):
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1].split('(')[0], methods_id))).values
+        ids = df['id']
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
+        df.insert(0, 'Method_ids', ids)
         df.insert(0, 'Class',  classes)
         df.insert(0, 'Package',  packages)
         df.insert(0, 'File',  files)
@@ -198,8 +265,10 @@ class DesigniteImplementationSmellsData(Data):
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1], methods_id))).values
+        ids = df['id']
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
+        df.insert(0, 'Method_ids', ids)
         df.insert(0, 'Class',  classes)
         df.insert(0, 'Package',  packages)
         df.insert(0, 'File',  files)
@@ -244,8 +313,10 @@ class DesigniteOrganicMethodSmellsData(Data):
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1], methods_id))).values
+        ids = df['id']
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
+        df.insert(0, 'Method_ids', ids)
         df.insert(0, 'Class',  classes)
         df.insert(0, 'Package',  packages)
         df.insert(0, 'File',  files)
@@ -290,8 +361,10 @@ class DesigniteMethodMetricsData(Data):
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1], methods_id))).values
+        ids = df['id']
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
+        df.insert(0, 'Method_ids', ids)
         df.insert(0, 'Class',  classes)
         df.insert(0, 'Package',  packages)
         df.insert(0, 'File',  files)
@@ -338,8 +411,10 @@ class CKData(Data):
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1].split('(')[0], methods_id))).values
+        ids = df['id']
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
+        df.insert(0, 'Method_ids', ids)
         df.insert(0, 'Class',  classes)
         df.insert(0, 'Package',  packages)
         df.insert(0, 'File',  files)
@@ -347,21 +422,21 @@ class CKData(Data):
         return df
 
 
-class MoodData(Data):
-    def __init__(self, project, version, data=None):
-        self.data_type = DataType.MoodDataType.value
-        self.raw_data = data
-        super().__init__(project, version)
-        pass
-
-    def build(self, values, column_names):
-        df = super().build(values, column_names)
-        id = df['id'].iteritems()
-        files = pd.Series(list(map(lambda x: x[1], id))).values
-        df = df.drop(columns='id')
-        df.insert(0, 'File',  files)
-        df = df.rename(columns=column_names)
-        return df
+# class MoodData(Data):
+#     def __init__(self, project, version, data=None):
+#         self.data_type = DataType.MoodDataType.value
+#         self.raw_data = data
+#         super().__init__(project, version)
+#         pass
+#
+#     def build(self, values, column_names):
+#         df = super().build(values, column_names)
+#         id = df['id'].iteritems()
+#         files = pd.Series(list(map(lambda x: x[1], id))).values
+#         df = df.drop(columns='id')
+#         df.insert(0, 'File',  files)
+#         df = df.rename(columns=column_names)
+#         return df
 
 
 class HalsteadData(Data):
@@ -399,8 +474,7 @@ class DataBuilder:
         data = self.metrics.groupby('data_type')['data_column'] \
             .apply(lambda x: x.values.tolist()).to_dict()
         column_names = dict(zip(self.metrics['data_column'], self.metrics['data_value']))
-        classes_df, methods_df = self.data_collection.build(data, column_names)
-        return classes_df, methods_df
+        return self.data_collection.build(data, column_names)
 
     def __repr__(self):
         self.metrics = self.metrics.drop_duplicates().reset_index(drop=True)

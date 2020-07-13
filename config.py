@@ -32,7 +32,7 @@ class Config:
 
     @staticmethod
     def get_versions_short_name(versions):
-        return "_".join(list(map(lambda t: getattr((t.__dict__.get("version") or t), "_name").replace(".", ''), versions)))
+        return "_".join(sorted(list(map(lambda t: getattr((t.__dict__.get("version") or t), "_name").replace(".", ''), versions))))
 
     @staticmethod
     def extend_path(path):

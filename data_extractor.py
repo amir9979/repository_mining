@@ -238,6 +238,8 @@ class DataExtractor(object):
 
     def choose_versions(self, repo=None, version_num=5, configurations=False,
                         algorithm="bin", version_type=VersionType.Untyped, strict=True):
+        if self.get_selected_versions() is not None:
+            return
         tags = self.bugged_files_between_versions
         if repo is None:
             repo = self.repo
@@ -282,7 +284,7 @@ class DataExtractor(object):
     def get_bugged_files_path(self, version, selected_versions=False):
         if selected_versions:
             cache_path = self._get_caching_path("SelectedFiles")
-            tags = list(filter(lambda tag: tag._name in list(map(str, self.get_selected_versions())), self.versions))
+            tags = list(filter(lambda tag: tag._name in list(map(str, self.get_selected_versions())), self.versions))[:-1]
             path = os.path.join(cache_path, self.jira_project_name, Config().get_versions_short_name(tags), version.replace(os.path.sep, "_") + '.csv')
         else:
             cache_path = self._get_caching_path("Files")
@@ -291,7 +293,7 @@ class DataExtractor(object):
 
     def get_bugged_methods_path(self, version, selected_versions=True):
         cache_path = self._get_caching_path("SelectedMethods")
-        tags = list(filter(lambda tag: tag._name in list(map(str, self.get_selected_versions())), self.versions))
+        tags = list(filter(lambda tag: tag._name in list(map(str, self.get_selected_versions())), self.versions))[:-1]
         path = os.path.join(cache_path, self.jira_project_name, Config().get_versions_short_name(tags), version.replace(os.path.sep, "_") + '.csv')
         return path
 

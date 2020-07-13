@@ -2,16 +2,16 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 
 class ClassificationInstance(object):
-    def __init__(self, training, testing, names, training_path, testing_path, prediction_path):
+    def __init__(self, training, testing, names, training_path, testing_path, prediction_path, label='Bugged'):
         self.training = training
         self.testing = testing
 
         self.training.to_csv(training_path, index=False)
         self.testing.to_csv(testing_path, index=False)
 
-        self.training_y = self.training.pop('Bugged').values
+        self.training_y = self.training.pop(label).values
         self.training_X = self.training.values
-        self.testing_y = self.testing.pop('Bugged').values
+        self.testing_y = self.testing.pop(label).values
         self.testing_X = self.testing.values
         self.names = names
         self.prediction_path = prediction_path
