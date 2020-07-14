@@ -102,11 +102,11 @@ class BuggedMethods(Extractor):
 
     def _extract(self):
         extractor = DataExtractor(self.project)
-        extractor.extract()
+        extractor.extract(True)
         path = extractor.get_bugged_methods_path(self.version, True)
         df = pd.read_csv(path)
         key = 'method_id'
-        bugged = df.groupby(key).apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
+        bugged = df.groupby(key).apply(lambda x: dict(zip(["is_method_buggy"], x.is_method_buggy))).to_dict()
         self.data.set_raw_data(bugged)
 
 

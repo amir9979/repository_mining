@@ -131,28 +131,6 @@ class CompositeData(Data):
 
         if classes_dfs:
             classes_df = self.merge(['File', 'Class'], classes_dfs)
-            # classes_df = classes_dfs.pop(0)
-            # while classes_dfs:
-            #     gc.collect()
-            #     f, path = tempfile.mkstemp()
-            #     os.close(f)
-            #     os.remove(path)
-            #     df = classes_dfs.pop(0)
-            #     f, df_path = tempfile.mkstemp()
-            #     os.close(f)
-            #     os.remove(df_path)
-            #     df.to_csv(df_path, index=False)
-            #     df_result = pd.DataFrame(columns=(classes_df.columns.append(df.columns)).unique())
-            #     df_result.to_csv(path, index_label=False)
-            #     del(df)
-            #     reader = pd.read_csv(df_path, chunksize=1000)
-            #     for r in reader:
-            #         df2 = pd.merge(classes_df, r, on=['File', 'Class'], how='outer')
-            #         df2.to_csv(path, mode="a", header=False, index=False)
-            #
-            #     # classes_df = classes_df.merge(df, on=['File', 'Class'], how='outer')
-            #     classes_df = pd.read_csv(path)
-
 
         if files_dfs:
             classes_df = self.merge(['File'], [classes_df] + files_dfs)

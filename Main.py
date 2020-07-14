@@ -63,7 +63,7 @@ class Main():
         classes_df, methods_df = db.build()
         methods_df.fillna(False, inplace=True)
         methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False)
-        columns = list(filter(lambda x: x not in ['File', 'Class'], methods_df.columns.values.tolist()))
+        columns = list(filter(lambda x: x not in ['File', 'Class', 'BuggedMethods'], methods_df.columns.values.tolist()))
         aggregation_fns = {feature: lambda value: any(value) for feature in columns}
         ids = methods_df['Method_ids'].iteritems()
         files_id, classes_id = tee(ids, 2)
@@ -74,8 +74,12 @@ class Main():
         aggregated_methods_df = methods_df.groupby(['File', 'Class']).aggregate(aggregation_fns).reset_index()
         classes_df.dropna(inplace=True)
         classes_df = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
+        # classes_df = classes_df.drop(["BuggedMethods"], axis=1)
         classes_df.fillna(False, inplace=True)
         classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False)
+        methods_df = methods_df.drop('File', axis=1)
+        methods_df = methods_df.drop('Class', axis=1)
+        methods_df = methods_df.drop('Method', axis=1)
 
         return classes_df, methods_df
 
@@ -101,12 +105,9 @@ class Main():
                          self.project.github()))
         methods_dataset_dir = os.path.join(dataset_dir, "methods")
         Path(methods_dataset_dir).mkdir(parents=True, exist_ok=True)
-        methods_training = pd.concat(methods_datasets[:-1], ignore_index=True).drop(["File", "Class"], axis=1)
+        methods_training = pd.concat(methods_datasets[:-1], ignore_index=True).drop("Method_ids", axis=1)
         methods_testing = methods_datasets[-1]
-        method_names = methods_testing.pop("Method").values.tolist()
-        file_names = methods_testing.pop("File").values.tolist()
-        classes_names = methods_testing.pop("Class").values.tolist()
-        methods_testing_names = list(map("@".join, zip(method_names, file_names, classes_names)))
+        methods_testing_names = methods_testing.pop("Method_ids").values.tolist()
         return ClassificationInstance(methods_training, methods_testing, methods_testing_names,
                                       os.path.join(methods_dataset_dir, "training.csv"),
                                       os.path.join(methods_dataset_dir, "testing.csv"),

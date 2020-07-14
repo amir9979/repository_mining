@@ -150,7 +150,7 @@ class DataExtractor(object):
                         methods[method.id] = data
                 else:
                     methods[method.id] = data
-            df = pd.DataFrame(methods.values(), columns=["method_id", "method_name", "method_name_parameters", "file_name", "start_line", "end_line", "is_buggy"])
+            df = pd.DataFrame(methods.values(), columns=["method_id", "method_name", "method_name_parameters", "file_name", "start_line", "end_line", "is_method_buggy"])
             version_name = tag.version._name.replace(os.path.sep, "_")
             path = os.path.join(methods_dir, version_name + ".csv")
             df.to_csv(path, index=False)
