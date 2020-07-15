@@ -54,6 +54,37 @@ class Main():
         methods_instance  = self.extract_methods_datasets(methods_datasets)
         methods_instance.predict()
 
+    def aggrate_methods_df(self, df):
+        ids = df['Method_ids'].iteritems()
+        files_id, classes_id = tee(ids, 2)
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
+        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
+        df.insert(0, 'File', files)
+        df.insert(0, 'Class', classes)
+        groupby = ['File', 'Class']
+        columns_filter = ['File', 'Class', 'BuggedMethods', 'Method', 'Method_ids']
+        columns = list(
+            filter(lambda x: x not in columns_filter, df.columns.values.tolist()))
+        data = list()
+        for key, group in df.groupby(groupby):
+            key_data = {}
+            key_data.update(dict(zip(groupby, key)))
+            for feature in columns:
+                pt = pd.DataFrame(group[feature].describe()).T
+                cols = ["{0}_{1}".format(feature, c) for c in pt.columns.values.tolist()]
+                pt.columns = cols
+                key_data.update(list(pt.iterrows())[0][1].to_dict())
+            data.append(key_data)
+        return pd.DataFrame(data)
+
+    def fillna(self, df):
+        for col in df:
+            dt = df[col].dtype
+            if dt == int or dt == float:
+                df[col].fillna(0, inplace=True)
+            else:
+                df[col].fillna(False, inplace=True)
+        return df
 
     def extract_features_to_version(self, classes_data, method_data, version):
         for extractor in Extractor.get_all_extractors(self.project, version):
@@ -61,26 +92,20 @@ class Main():
         db = DataBuilder(self.project, version)
         list(map(lambda d: db.append(d), DataName))
         classes_df, methods_df = db.build()
-        methods_df.fillna(False, inplace=True)
+
+        methods_df = self.fillna(methods_df)
         methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False)
-        columns = list(filter(lambda x: x not in ['File', 'Class', 'BuggedMethods'], methods_df.columns.values.tolist()))
-        aggregation_fns = {feature: lambda value: any(value) for feature in columns}
-        ids = methods_df['Method_ids'].iteritems()
-        files_id, classes_id = tee(ids, 2)
-        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
-        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
-        methods_df.insert(0, 'File', files)
-        methods_df.insert(0, 'Class', classes)
-        aggregated_methods_df = methods_df.groupby(['File', 'Class']).aggregate(aggregation_fns).reset_index()
+        aggregated_methods_df = self.aggrate_methods_df(methods_df)
+
         classes_df.dropna(inplace=True)
         classes_df = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
-        # classes_df = classes_df.drop(["BuggedMethods"], axis=1)
-        classes_df.fillna(False, inplace=True)
+
+        classes_df = self.fillna(classes_df)
         classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False)
+
         methods_df = methods_df.drop('File', axis=1)
         methods_df = methods_df.drop('Class', axis=1)
         methods_df = methods_df.drop('Method', axis=1)
-
         return classes_df, methods_df
 
     def extract_classes_datasets(self, classes_datasets):
@@ -124,7 +149,7 @@ class Main():
         parser.add_argument('-g', '--github_url', dest='github', action='store', help='the git link to the project to extract')
         parser.add_argument('-j', '--jira_url', dest='jira', action='store', help='the jira link to the project to extract')
         parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the algorithm to select the versions : [bin]', default='bin')
-        parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=3, type=int)
+        parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
         args = parser.parse_args()
         if args.projects:
@@ -140,4 +165,5 @@ class Main():
 
 
 if __name__ == "__main__":
-    Main().main()
+    m = Main()
+    m.main()
