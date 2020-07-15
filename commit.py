@@ -1,11 +1,11 @@
 import re
 import time
 from datetime import datetime
-from javadiff.diff import get_commit_methods
 try:
     from javadiff.javadiff.SourceFile import SourceFile
 except:
     from javadiff.SourceFile import SourceFile
+    from javadiff.diff import get_commit_methods
 
 
 class Commit(object):
