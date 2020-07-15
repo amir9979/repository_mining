@@ -7,14 +7,6 @@ from config import Config
 from projects import ProjectName
 
 
-def get_scores(metric, metric_name, project_name):
-    path = Config.get_work_dir_path(
-        os.path.join("paper", "scores", metric, project_name, "scores.csv"))
-    scores_df = pd.read_csv(path)
-    scores_df['metric_configuration'] = metric_name
-    return scores_df
-
-
 def get_num_defects(metric, metric_name, project_name):
     training_path = Config.get_work_dir_path(
         os.path.join("paper", "scores", metric, project_name, "training_y.csv"))
@@ -46,16 +38,12 @@ def execute(project):
         'original_testing_num_files',
         'original_training_num_defective_files',
         'original_testing_num_defective_files',
+        'metric_name',
         'num_training_files',
         'num_testing_files',
         'num_training_defective_files',
         'num_testing_defective_files',
-        'defective_ratio',
-        'metrics_configuration',
-        'estimator',
-        'estimator_configuration',
-        'measure',
-        'value'
+        'defective_ratio'
     ]
 
     try:
@@ -72,15 +60,6 @@ def execute(project):
         original_training_num_defective_files = sum(versions_info_df.iloc[:-1,:]['#commited_files_in_version'])
         original_testing_num_files = versions_info_df.iloc[-1,:]['#commited_files_in_version']
         original_testing_num_defective_files = versions_info_df.iloc[-1,:]['#bugged_files_in_version']
-
-        scores_df_list = list()
-        scores_df_list.append(get_scores("designite", "Designite", project.github()))
-        scores_df_list.append(get_scores("fowler", "Fowler", project.github()))
-        scores_df_list.append(get_scores("designite_fowler", "Designite + Fowler", project.github()))
-        scores_df_list.append(get_scores("traditional", "Traditional", project.github()))
-        scores_df_list.append(get_scores("traditional_designite", "Traditional + Designite", project.github()))
-        scores_df_list.append(get_scores("traditional_folwer", "Traditional + Fowler", project.github()))
-        scores_df_list.append(get_scores("traditional_designite_fowler", "Traditional + Designite + Fowler", project.github()))
 
         scores_df = pd.concat(scores_df_list, axis=0)
 

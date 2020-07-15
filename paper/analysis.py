@@ -91,7 +91,7 @@ class Analysis(ABC):
             self.logs.summary("{0} | {1} | project succeeded.".format(self.metric, self.project_name))
 
         except Analysis.FailedBuildDataset:
-            self.logs.failure("{0} | {1} | 2/11 | Failed building dataset".format(self.metric, self.project_name),
+            self.logs.failure("{0} | {1} | 2/11 | Failed BUILDING dataset".format(self.metric, self.project_name),
                               verbose=True)
             self.logs.summary("{0} | {1} | project failed.".format(self.metric, self.project_name))
             return
@@ -266,7 +266,17 @@ class Fowler(Analysis):
             classes_df, methods_df = db.build()
             if classes_df.empty:
                 raise Analysis.FailedBuildDataset("Fowler Smells dataset is empty.")
-            return classes_df
+
+            def union_smell(value):
+                return any(value)
+
+            aggregation_fns = {feature: union_smell for feature in list(methods_df.columns)[3:]}
+            aggregated_methods_df = methods_df.groupby(['File', 'Class']).aggregate(aggregation_fns).reset_index()
+            classes_df.dropna(inplace=True)
+            dataset = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
+            dataset.fillna(False, inplace=True)
+            return dataset
+
         super().build_datasets(versions)
         datasets = list(map(build_dataset, versions))
         self.logs.success("{0} | {1} | 2/11 | Built Datasets.".format(self.metric, self.project_name))
@@ -308,7 +318,7 @@ class Traditional(Analysis):
             dataset = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
             dataset.dropna(subset=['Bugged'], inplace=True)
             dataset.fillna(0, inplace=True)
-            return classes_df
+            return dataset
         super().build_datasets(versions)
         datasets = list(map(build_dataset, versions))
         self.logs.success("{0} | {1} | 2/11 | Built Datasets.".format(self.metric, self.project_name))
@@ -346,7 +356,7 @@ class DesigniteFowler(Analysis):
             classes_df.dropna(inplace=True)
             dataset = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
             dataset.fillna(False, inplace=True)
-            return classes_df
+            return dataset
 
         super().build_datasets(versions)
         datasets = list(map(build_dataset, versions))
@@ -388,7 +398,7 @@ class DesigniteTraditional(Analysis):
             dataset = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
             dataset.dropna(subset=['Bugged'], inplace=True)
             dataset.fillna(0, inplace=True)
-            return classes_df
+            return dataset
         super().build_datasets(versions)
         datasets = list(map(build_dataset, versions))
         self.logs.success("{0} | {1} | 2/11 | Built Datasets.".format(self.metric, self.project_name))
@@ -664,17 +674,41 @@ class Logs:
 def run(project):
     log_name = "analysis"
     # Designite(log_name, project).analyse()
-    # Fowler(log_name, project).analyse()
-    # DesigniteFowler(log_name, project).analyse()
-    # Traditional(log_name, project).analyse()
-    # DesigniteTraditional(log_name, project).analyse()
+    Fowler(log_name, project).analyse()
+    DesigniteFowler(log_name, project).analyse()
+    Traditional(log_name, project).analyse()
+    DesigniteTraditional(log_name, project).analyse()
     # FowlerTraditional(log_name, project).analyse()
-    DesigniteFowlerTraditional(log_name, project).analyse()
+    # DesigniteFowlerTraditional(log_name, project).analyse()
 
 
 if __name__ == "__main__":
     projects = list(ProjectName)
-    projects = [ProjectName.Hadoop]
-    with Pool(1) as p:
+    # projects = [
+    #     ProjectName.Camel,
+        # ProjectName.CommonsBeanUtils,
+        # ProjectName.Drill,
+        # ProjectName.FOP,
+        # ProjectName.Continuum,
+        # ProjectName.OpenJPA,
+        # ProjectName.Jackrabbit,
+        # ProjectName.Tapestry5,
+        # ProjectName.CommonsJexl,
+        # ProjectName.CXF,
+        # ProjectName.Shiro,
+        # ProjectName.Reef,
+        # ProjectName.Olingo,
+        # ProjectName.Accumulo,
+        # ProjectName.Cocoon,
+        # ProjectName.Cayenne,
+        # ProjectName.Kafka,
+        # ProjectName.CarbonData,
+        # ProjectName.Giraph,
+        # ProjectName.Isis,
+        # ProjectName.Wicket,
+        # ProjectName.Beam,
+        # ProjectName.TinkerPop
+    # ]
+    with Pool() as p:
        p.map(run, projects)
 
