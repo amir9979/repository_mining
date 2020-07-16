@@ -325,15 +325,12 @@ class SourceMonitor(Extractor):
         self.data = CompositeData()
 
     def _extract(self):
-        if not os.name == "dt":
-            # TODO Create an EmptyData class
-            return
-
-        out_dir = self._execute_command(self.runner, self.local_path)
-        source_monitor_files, source_monitor = self._process_metrics(out_dir)
-        self.data \
-            .add(SourceMonitorFilesData(self.project, self.version, data=source_monitor_files)) \
-            .add(SourceMonitorData(self.project, self.version, data=source_monitor))
+        if os.name == "nt":
+            out_dir = self._execute_command(self.runner, self.local_path)
+            source_monitor_files, source_monitor = self._process_metrics(out_dir)
+            self.data \
+                .add(SourceMonitorFilesData(self.project, self.version, data=source_monitor_files)) \
+                .add(SourceMonitorData(self.project, self.version, data=source_monitor))
 
     @staticmethod
     def _execute_command(source_monitor_runner, local_path):
@@ -342,7 +339,7 @@ class SourceMonitor(Extractor):
             .replace("verP", out_dir) \
             .replace("verREPO", local_path)
         xml_path = os.path.join(out_dir, "sourceMonitor.xml")
-        with open(xml_path, "wb") as f:
+        with open(xml_path, "w") as f:
             f.write(xml)
 
         Popen([source_monitor_runner, "/C", xml_path]).communicate()
@@ -350,7 +347,7 @@ class SourceMonitor(Extractor):
 
     def _process_metrics(self, out_dir):
         files_path = os.path.join(out_dir, "source_monitor_classes.csv")
-        files_df = pd.read_csv(files_path)
+        files_df = pd.read_csv(files_path, encoding = "ISO-8859-8")
         cols_to_drop = ["Project Name", "Checkpoint Name", "Created On"]
         for i in cols_to_drop + ['Name of Most Complex Method*']:
             files_df = files_df.drop(i, axis=1)
@@ -362,7 +359,7 @@ class SourceMonitor(Extractor):
             ), files_df.iterrows()))
 
         methods_path = os.path.join(out_dir, "source_monitor_methods.csv")
-        methods_df = pd.read_csv(methods_path)
+        methods_df = pd.read_csv(methods_path, encoding = "ISO-8859-8")
         for i in cols_to_drop:
             methods_df = methods_df.drop(i, axis=1)
         methods_cols = list(methods_df.columns.drop("File Name"))

@@ -89,7 +89,8 @@ class Main():
         return df
 
     def extract_features_to_version(self, classes_data, method_data, version):
-        for extractor in Extractor.get_all_extractors(self.project, version):
+        extractors = Extractor.get_all_extractors(self.project, version)
+        for extractor in extractors:
             extractor.extract()
         db = DataBuilder(self.project, version)
         list(map(lambda d: db.append(d), DataName))
