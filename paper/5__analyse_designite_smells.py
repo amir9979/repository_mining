@@ -20,7 +20,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 from config import Config
 from metrics.version_metrics_data import DataBuilder
-from metrics.version_metrics_name import DataName
+from metrics.version_metrics_name import DataNameEnum
 from paper.utils import EstimatorSelectionHelper, FeatureSelectionHelper
 from projects import ProjectName
 
@@ -36,24 +36,24 @@ def build_dataset(version, project):
     try:
         db = DataBuilder(project, version)
 
-        db.append(DataName.ImperativeAbstraction)
-        db.append(DataName.MultifacetedAbstraction)
-        db.append(DataName.UnnecessaryAbstraction)
-        db.append(DataName.UnutilizedAbstraction)
-        db.append(DataName.DeficientEncapsulation)
-        db.append(DataName.UnexploitedEncapsulation)
-        db.append(DataName.BrokenModularization)
-        db.append(DataName.Cyclic_DependentModularization)
-        db.append(DataName.InsufficientModularization)
-        db.append(DataName.Hub_likeModularization)
-        db.append(DataName.BrokenHierarchy)
-        db.append(DataName.CyclicHierarchy)
-        db.append(DataName.DeepHierarchy)
-        db.append(DataName.MissingHierarchy)
-        db.append(DataName.MultipathHierarchy)
-        db.append(DataName.RebelliousHierarchy)
-        db.append(DataName.WideHierarchy)
-        db.append(DataName.Bugged)
+        db.append(DataNameEnum.ImperativeAbstraction)
+        db.append(DataNameEnum.MultifacetedAbstraction)
+        db.append(DataNameEnum.UnnecessaryAbstraction)
+        db.append(DataNameEnum.UnutilizedAbstraction)
+        db.append(DataNameEnum.DeficientEncapsulation)
+        db.append(DataNameEnum.UnexploitedEncapsulation)
+        db.append(DataNameEnum.BrokenModularization)
+        db.append(DataNameEnum.Cyclic_DependentModularization)
+        db.append(DataNameEnum.InsufficientModularization)
+        db.append(DataNameEnum.Hub_likeModularization)
+        db.append(DataNameEnum.BrokenHierarchy)
+        db.append(DataNameEnum.CyclicHierarchy)
+        db.append(DataNameEnum.DeepHierarchy)
+        db.append(DataNameEnum.MissingHierarchy)
+        db.append(DataNameEnum.MultipathHierarchy)
+        db.append(DataNameEnum.RebelliousHierarchy)
+        db.append(DataNameEnum.WideHierarchy)
+        db.append(DataNameEnum.Bugged)
 
         general_log.info("{0} | {1} | building dataset".format(
             project.github(),

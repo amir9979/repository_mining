@@ -7,7 +7,7 @@ from collections import OrderedDict
 import pandas as pd
 
 from config import Config
-from metrics.version_metrics_name import DataName
+from metrics.version_metrics_name import DataNameEnum
 from metrics.version_metrics_name import DataType
 from projects import ProjectName, Project
 import gc
@@ -439,12 +439,8 @@ class DataBuilder:
         self.data_collection = CompositeData().add_all(project, version)
         self.metrics = pd.DataFrame(columns=['data_value', 'data_type', 'data_column'])
 
-    def append(self, metric_name: DataName):
-        data_value = metric_name.name
-        data_type = metric_name.value[1]
-        data_column = metric_name.value[2]
-        data_dict = {'data_value': data_value, 'data_type': data_type, 'data_column': data_column}
-        self.metrics = self.metrics.append(data_dict, ignore_index=True)
+    def append(self, metric_name: DataNameEnum):
+        self.metrics = self.metrics.append(metric_name.value.as_data_dict(), ignore_index=True)
 
     def build(self):
         # TODO Give option to merge classes and methods

@@ -1,5 +1,5 @@
 from metrics.version_metrics_data import DataBuilder, CheckstyleData
-from metrics.version_metrics_name import DataName
+from metrics.version_metrics_name import DataNameEnum
 from projects import ProjectName
 
 
@@ -10,35 +10,35 @@ class TestDataBuilder:
 
     @staticmethod
     def add_single_metric(db: DataBuilder) -> DataBuilder:
-        db.append(DataName.NumberOfPublicMethods_Checkstyle)
+        db.append(DataNameEnum.NumberOfPublicMethods_Checkstyle)
         return db
 
     @staticmethod
     def add_multiple_metrics(db: DataBuilder) -> DataBuilder:
         # checkstyle
-        db.append(DataName.ThrowsCount)
-        db.append(DataName.SwissArmyKnife)
-        db.append(DataName.BrokenHierarchy)
+        db.append(DataNameEnum.ThrowsCount)
+        db.append(DataNameEnum.SwissArmyKnife)
+        db.append(DataNameEnum.BrokenHierarchy)
         # ck
-        db.append(DataName.WMC_CK)
+        db.append(DataNameEnum.WMC_CK)
         # designite design
-        db.append(DataName.ImperativeAbstraction)
+        db.append(DataNameEnum.ImperativeAbstraction)
         # designite implementation
-        db.append(DataName.ComplexConditional)
+        db.append(DataNameEnum.ComplexConditional)
         # designite method metrics
-        db.append(DataName.LOCMethod)
+        db.append(DataNameEnum.LOCMethod)
         # designite method organic
-        db.append(DataName.LongMethod_Organic)
+        db.append(DataNameEnum.LongMethod_Organic)
         # designite type metrics
-        db.append(DataName.NumberOfMethods_Designite)
+        db.append(DataNameEnum.NumberOfMethods_Designite)
         # designite type organic
-        db.append(DataName.GodClass)
+        db.append(DataNameEnum.GodClass)
         # mood
-        db.append(DataName.NumberOfPublicAttributes)
+        db.append(DataNameEnum.NumberOfPublicAttributes)
         # halstead
-        db.append(DataName.Length)
+        db.append(DataNameEnum.Length)
         # bugged
-        db.append(DataName.Bugged)
+        db.append(DataNameEnum.Bugged)
         return db
 
     '''
@@ -88,7 +88,7 @@ class TestDataBuilder:
 
     def test_data_builder_bugged_item(self):
         db = DataBuilder(ProjectName.CommonsLang, "LANG_3_4_RC1")
-        db.append(DataName.Bugged)
+        db.append(DataNameEnum.Bugged)
         db.build()
 
 

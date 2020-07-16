@@ -19,7 +19,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 from config import Config
 from metrics.version_metrics_data import DataBuilder
-from metrics.version_metrics_name import DataName
+from metrics.version_metrics_name import DataNameEnum
 from paper.utils import EstimatorSelectionHelper
 from projects import ProjectName
 
@@ -35,27 +35,27 @@ def build_dataset(version, project):
     try:
         db = DataBuilder(project, version)
 
-        db.append(DataName.GodClass)
-        db.append(DataName.ClassDataShouldBePrivate)
-        db.append(DataName.ComplexClass)
-        db.append(DataName.LazyClass)
-        db.append(DataName.RefusedBequest)
-        db.append(DataName.SpaghettiCode)
-        db.append(DataName.SpeculativeGenerality)
-        db.append(DataName.DataClass)
-        db.append(DataName.BrainClass)
-        db.append(DataName.LargeClass)
-        db.append(DataName.SwissArmyKnife)
-        db.append(DataName.AntiSingleton)
-        db.append(DataName.FeatureEnvy)
-        db.append(DataName.LongMethod_Organic)
-        db.append(DataName.LongParameterList_Organic)
-        db.append(DataName.MessageChain)
-        db.append(DataName.DispersedCoupling)
-        db.append(DataName.IntensiveCoupling)
-        db.append(DataName.ShotgunSurgery)
-        db.append(DataName.BrainMethod)
-        db.append(DataName.Bugged)
+        db.append(DataNameEnum.GodClass)
+        db.append(DataNameEnum.ClassDataShouldBePrivate)
+        db.append(DataNameEnum.ComplexClass)
+        db.append(DataNameEnum.LazyClass)
+        db.append(DataNameEnum.RefusedBequest)
+        db.append(DataNameEnum.SpaghettiCode)
+        db.append(DataNameEnum.SpeculativeGenerality)
+        db.append(DataNameEnum.DataClass)
+        db.append(DataNameEnum.BrainClass)
+        db.append(DataNameEnum.LargeClass)
+        db.append(DataNameEnum.SwissArmyKnife)
+        db.append(DataNameEnum.AntiSingleton)
+        db.append(DataNameEnum.FeatureEnvy)
+        db.append(DataNameEnum.LongMethod_Organic)
+        db.append(DataNameEnum.LongParameterList_Organic)
+        db.append(DataNameEnum.MessageChain)
+        db.append(DataNameEnum.DispersedCoupling)
+        db.append(DataNameEnum.IntensiveCoupling)
+        db.append(DataNameEnum.ShotgunSurgery)
+        db.append(DataNameEnum.BrainMethod)
+        db.append(DataNameEnum.Bugged)
 
         general_log.info("{0} | {1} | building dataset".format(
             project.github(),

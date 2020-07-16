@@ -9,7 +9,7 @@ from pathlib import Path
 import pandas as pd
 from metrics.version_metrics import Extractor
 from metrics.version_metrics_data import DataBuilder
-from metrics.version_metrics_name import DataName
+from metrics.version_metrics_name import DataNameEnum
 from classification_instance import ClassificationInstance
 from itertools import tee
 
@@ -93,7 +93,7 @@ class Main():
         for extractor in extractors:
             extractor.extract()
         db = DataBuilder(self.project, version)
-        list(map(lambda d: db.append(d), DataName))
+        list(map(lambda d: db.append(d), DataNameEnum))
         classes_df, methods_df = db.build()
 
         methods_df = self.fillna(methods_df)
@@ -148,8 +148,8 @@ class Main():
         j = list()
         out_path = Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], "dataname.json"))
-        for d in DataName:
-            j.append(dict(zip(["feature_name", "feature_group", "column_name"], [d.name] + list(d.value[1:]))))
+        for d in DataNameEnum:
+            j.append(d.value.as_description_dict())
         with open(out_path, "w") as f:
             json.dump(j, f)
 

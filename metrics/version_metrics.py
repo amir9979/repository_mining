@@ -351,7 +351,7 @@ class SourceMonitor(Extractor):
         cols_to_drop = ["Project Name", "Checkpoint Name", "Created On"]
         for i in cols_to_drop + ['Name of Most Complex Method*']:
             files_df = files_df.drop(i, axis=1)
-        files_cols = list(files_df.columns.drop("File Name"))
+        files_cols = list(files_df.rename(columns={"Statements":"FileStatements"}).columns.drop("File Name"))
         source_monitor_files = dict(
             map(lambda x: (
                 x[1]["File Name"],
@@ -362,7 +362,7 @@ class SourceMonitor(Extractor):
         methods_df = pd.read_csv(methods_path, encoding = "ISO-8859-8")
         for i in cols_to_drop:
             methods_df = methods_df.drop(i, axis=1)
-        methods_cols = list(methods_df.columns.drop("File Name"))
+        methods_cols = list(methods_df.columns.drop("File Name").drop("Method"))
         source_monitor = dict(map(lambda x: (
             self._get_source_monitor_id(
                 x[1]["File Name"],
