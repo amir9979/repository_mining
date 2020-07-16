@@ -141,8 +141,8 @@ class Main():
                                       os.path.join(methods_dataset_dir, "testing.csv"),
                                       os.path.join(methods_dataset_dir, "prediction.csv"), "BuggedMethods")
 
-    def choose_versions(self, version_num=5, algorithm="bin", version_type=VersionType.Untyped):
-        self.extractor.choose_versions(version_num=version_num, algorithm=algorithm, strict=True, version_type=version_type)
+    def choose_versions(self, version_num=5, algorithm="bin", version_type=VersionType.Untyped, strict=True):
+        self.extractor.choose_versions(version_num=version_num, algorithm=algorithm, strict=strict, version_type=version_type)
 
     def save_data_names(self):
         j = list()
@@ -163,6 +163,7 @@ class Main():
         parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the algorithm to select the versions : [bin]', default='bin')
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
+        parser.add_argument('-f', '--free_choose', dest='free_choose', action='store', help='the versions type to select', default=False, type=bool)
         args = parser.parse_args()
         if args.projects:
             self.list_projects()
@@ -171,7 +172,7 @@ class Main():
         if args.github and args.jira:
             self.set_project(args.github, args.jira)
         if args.select:
-            self.choose_versions(version_num=args.num_versions, algorithm=args.select, version_type=VersionType[args.versions_type])
+            self.choose_versions(version_num=args.num_versions, algorithm=args.select, version_type=VersionType[args.versions_type], strict=args.free_choose)
             self.extract()
             self.extract_metrics()
 
