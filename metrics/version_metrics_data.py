@@ -359,7 +359,7 @@ class SourceMonitorFilesData(Data):
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
-        return df
+        return df.rename(columns={"id": "File"})
 
 
 class SourceMonitorData(Data):
@@ -371,7 +371,7 @@ class SourceMonitorData(Data):
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
-        return df
+        return df.rename(columns={"id": "Method_ids"})
 
 
 class CKData(Data):
