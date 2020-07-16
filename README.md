@@ -19,7 +19,7 @@
 | [Sonarqube](https://www.sonarqube.org/) | Thousands of automated Static Code Analysis rules. | No |
 | [Halstead](https://github.com/dborowiec/commentedCodeDetector) | The tool detects commented code using heuristics based on usage of Halstead code metrics | Yes |
 | [gorgeous_metrics](https://github.com/thainamariani/gorgeous_metrics) | Gorgeous Metrics | No |
-| [JaSoMe](https://github.com/rodhilton/jasome) | Jasome (JAH-suhm, rhymes with awesome) is a source code analyzer that mines internal quality metrics from projects based on source code alone | No |
+| [JaSoMe](https://github.com/rodhilton/jasome) | Jasome (JAH-suhm, rhymes with awesome) is a source code analyzer that mines internal quality metrics from projects based on source code alone | Yes |
  
     
 ## Metrics
