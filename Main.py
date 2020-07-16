@@ -4,6 +4,7 @@ from data_extractor import DataExtractor
 from version_selector import VersionType
 from config import Config
 import os
+import json
 from pathlib import Path
 import pandas as pd
 from metrics.version_metrics import Extractor
@@ -16,6 +17,7 @@ class Main():
     def __init__(self):
         self.project = None
         self.extractor = None
+        self.save_data_names()
 
     def list_projects(self):
         print("\n".join(list(map(lambda e: "{0}: {1}".format(e.name, e.value.description()), ProjectName))))
@@ -140,6 +142,15 @@ class Main():
 
     def choose_versions(self, version_num=5, algorithm="bin", version_type=VersionType.Untyped):
         self.extractor.choose_versions(version_num=version_num, algorithm=algorithm, strict=True, version_type=version_type)
+
+    def save_data_names(self):
+        j = list()
+        out_path = Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'], "dataname.json"))
+        for d in DataName:
+            j.append(dict(zip(["feature_name", "feature_group", "column_name"], [d.name] + list(d.value[1:]))))
+        with open(out_path, "w") as f:
+            json.dump(j, f)
 
     def main(self):
         parser = argparse.ArgumentParser(description='Execute project data')

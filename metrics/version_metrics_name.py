@@ -161,4 +161,3 @@ class DataName(Enum):
     Volume = auto(), DataType.HalsteadDataType.value, "getVolume"
     Difficulty = auto(), DataType.HalsteadDataType.value, "getDifficulty"
     Effort = auto(), DataType.HalsteadDataType.value, "getEffort"
-
