@@ -6,8 +6,6 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import GridSearchCV
 
-from config import Config
-
 
 class EstimatorSelectionHelper:
     def __init__(self, models, params):
@@ -69,13 +67,22 @@ class EstimatorSelectionHelper:
 
 
 class FeatureSelectionHelper:
-    def __init__(self, methods):
+    def __init__(self, methods, features):
         self.methods = methods
         self.selected_features = {}
+        self.selected_data = {}
+        self.features = features
 
     def select(self, X, y):
         for method_name, method in self.methods.items():
-            self.selected_features[method_name] = method.fit_transform(X, y)
+            self.selected_data[method_name] = method.fit_transform(X, y)
+            features_mask = method.get_support()
+            self.selected_features[method_name] = np.array(self.features)[features_mask].tolist()
+        self.selected_data['all'] = X
+        self.selected_features['all'] = list(self.features)
 
     def get_selected_features(self):
         return self.selected_features
+
+    def get_selected_dataset(self):
+        return self.selected_data

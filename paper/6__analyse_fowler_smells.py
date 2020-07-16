@@ -9,18 +9,21 @@ import pandas as pd
 from imblearn.over_sampling import SMOTE
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import SelectPercentile, chi2, mutual_info_classif, f_classif, SelectFromModel
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score, brier_score_loss
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier
 
 from config import Config
 from metrics.version_metrics_data import DataBuilder
 from metrics.version_metrics_name import DataNameEnum
 from paper.utils import EstimatorSelectionHelper
+from metrics.version_metrics_name import DataName
+from paper.utils import EstimatorSelectionHelper, FeatureSelectionHelper
 from projects import ProjectName
 
 done = []
@@ -131,68 +134,98 @@ def execute(project):
     training_df = pd.read_csv(training_path).dropna().astype(int)
     testing_df = pd.read_csv(testing_path).dropna().astype(int)
 
-    training_y = training_df.pop('Bugged').values
-    training_X = training_df.values
+    # training_y = training_df.pop('Bugged').values
+    # training_X = training_df.values
 
-    oversample = SMOTE()
-    training_X, training_y = oversample.fit_resample(training_X, training_y)
-
-    models = {
-        # 'LinearDiscriminantAnalysis': LinearDiscriminantAnalysis(),
-        'QuadraticDiscriminantAnalysis': QuadraticDiscriminantAnalysis(),
-        # 'LogisticRegression': LogisticRegression(),
-        # 'BernoulliNaiveBayes': BernoulliNB(),
-        # 'K-NearestNeighbor': KNeighborsClassifier(),
-        # 'DecisionTree': DecisionTreeClassifier(),
-        # 'RandomForest': RandomForestClassifier(),
-        # 'SupportVectorMachine': SVC(),
-        # 'MultilayerPerceptron': MLPClassifier()
-    }
-    params = {
-        'LinearDiscriminantAnalysis': {},
-         'QuadraticDiscriminantAnalysis': {},
-        'LogisticRegression': {'C': list(np.logspace(-4, 4, 3))},
-        'BernoulliNaiveBayes': {},
-        'K-NearestNeighbor': {},
-        'DecisionTree': {'criterion': ['gini', 'entropy'], },
-        'RandomForest': {'n_estimators': [10, 100]},
-        'SupportVectorMachine': {'C': [0.1, 100]},
-        # 'MultilayerPerceptron': {'hidden_layer_sizes': [(17, 8, 17)],
-        #                          'activation': ['tanh', 'relu']}
-    }
-
-    helper = EstimatorSelectionHelper(models, params)
-    helper.fit(training_X, training_y, scoring='f1')
-    summary = helper.score_summary()
-    top_summary = summary[:10]
-    top_summary_iter = top_summary.drop(EstimatorSelectionHelper.get_scores_info(), axis=1)\
-                                  .where(pd.notnull(top_summary), None)\
-                                  .iterrows()
+    original_training_y = training_df.pop('Bugged').values
+    original_training_X = training_df.values
 
     testing_y = testing_df.pop('Bugged').values
     testing_X = testing_df.values
-    models_info = list(map(lambda x: x[1].to_dict(), top_summary_iter))
 
-    columns = ['estimator', 'configuration', 'precision', 'recall', 'f1-measure', 'auc-roc', 'brier score']
+    selection_methods = {
+        'chi2_10p': SelectPercentile(chi2, percentile=10),
+        'chi2_20p': SelectPercentile(chi2, percentile=20),
+        'chi2_50p': SelectPercentile(chi2, percentile=50),
+        'mutual_info_classif_10p': SelectPercentile(mutual_info_classif, percentile=10),
+        'mutual_info_classif_20p': SelectPercentile(mutual_info_classif, percentile=20),
+        'mutual_info_classif_50p': SelectPercentile(mutual_info_classif, percentile=50),
+        'f_classif_10': SelectPercentile(f_classif, percentile=10),
+        'f_classif_20': SelectPercentile(f_classif, percentile=20),
+        'f_classif_50': SelectPercentile(f_classif, percentile=50),
+        'linear_svc': SelectFromModel(LinearSVC(C=0.01, penalty="l1", dual=False))
+    }
+
+    features = training_df.columns
+    selector = FeatureSelectionHelper(selection_methods, features)
+    selector.select(original_training_X, original_training_y)
+    features = selector.get_selected_features()
+    data = selector.get_selected_dataset()
+
+    columns = ['estimator', 'configuration', 'feature_selection',
+               'precision', 'recall', 'f1-measure', 'auc-roc', 'brier score']
     scores = pd.DataFrame(columns=columns)
-    predictions = []
-    for model_info in models_info:
-        estimator = models[model_info['estimator']]
-        params = {key: val for key, val in model_info.items() if not (val is None or key == 'estimator')}
-        estimator.set_params(**params)
-        estimator.fit(training_X, training_y)
-        prediction_y = estimator.predict(testing_X)
-        predictions.append(prediction_y)
-        scores_dict = {
-            'estimator': model_info['estimator'],
-            'configuration': str(params),
-            'precision': precision_score(testing_y, prediction_y),
-            'recall': recall_score(testing_y, prediction_y),
-            'f1-measure': f1_score(testing_y, prediction_y),
-            'auc-roc': roc_auc_score(testing_y, prediction_y),
-            'brier score': brier_score_loss(testing_y, prediction_y)
+
+    for method_name, training_X in data.items():
+        training_y = original_training_y
+        oversample = SMOTE()
+        training_X, training_y = oversample.fit_resample(training_X, training_y)
+
+        models = {
+            'LinearDiscriminantAnalysis': LinearDiscriminantAnalysis(),
+            'QuadraticDiscriminantAnalysis': QuadraticDiscriminantAnalysis(),
+            'LogisticRegression': LogisticRegression(),
+            'BernoulliNaiveBayes': BernoulliNB(),
+            'K-NearestNeighbor': KNeighborsClassifier(),
+            'DecisionTree': DecisionTreeClassifier(),
+            'RandomForest': RandomForestClassifier(),
+            'SupportVectorMachine': SVC(),
+            'MultilayerPerceptron': MLPClassifier()
         }
-        scores = scores.append(scores_dict, ignore_index=True)
+        params = {
+            'LinearDiscriminantAnalysis': {},
+            'QuadraticDiscriminantAnalysis': {},
+            'LogisticRegression': {'C': list(np.logspace(-4, 4, 3))},
+            'BernoulliNaiveBayes': {},
+            'K-NearestNeighbor': {},
+            'DecisionTree': {'criterion': ['gini', 'entropy'], },
+            'RandomForest': {'n_estimators': [10, 100]},
+            'SupportVectorMachine': {'C': [0.1, 100]},
+            'MultilayerPerceptron': {'hidden_layer_sizes': [(17, 8, 17)],
+                                     'activation': ['tanh', 'relu']}
+        }
+
+        helper = EstimatorSelectionHelper(models, params)
+        helper.fit(training_X, training_y, scoring='f1')
+        summary = helper.score_summary()
+        top_summary = summary[:10]
+        top_summary_iter = top_summary.drop(EstimatorSelectionHelper.get_scores_info(), axis=1) \
+            .where(pd.notnull(top_summary), None) \
+            .iterrows()
+
+        models_info = list(map(lambda x: x[1].to_dict(), top_summary_iter))
+
+        selected_testing_X = testing_df[testing_df.columns.intersection(features[method_name])].values
+
+        predictions = []
+        for model_info in models_info:
+            estimator = models[model_info['estimator']]
+            params = {key: val for key, val in model_info.items() if not (val is None or key == 'estimator')}
+            estimator.set_params(**params)
+            estimator.fit(training_X, training_y)
+            prediction_y = estimator.predict(testing_X)
+            predictions.append(prediction_y)
+            scores_dict = {
+                'estimator': model_info['estimator'],
+                'configuration': str(params),
+                'feature_selection': method_name,
+                'precision': precision_score(testing_y, prediction_y),
+                'recall': recall_score(testing_y, prediction_y),
+                'f1-measure': f1_score(testing_y, prediction_y),
+                'auc-roc': roc_auc_score(testing_y, prediction_y),
+                'brier score': brier_score_loss(testing_y, prediction_y)
+            }
+            scores = scores.append(scores_dict, ignore_index=True)
     scores_dir = Config.get_work_dir_path(os.path.join("paper", "scores", "fowler", project.github()))
     Path(scores_dir).mkdir(parents=True, exist_ok=True)
     scores_path = os.path.join(scores_dir, "scores.csv")
