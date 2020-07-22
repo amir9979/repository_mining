@@ -97,7 +97,6 @@ class Main():
         classes_df, methods_df = db.build()
 
         methods_df = self.fillna(methods_df)
-        methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False)
         aggregated_methods_df = self.aggrate_methods_df(methods_df)
 
         classes_df.dropna(inplace=True)
@@ -109,6 +108,8 @@ class Main():
         methods_df = methods_df.drop('File', axis=1)
         methods_df = methods_df.drop('Class', axis=1)
         methods_df = methods_df.drop('Method', axis=1)
+        methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False)
+
         return classes_df, methods_df
 
     def extract_classes_datasets(self, classes_datasets):
@@ -117,15 +118,13 @@ class Main():
                          self.project.github()))
         classes_dataset_dir = os.path.join(dataset_dir, "classes")
         Path(classes_dataset_dir).mkdir(parents=True, exist_ok=True)
+
         classes_training = pd.concat(classes_datasets[:-1], ignore_index=True).drop(["File", "Class"], axis=1)
         classes_testing = classes_datasets[-1]
         file_names = classes_testing.pop("File").values.tolist()
         classes_names = classes_testing.pop("Class").values.tolist()
         classes_testing_names = list(map("@".join, zip(file_names, classes_names)))
-        return ClassificationInstance(classes_training, classes_testing, classes_testing_names,
-                                      os.path.join(classes_dataset_dir, "training.csv"),
-                                      os.path.join(classes_dataset_dir, "testing.csv"),
-                                      os.path.join(classes_dataset_dir, "prediction.csv"))
+        return ClassificationInstance(classes_training, classes_testing, classes_testing_names, classes_dataset_dir)
 
     def extract_methods_datasets(self, methods_datasets):
         dataset_dir = Config.get_work_dir_path(
@@ -136,13 +135,13 @@ class Main():
         methods_training = pd.concat(methods_datasets[:-1], ignore_index=True).drop("Method_ids", axis=1)
         methods_testing = methods_datasets[-1]
         methods_testing_names = methods_testing.pop("Method_ids").values.tolist()
-        return ClassificationInstance(methods_training, methods_testing, methods_testing_names,
-                                      os.path.join(methods_dataset_dir, "training.csv"),
-                                      os.path.join(methods_dataset_dir, "testing.csv"),
-                                      os.path.join(methods_dataset_dir, "prediction.csv"), "BuggedMethods")
+        return ClassificationInstance(methods_training, methods_testing, methods_testing_names, methods_dataset_dir, label="BuggedMethods")
 
     def choose_versions(self, version_num=5, algorithm="bin", version_type=VersionType.Untyped, strict=True):
         self.extractor.choose_versions(version_num=version_num, algorithm=algorithm, strict=strict, version_type=version_type)
+
+    def set_version_selection(self, version_num=5, algorithm="bin", version_type=VersionType.Untyped, strict=True, selected_config=0):
+        self.extractor.choose_versions(version_num=version_num, algorithm=algorithm, strict=strict, version_type=version_type, selected_config=selected_config)
 
     def save_data_names(self):
         j = list()
@@ -160,7 +159,8 @@ class Main():
         parser.add_argument('-c', '--choose', dest='choose', action='store', help='choose a project to extract')
         parser.add_argument('-g', '--github_url', dest='github', action='store', help='the git link to the project to extract')
         parser.add_argument('-j', '--jira_url', dest='jira', action='store', help='the jira link to the project to extract')
-        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the algorithm to select the versions : [bin]', default='bin')
+        parser.add_argument('-l', '--list_select_verions', dest='list_selected', action='store', help='the algorithm to select the versions : [bin]', default='bin')
+        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=0, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
         parser.add_argument('-f', '--free_choose', dest='free_choose', action='store', help='the versions type to select', default=False, type=bool)
@@ -171,8 +171,11 @@ class Main():
             self.set_project_enum(args.choose)
         if args.github and args.jira:
             self.set_project(args.github, args.jira)
+        if args.list_selected:
+            self.choose_versions(version_num=args.num_versions, algorithm=args.list_selected, version_type=VersionType[args.versions_type], strict=args.free_choose)
         if args.select:
-            self.choose_versions(version_num=args.num_versions, algorithm=args.select, version_type=VersionType[args.versions_type], strict=args.free_choose)
+            self.set_version_selection(version_num=args.num_versions, algorithm='bin',
+                                 version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
             self.extract()
             self.extract_metrics()
 

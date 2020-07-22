@@ -237,9 +237,9 @@ class DataExtractor(object):
         return dict(map(lambda x: (repo.commit(x), comms[x]), filter(lambda x: comms[x], comms)))
 
     def choose_versions(self, repo=None, version_num=5, configurations=False,
-                        algorithm="bin", version_type=VersionType.Untyped, strict=True):
-        if self.get_selected_versions() is not None:
-            return
+                        algorithm="bin", version_type=VersionType.Untyped, strict=True, selected_config=0):
+        # if self.get_selected_versions() is not None:
+        #     return
         tags = self.bugged_files_between_versions
         if repo is None:
             repo = self.repo
@@ -248,7 +248,7 @@ class DataExtractor(object):
             selector = ConfigurationSelectVersion(repo, tags, self.versions, version_num, version_type)
         else:
             if algorithm == "bin":
-                selector = BinSelectVersion(repo, tags, self.versions, version_num, version_type, strict=strict)
+                selector = BinSelectVersion(repo, tags, self.versions, version_num, version_type, strict=strict, selected_config=selected_config)
             elif algorithm == "quadratic":
                 selector = QuadraticSelectVersion(repo, tags, self.versions, version_num, version_type, strict=strict)
             else:

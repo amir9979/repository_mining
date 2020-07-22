@@ -1,5 +1,6 @@
 import os
 import re
+import json
 from abc import ABC, abstractmethod
 from itertools import product
 import pandas as pd
@@ -107,11 +108,12 @@ class AbstractSelectVersions(ABC):
 
 
 class BinSelectVersion(AbstractSelectVersions):
-    def __init__(self, repo, tags, versions, version_num, version_type, strict, start=[5], stop=[100], step=[10]):
+    def __init__(self, repo, tags, versions, version_num, version_type, strict, start=[5], stop=[100], step=[10], selected_config=0):
         super().__init__(repo, tags, versions, version_num, version_type, strict)
         self.start = start
         self.stop = stop
         self.step = step
+        self.selected_config = selected_config
         self.selected_versions = list()
 
     def _select_versions(self, repo, versions_by_type, tags):
@@ -129,26 +131,39 @@ class BinSelectVersion(AbstractSelectVersions):
                     continue
                 selected_versions = list(bin_)
                 if self.strict:
-                    selected_versions = selected_versions[:self.version_num + 1]
-                configuration = {'start': start, 'step': step, 'stop': stop, 'versions': selected_versions}
-                self.selected_versions.append(configuration)
-        return list(map(lambda x: x['versions'], self.selected_versions))[0]
+                    for i in range(len(selected_versions) - self.version_num):
+                        selected_versions = selected_versions[i: i + self.version_num + 1]
+                        configuration = {'start': start, 'step': step, 'stop': stop, 'versions': selected_versions}
+                        self.selected_versions.append(configuration)
+                else:
+                    configuration = {'start': start, 'step': step, 'stop': stop, 'versions': selected_versions}
+                    self.selected_versions.append(configuration)
+        return list(map(lambda x: x['versions'], self.selected_versions))[self.selected_config]
 
 
     def _store_versions(self, repo):
-        configuration = self.selected_versions[0]
-        values = list(product([configuration['start']], [configuration['step']],
-                              [configuration['stop']], configuration['versions']))
-        columns = ["start", "step", "stop", "version"]
-        df = pd.DataFrame(values, dtype=str, columns=columns)
         config = Config().config
         repository_data = config["CACHING"]["RepositoryData"]
         selected_versions = config["DATA_EXTRACTION"]["SelectedVersionsBin"]
+        json_short_data = dict()
+        for configuration in self.selected_versions:
+        # configuration = self.selected_versions[0]
+            values = list(product([configuration['start']], [configuration['step']],
+                                  [configuration['stop']], configuration['versions']))
+            name = "_".join(sorted(list(configuration['versions'])))
+            columns = ["start", "step", "stop", "version"]
+            df = pd.DataFrame(values, dtype=str, columns=columns)
+            dir_path = os.path.join(repository_data, selected_versions, repo.github_name)
+            dir_path = Config.get_work_dir_path(dir_path)
+            Config.assert_dir_exists(dir_path)
+            path = os.path.join(dir_path, name + ".csv")
+            df.to_csv(path, index=False)
+            json_short_data[name] = configuration['versions']
         dir_path = os.path.join(repository_data, selected_versions)
-        dir_path = Config.get_work_dir_path(dir_path)
-        Config.assert_dir_exists(dir_path)
-        path = os.path.join(dir_path, repo.github_name + ".csv")
-        df.to_csv(path, index=False)
+        out_path = os.path.join(Config.get_work_dir_path(dir_path), repo.github_name + ".json")
+        with open(out_path, "w") as f:
+            json.dump(json_short_data, f)
+
 
 
 class QuadraticSelectVersion(AbstractSelectVersions):
