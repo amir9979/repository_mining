@@ -140,25 +140,23 @@ class BinSelectVersion(AbstractSelectVersions):
                     self.selected_versions.append(configuration)
         return list(map(lambda x: x['versions'], self.selected_versions))[self.selected_config]
 
-
     def _store_versions(self, repo):
         config = Config().config
         repository_data = config["CACHING"]["RepositoryData"]
         selected_versions = config["DATA_EXTRACTION"]["SelectedVersionsBin"]
-        json_short_data = dict()
-        for configuration in self.selected_versions:
-        # configuration = self.selected_versions[0]
+        json_short_data = list()
+        for ind, configuration in enumerate(self.selected_versions):
             values = list(product([configuration['start']], [configuration['step']],
                                   [configuration['stop']], configuration['versions']))
-            name = "_".join(sorted(list(configuration['versions'])))
+            # name = "_".join(sorted(list(configuration['versions'])))
             columns = ["start", "step", "stop", "version"]
             df = pd.DataFrame(values, dtype=str, columns=columns)
             dir_path = os.path.join(repository_data, selected_versions, repo.github_name)
             dir_path = Config.get_work_dir_path(dir_path)
             Config.assert_dir_exists(dir_path)
-            path = os.path.join(dir_path, name + ".csv")
+            path = os.path.join(dir_path, str(ind) + ".csv")
             df.to_csv(path, index=False)
-            json_short_data[name] = configuration['versions']
+            json_short_data.append(configuration['versions'])
         dir_path = os.path.join(repository_data, selected_versions)
         out_path = os.path.join(Config.get_work_dir_path(dir_path), repo.github_name + ".json")
         with open(out_path, "w") as f:
