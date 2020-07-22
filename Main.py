@@ -160,7 +160,7 @@ class Main():
         parser.add_argument('-g', '--github_url', dest='github', action='store', help='the git link to the project to extract')
         parser.add_argument('-j', '--jira_url', dest='jira', action='store', help='the jira link to the project to extract')
         parser.add_argument('-l', '--list_select_verions', dest='list_selected', action='store', help='the algorithm to select the versions : [bin]', default='bin')
-        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=0, type=int)
+        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=-1, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
         parser.add_argument('-f', '--free_choose', dest='free_choose', action='store', help='the versions type to select', default=False, type=bool)
@@ -173,7 +173,7 @@ class Main():
             self.set_project(args.github, args.jira)
         if args.list_selected:
             self.choose_versions(version_num=args.num_versions, algorithm=args.list_selected, version_type=VersionType[args.versions_type], strict=args.free_choose)
-        if args.select:
+        if args.select != -1:
             self.set_version_selection(version_num=args.num_versions, algorithm='bin',
                                  version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
             self.extract()
