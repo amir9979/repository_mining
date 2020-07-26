@@ -24,7 +24,12 @@ class Version(object):
 
     def get_version_files(self, repo):
         if self.version_files is None:
-            self.version_files = list(map(lambda f: VersionFile(f, self._name, repo), self.files))
+            self.version_files = []
+            for f in self.files:
+                try:
+                    self.version_files.append(VersionFile(f, self._name, repo))
+                except:
+                    pass
         return self.version_files
 
     def get_version_methods(self, repo):
