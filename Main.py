@@ -165,7 +165,7 @@ class Main():
         parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=-1, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
-        parser.add_argument('-f', '--free_choose', dest='free_choose', action='store', help='the versions type to select', default=False, type=bool)
+        parser.add_argument('-f', '--free_choose', dest='free_choose', action='store_true', help='the versions type to select', default=False, type=bool)
         args = parser.parse_args()
         if args.projects:
             self.list_projects()
