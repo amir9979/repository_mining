@@ -133,7 +133,7 @@ class DataExtractor(object):
         Config.assert_dir_exists(versions_infos_dir)
         for tag in tags:
             df = pd.DataFrame(tag.commits_shas, columns=["commit_id", "is_buggy"])
-            version_name = tag.version._name.replace(os.path.sep, "_")
+            version_name = os.path.normpath(tag.version._name).replace(os.path.sep, "_")
             path = os.path.join(versions_infos_dir, version_name + ".csv")
             df.to_csv(path, index=False)
 

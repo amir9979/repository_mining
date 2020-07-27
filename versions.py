@@ -1,5 +1,6 @@
 from commit import Commit
 from _functools import reduce
+import os
 try:
     from javadiff.javadiff.SourceFile import SourceFile
 except:
@@ -17,7 +18,7 @@ class VersionFile(object):
 class Version(object):
     def __init__(self, git_tag, _files):
         self._commit = Commit.init_commit_by_git_commit(git_tag.commit, files=[git_tag.name])
-        self._name = git_tag.name
+        self._name = os.path.normpath(git_tag.name)
         self.committed_files = _files
         self.files = set(filter(lambda x: x.endswith(".java"), git_tag.commit.repo.git.ls_tree("-r", "--name-only", git_tag.name).split()))
         self.version_files = None
