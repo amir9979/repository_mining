@@ -2,6 +2,7 @@ import configparser
 import os
 import tempfile
 import pathlib
+import hashlib
 
 
 class Config:
@@ -32,7 +33,8 @@ class Config:
 
     @staticmethod
     def get_versions_short_name(versions):
-        return "_".join(sorted(list(map(lambda t: getattr((t.__dict__.get("version") or t), "_name").replace(".", ''), versions))))
+        name = "_".join(sorted(list(map(lambda t: getattr((t.__dict__.get("version") or t), "_name").replace(".", ''), versions))))
+        return hashlib.sha1(name.encode('utf-8')).hexdigest()
 
     @staticmethod
     def extend_path(path):
