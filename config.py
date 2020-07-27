@@ -33,7 +33,11 @@ class Config:
 
     @staticmethod
     def get_versions_short_name(versions):
-        name = "_".join(sorted(list(map(lambda t: getattr((t.__dict__.get("version") or t), "_name").replace(".", ''), versions))))
+        return Config.get_short_name(list(map(lambda t: getattr((t.__dict__.get("version") or t), "_name"), versions)))
+
+    @staticmethod
+    def get_short_name(names):
+        name = "_".join(sorted(list(map(lambda t: os.path.normpath(t).replace(".", '').replace(os.path.sep, '_'), names))))
         return hashlib.sha1(name.encode('utf-8')).hexdigest()
 
     @staticmethod

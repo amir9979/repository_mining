@@ -142,6 +142,8 @@ class Main():
 
     def set_version_selection(self, version_num=5, algorithm="bin", version_type=VersionType.Untyped, strict=True, selected_config=0):
         self.extractor.choose_versions(version_num=version_num, algorithm=algorithm, strict=strict, version_type=version_type, selected_config=selected_config)
+        self.extractor.selected_config = selected_config
+        assert self.extractor.get_selected_versions()
 
     def save_data_names(self):
         j = list()

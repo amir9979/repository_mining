@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import reduce
 
 import git
+import json
 import pandas as pd
 
 from commit import Commit
@@ -35,6 +36,7 @@ class DataExtractor(object):
         self.versions = self._get_repo_versions("versions", self.git_repo)
         self.bugged_files_between_versions = self._get_bugged_files_between_versions(self.versions)
         self.selected_versions = None
+        self.selected_config = 0
 
     @staticmethod
     def _get_repo_commits(key, repo, jira_project_name, jira_url):
@@ -261,9 +263,11 @@ class DataExtractor(object):
             return self.selected_versions
         repo_data = Config().config['CACHING']['RepositoryData']
         selected = Config().config['DATA_EXTRACTION']['SelectedVersionsBin']
-        path = os.path.join(repo_data, selected, self.github_name + ".csv")
+        path = os.path.join(repo_data, selected, self.github_name + ".json")
         in_path = Config.get_work_dir_path(path)
         if os.path.exists(in_path):
+            with open(in_path) as f:
+                self.selected_versions = list(filter(lambda c: str(c['ind']) == str(self.selected_config), json.loads(f.read())))[0]['versions']
             self.selected_versions = list(map(str, pd.read_csv(in_path, dtype=str)['version'].to_list()))
             return self.selected_versions
         return None
