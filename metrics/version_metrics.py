@@ -347,7 +347,7 @@ class SourceMonitor(Extractor):
 
     def _process_metrics(self, out_dir):
         files_path = os.path.join(out_dir, "source_monitor_classes.csv")
-        files_df = pd.read_csv(files_path, encoding = "ISO-8859-8")
+        files_df = pd.read_csv(files_path, encoding = "ISO-8859-8", error_bad_lines=False)
         cols_to_drop = ["Project Name", "Checkpoint Name", "Created On"]
         for i in cols_to_drop + ['Name of Most Complex Method*']:
             files_df = files_df.drop(i, axis=1)
@@ -359,7 +359,7 @@ class SourceMonitor(Extractor):
             ), files_df.iterrows()))
 
         methods_path = os.path.join(out_dir, "source_monitor_methods.csv")
-        methods_df = pd.read_csv(methods_path, encoding = "ISO-8859-8")
+        methods_df = pd.read_csv(methods_path, encoding = "ISO-8859-8", error_bad_lines=False)
         for i in cols_to_drop:
             methods_df = methods_df.drop(i, axis=1)
         methods_cols = list(methods_df.columns.drop("File Name").drop("Method"))
