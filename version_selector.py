@@ -108,7 +108,7 @@ class AbstractSelectVersions(ABC):
 
 
 class BinSelectVersion(AbstractSelectVersions):
-    def __init__(self, repo, tags, versions, version_num, version_type, strict, start=[5], stop=[100], step=[10], selected_config=0):
+    def __init__(self, repo, tags, versions, version_num, version_type, strict, start=[5, 10, 20, 30, 40], stop=[100], step=[5, 10, 15, 20], selected_config=0):
         super().__init__(repo, tags, versions, version_num, version_type, strict)
         self.start = start
         self.stop = stop
@@ -156,7 +156,8 @@ class BinSelectVersion(AbstractSelectVersions):
             Config.assert_dir_exists(dir_path)
             path = os.path.join(dir_path, str(name) + ".csv")
             df.to_csv(path, index=False)
-            json_short_data.append({"ind": ind, "name": name, "versions": configuration['versions'], "configuration": configuration})
+            if configuration['versions']:
+                json_short_data.append({"ind": ind, "name": name, "versions": configuration['versions'], "configuration": configuration})
         dir_path = os.path.join(repository_data, selected_versions)
         out_path = os.path.join(Config.get_work_dir_path(dir_path), repo.github_name + ".json")
         with open(out_path, "w") as f:
