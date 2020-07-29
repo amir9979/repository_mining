@@ -46,6 +46,7 @@ class Main():
         methods_datasets = []
 
         for version in self.extractor.get_selected_versions()[:-1]:
+            self.extractor.checkout_version(version)
             classes_df, methods_df = self.extract_features_to_version(classes_data, method_data, version)
             classes_datasets.append(classes_df)
             methods_datasets.append(methods_df)

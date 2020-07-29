@@ -34,6 +34,12 @@ class DataExtractor(object):
         self.selected_versions = None
         self.selected_config = 0
 
+    def checkout_version(self, version):
+        self.git_repo.git.checkout(version, force=True)
+
+    def checkout_master(self):
+        self.git_repo.git.checkout('master', force=True)
+
     @staticmethod
     def _get_repo_commits(repo, jira_project_name, jira_url):
         jira_issues = get_jira_issues(jira_project_name, jira_url)
