@@ -28,14 +28,14 @@ class DataExtractor(object):
         self.git_repo.git.checkout('master', force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
 
-        self.commits = self._get_repo_commits("commits", self.git_repo, self.jira_project_name, self.jira_url)
-        self.versions = self._get_repo_versions("versions", self.git_repo)
+        self.commits = self._get_repo_commits(self.git_repo, self.jira_project_name, self.jira_url)
+        self.versions = self._get_repo_versions(self.git_repo)
         self.bugged_files_between_versions = self._get_bugged_files_between_versions(self.versions)
         self.selected_versions = None
         self.selected_config = 0
 
     @staticmethod
-    def _get_repo_commits(key, repo, jira_project_name, jira_url):
+    def _get_repo_commits(repo, jira_project_name, jira_url):
         jira_issues = get_jira_issues(jira_project_name, jira_url)
         issues = dict(map(lambda x: (x.key.strip().split("-")[1], x),
                           list(filter(lambda issue: issue.type == 'bug', jira_issues))))
@@ -43,11 +43,12 @@ class DataExtractor(object):
         return commits
 
     @staticmethod
-    def _get_repo_versions(key, repo):
-        tags = zip(list(repo.tags)[1:], list(repo.tags))
+    def _get_repo_versions(repo):
+        repo_tags = sorted(list(repo.tags), key=lambda t: t.commit.committed_date)
+        tags = zip(list(repo_tags)[1:], list(repo_tags))
         versions = list(map(lambda tag: Version(tag[0], DataExtractor._version_files(tag[0], tag[1])),
                             tags))
-        return versions
+        return sorted(versions, key=lambda version: version._commit._commit_date)
 
     def _get_bugged_files_between_versions(self, versions, analyze_methods=False):
         tags_commits = self._get_commits_between_versions(versions)
@@ -65,7 +66,7 @@ class DataExtractor(object):
         self._store_versions_infos(tags)
         self._store_files(tags)
         if selected_versions:
-            tags = self._get_bugged_files_between_versions(list(filter(lambda tag: tag._name in list(map(str, self.get_selected_versions())), self.versions)), True)
+            tags = self._get_bugged_files_between_versions(list(filter(lambda tag: tag._name in list(map(lambda x: os.path.normpath(str(x)), self.get_selected_versions())), self.versions)), True)
             self._store_versions(tags, True)
             self._store_versions_infos(tags, True)
             self._store_files(tags, True)
@@ -109,7 +110,6 @@ class DataExtractor(object):
                        "version_url": self.get_commit_url(tag.version._commit._commit_id),
                        "version_type": AbstractSelectVersions.define_version_type(tag.version).version_type.name}
             df = df.append(version, ignore_index=True)
-
         if selected:
             versions_dir = os.path.join(self._get_caching_path("SelectedVersions"), self.jira_project_name)
             Config.assert_dir_exists(versions_dir)
