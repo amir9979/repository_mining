@@ -25,6 +25,7 @@ class DataExtractor(object):
         self.jira_project_name = project.jira()
         self.repo = Repo(self.jira_project_name, self.github_name, local_path=self.git_path)
         self.git_repo = git.Repo(self.git_path)
+        self.git_repo.git.checkout('master', force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
 
         # get_repo_commits = cached(self.jira_project_name)(self._get_repo_commits)
@@ -117,7 +118,7 @@ class DataExtractor(object):
         if selected:
             versions_dir = os.path.join(self._get_caching_path("SelectedVersions"), self.jira_project_name)
             Config.assert_dir_exists(versions_dir)
-            path = os.path.join(versions_dir, Config.get_versions_short_name(self.get_selected_versions()) + ".csv")
+            path = os.path.join(versions_dir, Config.get_short_name(self.get_selected_versions()) + ".csv")
         else:
             versions_dir = self._get_caching_path("Versions")
             Config.assert_dir_exists(versions_dir)
@@ -129,7 +130,7 @@ class DataExtractor(object):
 
     def _store_versions_infos(self, tags, selected=False):
         if selected:
-            versions_infos_dir = os.path.join(self._get_caching_path("SelectedVersionsInfos"), self.jira_project_name, Config.get_versions_short_name(self.get_selected_versions()))
+            versions_infos_dir = os.path.join(self._get_caching_path("SelectedVersionsInfos"), self.jira_project_name, Config.get_short_name(self.get_selected_versions()))
         else:
             versions_infos_dir = os.path.join(self._get_caching_path("VersionsInfos"), self.jira_project_name)
         Config.assert_dir_exists(versions_infos_dir)
@@ -141,7 +142,7 @@ class DataExtractor(object):
 
     def _store_methods(self, tags):
         methods_dir = os.path.join(self._get_caching_path("SelectedMethods"), self.jira_project_name,
-                                 Config.get_versions_short_name(self.get_selected_versions()))
+                                 Config.get_short_name(self.get_selected_versions()))
         Config.assert_dir_exists(methods_dir)
         for tag in tags:
             methods = dict()
@@ -160,7 +161,7 @@ class DataExtractor(object):
 
     def _store_files(self, tags, selected=False):
         if selected:
-            files_dir = os.path.join(self._get_caching_path("SelectedFiles"), self.jira_project_name, Config.get_versions_short_name(self.get_selected_versions()))
+            files_dir = os.path.join(self._get_caching_path("SelectedFiles"), self.jira_project_name, Config.get_short_name(self.get_selected_versions()))
         else:
             files_dir = os.path.join(self._get_caching_path("Files"), self.jira_project_name)
         Config.assert_dir_exists(files_dir)
