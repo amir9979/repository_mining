@@ -12,8 +12,8 @@ class ClassificationInstance(object):
         self.training.to_csv(os.path.join(dataset_dir, training_path), index=False)
         self.testing.to_csv(os.path.join(dataset_dir, testing_path), index=False)
 
-        self.training.describe().to_csv(os.path.join(dataset_dir, training_describe_path), index=False)
-        self.testing.describe().to_csv(os.path.join(dataset_dir, testing_describe_path), index=False)
+        self.training.describe().to_csv(os.path.join(dataset_dir, training_describe_path))
+        self.testing.describe().to_csv(os.path.join(dataset_dir, testing_describe_path))
 
         self.training_y = self.training.pop(label).values
         self.training_X = self.training.values

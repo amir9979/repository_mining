@@ -119,8 +119,8 @@ class Main():
         classes_dataset_dir = os.path.join(dataset_dir, "classes")
         Path(classes_dataset_dir).mkdir(parents=True, exist_ok=True)
 
-        classes_training = pd.concat(classes_datasets[:-1], ignore_index=True).drop(["File", "Class"], axis=1)
-        classes_testing = classes_datasets[-1]
+        classes_training = pd.concat(classes_datasets[:-1], ignore_index=True).drop(["File", "Class"], axis=1).drop("Method_ids", axis=1)
+        classes_testing = classes_datasets[-1].drop("Method_ids", axis=1)
         file_names = classes_testing.pop("File").values.tolist()
         classes_names = classes_testing.pop("Class").values.tolist()
         classes_testing_names = list(map("@".join, zip(file_names, classes_names)))
