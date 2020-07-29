@@ -33,7 +33,6 @@ class JavaParserFileAnalyser(FileAnalyser):
         self.parser_df = parser_df
         self.classes_paths = self._get_classes_path()
         self.methods_by_path_and_name = self._get_methods_by_path_and_name()
-        # self.methods_by_path_and_name = None
 
     @staticmethod
     def _get_outpath(project_name, version_name):
