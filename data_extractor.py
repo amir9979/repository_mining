@@ -283,7 +283,7 @@ class DataExtractor(object):
     def get_bugged_files_path(self, version, selected_versions=False):
         if selected_versions:
             cache_path = self._get_caching_path("SelectedFiles")
-            path = os.path.join(cache_path, self.jira_project_name, Config().get_versions_short_name(self.get_selected_versions()), version.replace(os.path.sep, "_") + '.csv')
+            path = os.path.join(cache_path, self.jira_project_name, Config.get_short_name(self.get_selected_versions()), version.replace(os.path.sep, "_") + '.csv')
         else:
             cache_path = self._get_caching_path("Files")
             path = os.path.join(cache_path, self.jira_project_name, version.replace(os.path.sep, "_") + '.csv')
@@ -291,7 +291,7 @@ class DataExtractor(object):
 
     def get_bugged_methods_path(self, version, selected_versions=True):
         cache_path = self._get_caching_path("SelectedMethods")
-        path = os.path.join(cache_path, self.jira_project_name, Config().get_versions_short_name(self.get_selected_versions()), version.replace(os.path.sep, "_") + '.csv')
+        path = os.path.join(cache_path, self.jira_project_name, Config.get_short_name(self.get_selected_versions()), version.replace(os.path.sep, "_") + '.csv')
         return path
 
 
