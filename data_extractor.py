@@ -28,11 +28,6 @@ class DataExtractor(object):
         self.git_repo.git.checkout('master', force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
 
-        # get_repo_commits = cached(self.jira_project_name)(self._get_repo_commits)
-        # get_repo_versions = cached(self.jira_project_name)(self._get_repo_versions)
-        # self.commits = get_repo_commits("commits", self.git_repo, self.jira_project_name, self.jira_url)
-        # self.versions = get_repo_versions("versions", self.git_repo)
-
         self.commits = self._get_repo_commits("commits", self.git_repo, self.jira_project_name, self.jira_url)
         self.versions = self._get_repo_versions("versions", self.git_repo)
         self.bugged_files_between_versions = self._get_bugged_files_between_versions(self.versions)
