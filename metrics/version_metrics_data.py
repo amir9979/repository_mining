@@ -437,7 +437,6 @@ class DataBuilder:
         self.metrics = self.metrics.append(metric_name.value.as_data_dict(), ignore_index=True)
 
     def build(self):
-        # TODO Give option to merge classes and methods
         self.metrics = self.metrics.drop_duplicates().reset_index(drop=True)
         data = self.metrics.groupby('data_type')['data_column'] \
             .apply(lambda x: x.values.tolist()).to_dict()
