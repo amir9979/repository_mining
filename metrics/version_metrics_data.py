@@ -211,7 +211,6 @@ class DesigniteDesignSmellsData(Data):
         self.data_type = DataType.DesigniteDesignSmellsDataType.value
         self.raw_data = data
         super(DesigniteDesignSmellsData, self).__init__(project, version)
-        pass
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
@@ -233,7 +232,6 @@ class DesigniteImplementationSmellsData(Data):
         self.data_type = DataType.DesigniteImplementationSmellsDataType.value
         self.raw_data = data
         super().__init__(project, version)
-        pass
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
@@ -259,7 +257,6 @@ class DesigniteOrganicTypeSmellsData(Data):
         self.data_type = DataType.DesigniteOrganicTypeSmellsDataType.value
         self.raw_data = data
         super().__init__(project, version)
-        pass
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
@@ -281,7 +278,6 @@ class DesigniteOrganicMethodSmellsData(Data):
         self.data_type = DataType.DesigniteOrganicMethodSmellsDataType.value
         self.raw_data = data
         super().__init__(project, version)
-        pass
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
@@ -307,7 +303,6 @@ class DesigniteTypeMetricsData(Data):
         self.data_type = DataType.DesigniteTypeMetricsDataType.value
         self.raw_data = data
         super().__init__(project, version)
-        pass
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
@@ -329,7 +324,6 @@ class DesigniteMethodMetricsData(Data):
         self.data_type = DataType.DesigniteMethodMetricsDataType.value
         self.raw_data = data
         super().__init__(project, version)
-        pass
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
@@ -355,7 +349,7 @@ class SourceMonitorFilesData(Data):
         self.data_type = DataType.SourceMonitorFilesDataType.value
         self.raw_data = data
         super().__init__(project, version)
-        pass
+
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
