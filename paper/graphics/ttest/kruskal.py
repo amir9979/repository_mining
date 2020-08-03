@@ -68,7 +68,7 @@ for row in product(feature_selection, score):
 
 df = pd.DataFrame(ttests_dicts)
 path = Config.get_work_dir_path(os.path.join("paper", "graphics", "ttest", "kruskal.csv"))
-df.to_csv(path, index=False)
+df.to_csv(path, index=False, sep=';')
 
 
 

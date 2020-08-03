@@ -90,7 +90,7 @@ class DataExtractor(object):
         df = pd.DataFrame(commited_files, columns=columns)
         commited_files_dir = self._get_caching_path("CommittedFiles")
         path = os.path.join(commited_files_dir, self.jira_project_name + ".csv")
-        df.to_csv(path, index=False)
+        df.to_csv(path, index=False, sep=';')
 
     def _store_commits(self):
         columns = ["commit_id", "bug_id", "commit_date", "commit_url", "bug_url"]
@@ -98,7 +98,7 @@ class DataExtractor(object):
         df = pd.DataFrame(commits, columns=columns)
         commits_dir = self._get_caching_path("Commits")
         path = os.path.join(commits_dir, self.jira_project_name + ".csv")
-        df.to_csv(path, index=False)
+        df.to_csv(path, index=False, sep=';')
 
     def _store_versions(self, tags, selected=False):
         columns = ["version_name", "#commited_files_in_version", "#bugged_files_in_version", "bugged_ratio",
@@ -124,7 +124,7 @@ class DataExtractor(object):
             versions_dir = self._get_caching_path("Versions")
             Config.assert_dir_exists(versions_dir)
             path = os.path.join(versions_dir, self.jira_project_name + ".csv")
-        df.to_csv(path, index=False)
+        df.to_csv(path, index=False, sep=';')
 
     def get_commit_url(self, commit_sha):
         return os.path.normpath(os.path.join(self.git_url, commit_sha))
@@ -139,7 +139,7 @@ class DataExtractor(object):
             df = pd.DataFrame(tag.commits_shas, columns=["commit_id", "is_buggy"])
             version_name = os.path.normpath(tag.version._name).replace(os.path.sep, "_")
             path = os.path.join(versions_infos_dir, version_name + ".csv")
-            df.to_csv(path, index=False)
+            df.to_csv(path, index=False, sep=';')
 
     def _store_methods(self, tags):
         methods_dir = os.path.join(self._get_caching_path("SelectedMethods"), self.jira_project_name,
@@ -157,7 +157,7 @@ class DataExtractor(object):
             df = pd.DataFrame(methods.values(), columns=["method_id", "method_name", "method_name_parameters", "file_name", "start_line", "end_line", "is_method_buggy"])
             version_name = tag.version._name.replace(os.path.sep, "_")
             path = os.path.join(methods_dir, version_name + ".csv")
-            df.to_csv(path, index=False)
+            df.to_csv(path, index=False, sep=';')
 
 
     def _store_files(self, tags, selected=False):
@@ -172,7 +172,7 @@ class DataExtractor(object):
             df = pd.DataFrame(files.items(), columns=["file_name", "is_buggy"])
             version_name = tag.version._name.replace(os.path.sep, "_")
             path = os.path.join(files_dir, version_name + ".csv")
-            df.to_csv(path, index=False)
+            df.to_csv(path, index=False, sep=';')
 
     def _get_commits_between_versions(self, versions):
         sorted_versions = sorted(versions, key=lambda version: version._commit._commit_date)
@@ -277,7 +277,7 @@ class DataExtractor(object):
         files_dir = self._get_caching_path("Files")
         path = os.path.join(files_dir, version+".csv")
         if os.path.exists(path):
-            return pd.read_csv(path).to_dict('records')
+            return pd.read_csv(path, sep=';').to_dict('records')
         versions = list(filter(lambda tag: tag.version._name == version, self.bugged_files_between_versions))
         if (not versions):
             raise Exception("Error: version not found")

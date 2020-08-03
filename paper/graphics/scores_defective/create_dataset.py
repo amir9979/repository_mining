@@ -10,7 +10,7 @@ from projects import ProjectName
 def get_scores(metric, metric_name, project_name):
     path = Config.get_work_dir_path(
         os.path.join("paper", "analysis", metric, project_name, "scores.csv"))
-    scores_df = pd.read_csv(path)
+    scores_df = pd.read_csv(path, sep=';')
     scores_df['metric_configuration'] = metric_name
     return scores_df
 
@@ -73,7 +73,7 @@ for project in tqdm(projects, total=len(projects), unit="Project"):
         repository_path = Config().config["CACHING"]["RepositoryData"]
         path = Config.get_work_dir_path(os.path.join(
             repository_path, "apache_versions", project.github(), project.jira() + ".csv"))
-        versions_info_df = pd.read_csv(path)
+        versions_info_df = pd.read_csv(path, sep=';')
         cond = versions_info_df.version_name.isin(versions)
         versions_info_df = versions_info_df[cond].reset_index().drop('index', axis=1)
         original_training_num_files = sum(versions_info_df.iloc[:-1, :]['#commited_files_in_version'])
@@ -144,7 +144,7 @@ for project in tqdm(projects, total=len(projects), unit="Project"):
 
 
 path = Config.get_work_dir_path(os.path.join("paper", "graphics", "scores_defective", "data.csv"))
-info_df.to_csv(path, index=False)
+info_df.to_csv(path, index=False, sep=';')
 
 
 

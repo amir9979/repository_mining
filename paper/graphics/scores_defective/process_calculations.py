@@ -9,7 +9,7 @@ from projects import ProjectName
 
 
 path = Config.get_work_dir_path(os.path.join("paper", "graphics", "scores_defective", "data.csv"))
-df = pd.read_csv(path)
+df = pd.read_csv(path, sep=';')
 
 score_types = ["precision", "recall", "f1_measure", "auc_roc", "brier_score"]
 features_methods = ["all", "chi2_20p", "chi2_50p", "f_classif_20", "f_classif_50", "mutual_info_classif_20p",

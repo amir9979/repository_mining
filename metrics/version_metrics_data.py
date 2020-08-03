@@ -37,7 +37,7 @@ class Data(ABC):
         return path
 
     def _read_data_to_df(self):
-        data = pd.read_csv(self.path)
+        data = pd.read_csv(self.path, sep=';')
         return data
 
     @staticmethod
@@ -52,11 +52,11 @@ class Data(ABC):
 
     def store(self):
         # self.data.dropna(inplace=True)
-        self.data.to_csv(self.path, index=False)
+        self.data.to_csv(self.path, index=False, sep=';')
 
     @abstractmethod
     def build(self, values, column_names) -> pd.DataFrame:
-        df = pd.read_csv(self.path)
+        df = pd.read_csv(self.path, sep=';')
         id = df.columns[0]
         metrics = list(filter(lambda x: x in df.columns, [id] + values))
         return df[metrics]

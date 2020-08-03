@@ -103,8 +103,8 @@ class Main():
         methods_intermediate_dir = os.path.join(intermediate_dir, "methods")
         Path(classes_intermediate_dir).mkdir(parents=True, exist_ok=True)
         Path(methods_intermediate_dir).mkdir(parents=True, exist_ok=True)
-        classes_df.to_csv(os.path.join(classes_intermediate_dir, version + ".csv"), index=False)
-        methods_df.to_csv(os.path.join(methods_intermediate_dir, version + ".csv"), index=False)
+        classes_df.to_csv(os.path.join(classes_intermediate_dir, version + ".csv"), index=False, sep=';')
+        methods_df.to_csv(os.path.join(methods_intermediate_dir, version + ".csv"), index=False, sep=';')
 
         methods_df = self.fillna(methods_df)
         aggregated_methods_df = self.aggrate_methods_df(methods_df)
@@ -113,12 +113,12 @@ class Main():
         classes_df = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
 
         classes_df = self.fillna(classes_df)
-        classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False)
+        classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False, sep=';')
 
         methods_df = methods_df.drop('File', axis=1)
         methods_df = methods_df.drop('Class', axis=1)
         methods_df = methods_df.drop('Method', axis=1)
-        methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False)
+        methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False, sep=';')
 
         return classes_df, methods_df
 

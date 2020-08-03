@@ -185,7 +185,7 @@ path = Config.get_work_dir_path(os.path.join("paper", "hypothesis", "2st_paramet
 plot_hypothesis(hypothesis, path)
 
 path = Config.get_work_dir_path(os.path.join("paper", "hypothesis", "2st_parameter_num_instances.csv"))
-projects_sizes_df.to_csv(path, index=False)
+projects_sizes_df.to_csv(path, index=False, sep=';')
 
 '''
     3rd parameter: Number of Bugs

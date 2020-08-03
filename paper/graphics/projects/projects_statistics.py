@@ -28,7 +28,7 @@ import pandas as pd
 from config import Config
 
 path = Config.get_work_dir_path(os.path.join("paper", "graphics", "projects", "projects_info.csv"))
-info_df = pd.read_csv(path)
+info_df = pd.read_csv(path, sep=';')
 
 # metrics = ["designite", "designite_fowler", "designite_fowler_traditional", "designite_traditional", "fowler", "fowler_traditional", "traditional"]
 metrics = ["designite", "designite_fowler", "fowler"]

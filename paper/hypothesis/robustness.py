@@ -75,7 +75,7 @@ for project in projects:
         dataset_dict = {}
         for dataset in datasets:
             path = Config.get_work_dir_path(os.path.join("paper", "analysis", dataset, project, 'scores.csv'))
-            df = pd.read_csv(path)
+            df = pd.read_csv(path, sep=';')
             mean_df = df.groupby('feature_selection').aggregate({metric: 'mean' for metric in metrics}).reset_index()
             max_df = df.groupby('feature_selection').aggregate({metric: 'max' for metric in metrics}).reset_index()
             dataset_dict[dataset] = {'mean': mean_df, 'max': max_df}

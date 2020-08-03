@@ -30,7 +30,7 @@ plots = []
 
 for score in scores:
     path = Config.get_work_dir_path(os.path.join("paper", "graphics", "scores", "data.csv"))
-    df = pd.read_csv(path)
+    df = pd.read_csv(path, sep=';')
 
     cond = df['dataset'] == "Designite + Fowler"
     designite_fowler = df.loc[cond][score]

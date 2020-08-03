@@ -9,11 +9,11 @@ class ClassificationInstance(object):
         self.training = training
         self.testing = testing
 
-        self.training.to_csv(os.path.join(dataset_dir, training_path), index=False)
-        self.testing.to_csv(os.path.join(dataset_dir, testing_path), index=False)
+        self.training.to_csv(os.path.join(dataset_dir, training_path), index=False, sep=';')
+        self.testing.to_csv(os.path.join(dataset_dir, testing_path), index=False, sep=';')
 
-        self.training.describe().to_csv(os.path.join(dataset_dir, training_describe_path))
-        self.testing.describe().to_csv(os.path.join(dataset_dir, testing_describe_path))
+        self.training.describe().to_csv(os.path.join(dataset_dir, training_describe_path), sep=';')
+        self.testing.describe().to_csv(os.path.join(dataset_dir, testing_describe_path), sep=';')
 
         self.training_y = self.training.pop(label).values
         self.training_X = self.training.values
@@ -27,5 +27,5 @@ class ClassificationInstance(object):
         classifier = RandomForestClassifier(n_estimators=1000, random_state=42)
         model = classifier.fit(self.training_X, self.training_y)
         prediction = pd.DataFrame(zip(self.names, self.testing_y.tolist(), classifier.predict_proba(self.testing_X)), columns=['name', 'actual', 'faulty_probability'])
-        prediction.to_csv(self.prediction_path, index=False)
+        prediction.to_csv(self.prediction_path, index=False, sep=';')
         return prediction

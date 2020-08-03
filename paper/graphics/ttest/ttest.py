@@ -78,7 +78,7 @@ for row in product(feature_selection, datasets, datasets, score):
 
 df = pd.DataFrame(ttests_dicts)
 path = Config.get_work_dir_path(os.path.join("paper", "graphics", "ttest", "ttest.csv"))
-df.to_csv(path, index=False)
+df.to_csv(path, index=False, sep=';')
 
 
 

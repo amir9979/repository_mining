@@ -39,5 +39,5 @@ for project in tqdm(projects, total=len(projects)):
 
 df = pd.DataFrame(projects_info_dicts, columns=columns)
 path = Config.get_work_dir_path(os.path.join("paper", "graphics", "projects", "projects_info.csv"))
-df.to_csv(path, index=False)
+df.to_csv(path, index=False, sep=';')
 

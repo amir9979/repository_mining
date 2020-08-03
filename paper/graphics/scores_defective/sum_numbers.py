@@ -9,7 +9,7 @@ from projects import ProjectName
 
 
 path = Config.get_work_dir_path(os.path.join("paper", "graphics", "scores_defective", "calculated_data.csv"))
-df = pd.read_csv(path)
+df = pd.read_csv(path, sep=';')
 
 scores_df = df.groupby(['project',
                         'feature_selection',
@@ -30,7 +30,7 @@ scores_df = df.groupby(['project',
                         })\
               .reset_index()
 path = Config.get_work_dir_path(os.path.join("paper", "graphics", "scores_defective", "sum_data.csv"))
-scores_df.to_csv(path, index=False)
+scores_df.to_csv(path, index=False, sep=';')
 
 
 

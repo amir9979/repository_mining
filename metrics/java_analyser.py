@@ -165,11 +165,11 @@ class JavalangFileAnalyser(FileAnalyser):
         Config.assert_dir_exists(out_dir)
         out_path = os.path.join(out_dir, version_name) + ".csv"
         if os.path.exists(out_path):
-            return pd.read_csv(out_path)
+            return pd.read_csv(out_path, sep=';')
         columns = ["method_id", "file_name", "method_name", "start_line", "end_line"]
         values = list(map(lambda m: [m.id, m.file_name, m.method_name, m.start_line, m.end_line], methods))
         df = pd.DataFrame(values, columns=columns)
-        df.to_csv(out_path, index=False)
+        df.to_csv(out_path, index=False, sep=';')
         return df
 
     @staticmethod

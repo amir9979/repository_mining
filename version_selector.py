@@ -155,7 +155,7 @@ class BinSelectVersion(AbstractSelectVersions):
             dir_path = Config.get_work_dir_path(dir_path)
             Config.assert_dir_exists(dir_path)
             path = os.path.join(dir_path, str(name) + ".csv")
-            df.to_csv(path, index=False)
+            df.to_csv(path, index=False, sep=';')
             if configuration['versions']:
                 json_short_data.append({"ind": ind, "name": name, "versions": configuration['versions'], "configuration": configuration})
         dir_path = os.path.join(repository_data, selected_versions)
@@ -225,7 +225,7 @@ class QuadraticSelectVersion(AbstractSelectVersions):
         dir_path = Config.get_work_dir_path(dir_path)
         Config.assert_dir_exists(dir_path)
         path = os.path.join(dir_path, repo.github_name + ".csv")
-        df.to_csv(path, index=False)
+        df.to_csv(path, index=False, sep=';')
         pass
 
 

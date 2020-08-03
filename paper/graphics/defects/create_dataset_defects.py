@@ -53,7 +53,7 @@ def execute(project):
         repository_path = Config().config["CACHING"]["RepositoryData"]
         path = Config.get_work_dir_path(os.path.join(
             repository_path, "apache_versions", project.github(), project.jira() + ".csv"))
-        versions_info_df = pd.read_csv(path)
+        versions_info_df = pd.read_csv(path, sep=';')
         cond = versions_info_df.version_name.isin(versions)
         versions_info_df = versions_info_df[cond].reset_index().drop('index', axis=1)
         original_training_num_files = sum(versions_info_df.iloc[:-1,:]['#commited_files_in_version'])

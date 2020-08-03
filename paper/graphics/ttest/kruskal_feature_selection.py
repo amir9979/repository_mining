@@ -69,7 +69,7 @@ for row in product(datasets, score):
 
 df = pd.DataFrame(ttests_dicts)
 path = Config.get_work_dir_path(os.path.join("paper", "graphics", "ttest", "kruskal_feature_selection.csv"))
-df.to_csv(path, index=False)
+df.to_csv(path, index=False, sep=';')
 
 
 
