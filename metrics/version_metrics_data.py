@@ -121,11 +121,11 @@ class CompositeData(Data):
                 continue
             df = self.data_collection.get(data_type).build(data_values, column_names)
             if "Method_ids" in df.columns:
-                methods_dfs.append(df)
-            if "Class" in df.columns:
-                classes_dfs.append(df.drop(columns="Package"))
+                methods_dfs.append(df.drop(columns="Method", errors='ignore'))
+            elif "Class" in df.columns:
+                classes_dfs.append(df.drop(["Package", "Method", 'Method_ids'], axis=1, errors='ignore'))
             elif "File" in df.columns:
-                files_dfs.append(df)
+                files_dfs.append(df.drop(["Package", "Method", 'Method_ids'], axis=1, errors='ignore'))
         classes_df = None
         methods_df = None
 
