@@ -96,6 +96,15 @@ class Main():
         db = DataBuilder(self.project, version)
         list(map(lambda d: db.append(d), DataNameEnum))
         classes_df, methods_df = db.build()
+        intermediate_dir = Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['Intermediate'],
+                         self.project.github()))
+        classes_intermediate_dir = os.path.join(intermediate_dir, "classes")
+        methods_intermediate_dir = os.path.join(intermediate_dir, "methods")
+        Path(classes_intermediate_dir).mkdir(parents=True, exist_ok=True)
+        Path(methods_intermediate_dir).mkdir(parents=True, exist_ok=True)
+        classes_df.to_csv(os.path.join(classes_intermediate_dir, version + ".csv"), index=False)
+        methods_df.to_csv(os.path.join(methods_intermediate_dir, version + ".csv"), index=False)
 
         methods_df = self.fillna(methods_df)
         aggregated_methods_df = self.aggrate_methods_df(methods_df)
