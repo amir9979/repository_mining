@@ -149,6 +149,7 @@ class DataExtractor(object):
             methods = dict()
             for method in tag.all_methods:
                 data = (method.id, method.method_name, method.method_name_parameters, method.file_name, method.start_line, method.end_line, method.changed)
+                print(method.id)
                 if method.id in methods:
                     if method.changed:
                         methods[method.id] = data

@@ -51,7 +51,7 @@ class Data(ABC):
         self.data = self._convert_to_df(raw)
 
     def store(self):
-        self.data.dropna(inplace=True)
+        # self.data.dropna(inplace=True)
         self.data.to_csv(self.path, index=False)
 
     @abstractmethod
