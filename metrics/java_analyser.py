@@ -57,7 +57,7 @@ class JavaParserFileAnalyser(FileAnalyser):
         runner = os.path.join(base_dir, Config().config["EXTERNALS"]["JavaParser"])
         outdir = tempfile.mkdtemp()
         outpath = os.path.join(outdir, "sourceCodeInformation.csv")
-        commands = ["java", "-jar", runner, "-i", local_path, "-o", outdir]
+        commands = ["java", "-jar", runner.replace("\\\\?\\", ""), "-i", local_path, "-o", outdir]
         status = run(commands)
         status.check_returncode()
         parser_df = pd.read_csv(outpath, delimiter=";")
