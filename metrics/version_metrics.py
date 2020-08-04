@@ -85,7 +85,7 @@ class Bugged(Extractor):
         extractor = DataExtractor(self.project)
         extractor.extract()
         path = extractor.get_bugged_files_path(self.version, True)
-        df = pd.read_csv(path)
+        df = pd.read_csv(path, sep=';')
         key = 'file_name'
         if 'method_id' in df.columns:
             key = 'method_id'
@@ -104,7 +104,7 @@ class BuggedMethods(Extractor):
         extractor = DataExtractor(self.project)
         extractor.extract(True)
         path = extractor.get_bugged_methods_path(self.version, True)
-        df = pd.read_csv(path)
+        df = pd.read_csv(path, sep=';')
         key = 'method_id'
         bugged = df.groupby(key).apply(lambda x: dict(zip(["is_method_buggy"], x.is_method_buggy))).to_dict()
         self.data.set_raw_data(bugged)
