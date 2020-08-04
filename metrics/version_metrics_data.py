@@ -45,8 +45,10 @@ class Data(ABC):
         df = pd.DataFrame(data).T.reset_index()
         df.rename(columns={"index": "id"}, inplace=True)
         if 'id' in df.columns.values.tolist():
+            df = df[df.id.notnull()]
             df['id'] = df['id'].apply(os.path.normpath)
         if 'Method_ids' in df.columns.values.tolist():
+            df = df[df.Method_ids.notnull()]
             df['Method_ids'] = df['Method_ids'].apply(os.path.normpath)
         return df
 
@@ -365,7 +367,6 @@ class SourceMonitorData(Data):
         self.data_type = DataType.SourceMonitorDataType.value
         self.raw_data = data
         super().__init__(project, version)
-        pass
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
