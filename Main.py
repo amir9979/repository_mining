@@ -58,7 +58,7 @@ class Main():
         methods_instance.predict()
 
     def aggrate_methods_df(self, df):
-        ids = df['Method_ids'].iteritems()
+        ids = df['Method_ids'].apply(os.path.normpath).iteritems()
         files_id, classes_id = tee(ids, 2)
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values

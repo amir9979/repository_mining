@@ -170,9 +170,9 @@ class BuggedMethodData(Data):
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
-        id = df['id'].iteritems()
+        id = df['id'].apply(os.path.normpath).iteritems()
         methods = pd.Series(list(map(lambda x: x[1], id))).values
-        ids = df['id']
+        ids = df['id'].apply(os.path.normpath)
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
         df.insert(0, 'Method_ids', ids)
@@ -194,7 +194,7 @@ class CheckstyleData(Data):
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1].split('(')[0], methods_id))).values
-        ids = df['id']
+        ids = df['id'].apply(os.path.normpath)
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
         df.insert(0, 'Method_ids', ids)
@@ -241,7 +241,7 @@ class DesigniteImplementationSmellsData(Data):
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1], methods_id))).values
-        ids = df['id']
+        ids = df['id'].apply(os.path.normpath)
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
         df.insert(0, 'Method_ids', ids)
@@ -287,7 +287,7 @@ class DesigniteOrganicMethodSmellsData(Data):
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1], methods_id))).values
-        ids = df['id']
+        ids = df['id'].apply(os.path.normpath)
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
         df.insert(0, 'Method_ids', ids)
@@ -333,7 +333,7 @@ class DesigniteMethodMetricsData(Data):
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1], methods_id))).values
-        ids = df['id']
+        ids = df['id'].apply(os.path.normpath)
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
         df.insert(0, 'Method_ids', ids)
@@ -383,7 +383,7 @@ class CKData(Data):
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1].split('(')[0], methods_id))).values
-        ids = df['id']
+        ids = df['id'].apply(os.path.normpath)
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
         df.insert(0, 'Method_ids', ids)
