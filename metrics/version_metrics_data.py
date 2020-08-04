@@ -44,9 +44,9 @@ class Data(ABC):
     def _convert_to_df(data):
         df = pd.DataFrame(data).T.reset_index()
         df.rename(columns={"index": "id"}, inplace=True)
-        if 'id' in df.columns.values.to_list():
+        if 'id' in df.columns.values.tolist():
             df['id'] = df['id'].apply(os.path.normpath)
-        if 'Method_ids' in df.columns.values.to_list():
+        if 'Method_ids' in df.columns.values.tolist():
             df['Method_ids'] = df['Method_ids'].apply(os.path.normpath)
         return df
 
