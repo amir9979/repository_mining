@@ -348,7 +348,7 @@ class SourceMonitor(Extractor):
     def _process_metrics(self, out_dir):
         files_path = os.path.join(out_dir, "source_monitor_classes.csv")
         files_df = pd.read_csv(files_path, encoding = "ISO-8859-8", error_bad_lines=False)
-        files_df["Maximum Block Depth"] = files_df["Maximum Block Depth"].apply(lambda x: float(x.replace('+')))
+        files_df["Maximum Block Depth"] = files_df["Maximum Block Depth"].apply(lambda x: float(x.replace('+', '')))
         cols_to_drop = ["Project Name", "Checkpoint Name", "Created On"]
         for i in cols_to_drop + ['Name of Most Complex Method*']:
             files_df = files_df.drop(i, axis=1)
