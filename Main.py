@@ -115,9 +115,9 @@ class Main():
         classes_df = self.fillna(classes_df)
         classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False, sep=';')
 
-        methods_df = methods_df.drop('File', axis=1)
-        methods_df = methods_df.drop('Class', axis=1)
-        methods_df = methods_df.drop('Method', axis=1)
+        methods_df = methods_df.drop('File', axis=1, errors='ignore')
+        methods_df = methods_df.drop('Class', axis=1, errors='ignore')
+        methods_df = methods_df.drop('Method', axis=1, errors='ignore')
         methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False, sep=';')
 
         return classes_df, methods_df
