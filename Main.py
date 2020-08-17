@@ -18,6 +18,8 @@ class Main():
         self.project = None
         self.extractor = None
         self.save_data_names()
+        self.jira_url = None
+        self.github_user_name = None
 
     def list_projects(self):
         print("\n".join(list(map(lambda e: "{0}: {1}".format(e.name, e.value.description()), ProjectName))))
@@ -34,7 +36,7 @@ class Main():
         self.set_extractor()
 
     def set_extractor(self):
-        self.extractor = DataExtractor(self.project)
+        self.extractor = DataExtractor(self.project, self.jira_url, self.github_user_name)
 
     def extract_metrics(self):
         classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['ClassesData'], self.project.github()))
@@ -169,14 +171,18 @@ class Main():
         parser.add_argument('-p', '--projects', dest='projects', action='store_const', const=True, default=False,
                             help='list all aleready defined projects')
         parser.add_argument('-c', '--choose', dest='choose', action='store', help='choose a project to extract')
-        parser.add_argument('-g', '--github_url', dest='github', action='store', help='the git link to the project to extract')
-        parser.add_argument('-j', '--jira_url', dest='jira', action='store', help='the jira link to the project to extract')
+        parser.add_argument('-g', '--github_repo_name', dest='github', action='store', help='the github repository name to the project to extract (lowercase)')
+        parser.add_argument('-j', '--jira_name', dest='jira', action='store', help='the jira name to the project to extract (uppercase)')
+        parser.add_argument('-gu', '--github_user_name', dest='github', action='store', help='the github user name to the project to extract (lowercase)', default="apache")
+        parser.add_argument('-jl', '--jira_url', dest='jira', action='store', help='the link to jira', default="http://issues.apache.org/jira")
         parser.add_argument('-l', '--list_select_verions', dest='list_selected', action='store', help='the algorithm to select the versions : [bin]', default='bin')
         parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=-1, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
         parser.add_argument('-f', '--free_choose', dest='free_choose', action='store_true', help='the versions type to select')
         args = parser.parse_args()
+        self.github_user_name = args.github_user_name
+        self.jira_url = args.jira_url
         if args.projects:
             self.list_projects()
         if args.choose:
