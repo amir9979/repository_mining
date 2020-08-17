@@ -26,7 +26,7 @@ class Main():
         self.extractor.extract(True)
 
     def set_project(self, github, jira):
-        self.project = Project(github, jira)
+        self.project = Project(github.lower(), jira.upper())
         self.set_extractor()
 
     def set_project_enum(self, name):
