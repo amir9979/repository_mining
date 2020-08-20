@@ -145,7 +145,8 @@ class BinSelectVersion(AbstractSelectVersions):
         repository_data = config["CACHING"]["RepositoryData"]
         selected_versions = config["DATA_EXTRACTION"]["SelectedVersionsBin"]
         json_short_data = list()
-        for ind, configuration in enumerate(self.selected_versions):
+        ind = 0
+        for configuration in self.selected_versions:
             values = list(product([configuration['start']], [configuration['step']],
                                   [configuration['stop']], configuration['versions']))
             name = Config.get_short_name(configuration['versions'])
@@ -158,6 +159,7 @@ class BinSelectVersion(AbstractSelectVersions):
             df.to_csv(path, index=False, sep=';')
             if configuration['versions']:
                 json_short_data.append({"ind": ind, "name": name, "versions": configuration['versions'], "configuration": configuration})
+                ind = ind + 1
         dir_path = os.path.join(repository_data, selected_versions)
         out_path = os.path.join(Config.get_work_dir_path(dir_path), repo.github_name + ".json")
         with open(out_path, "w") as f:
