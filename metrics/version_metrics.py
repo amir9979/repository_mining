@@ -222,7 +222,7 @@ class Designite(Extractor):
     @staticmethod
     def _execute_command(designite_runner, local_path):
         out_dir = tempfile.mkdtemp()
-        commands = ["java", "-Xmx1024m"
+        commands = ["java", "-Xmx1024m", 
                     "-jar", designite_runner,
                     "-i", local_path,
                     "-o", out_dir]
