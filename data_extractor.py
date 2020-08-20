@@ -33,7 +33,8 @@ class DataExtractor(object):
         self.repo = Repo(self.jira_project_name, self.github_name, local_path=self.git_path,
                          github_user_name=self.github_user_name)
         self.git_repo = git.Repo(self.git_path)
-        self.git_repo.git.checkout('master', force=True)
+        self.head_commit = self.git_repo.head.commit.hexsha
+        self.git_repo.git.checkout(self.head_commit, force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
 
         self.commits = self._get_repo_commits(self.git_repo, self.jira_project_name, self.jira_url)
@@ -46,7 +47,7 @@ class DataExtractor(object):
         self.git_repo.git.checkout(version, force=True)
 
     def checkout_master(self):
-        self.git_repo.git.checkout('master', force=True)
+        self.git_repo.git.checkout(self.head_commit, force=True)
 
     @staticmethod
     def _get_repo_commits(repo, jira_project_name, jira_url):
