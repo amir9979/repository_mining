@@ -196,10 +196,9 @@ class Checkstyle(Extractor):
         return file_element, tmp, keys
 
 
-class Designite():
+class Designite(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        # super().__init__("Designite", project, version, repo)
-        pass
+        super().__init__("Designite", project, version, repo)
 
     def _set_data(self):
         self.data = CompositeData()
