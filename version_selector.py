@@ -157,7 +157,7 @@ class BinSelectVersion(AbstractSelectVersions):
             Config.assert_dir_exists(dir_path)
             path = os.path.join(dir_path, str(name) + ".csv")
             df.to_csv(path, index=False, sep=';')
-            if configuration['versions']:
+            if len(configuration['versions']) > 3:
                 json_short_data.append({"ind": ind, "name": name, "versions": configuration['versions'], "configuration": configuration})
                 ind = ind + 1
         dir_path = os.path.join(repository_data, selected_versions)
