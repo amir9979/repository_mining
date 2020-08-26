@@ -221,7 +221,7 @@ class Designite(Extractor):
 
     @staticmethod
     def _execute_command(designite_runner, local_path):
-        out_dir = os.path.normpath(Config.get_work_dir_path(Config().config['TEMP']['Temp_dir']))
+        out_dir = os.path.normpath(Config.get_work_dir_path(Config().config['TEMP']['Designite']))
         commands = ["java", "-jar", designite_runner, "-i", local_path, "-o", out_dir]
         p = Popen(commands)
         p.communicate()
