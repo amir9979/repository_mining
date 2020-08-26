@@ -221,13 +221,10 @@ class Designite(Extractor):
 
     @staticmethod
     def _execute_command(designite_runner, local_path):
-        out_dir = tempfile.mkdtemp()
+        out_dir = Config.get_work_dir_path(Config().config['Temp']['Temp_dir'])
         commands = ["java", "-jar", designite_runner, "-i", local_path, "-o", out_dir]
         p = Popen(commands)
         p.communicate()
-        print(p.returncode)
-        if p.returncode == 0:
-            os.system(" ".join(commands))
         return out_dir
 
     def _extract_design_code_smells(self, out_dir):
