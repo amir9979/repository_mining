@@ -235,7 +235,7 @@ class Designite(Extractor):
         path = os.path.join(out_dir, r"designCodeSmells.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["File Path", "Package Name", "Type Name"]
+        keys_columns = ["Package Name", "Type Name"]
         smells_columns = design_smells_list
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns, self.local_path)
@@ -246,7 +246,7 @@ class Designite(Extractor):
         path = os.path.join(out_dir, r"implementationCodeSmells.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["File Path", "Package Name", "Type Name", "Method Name"]
+        keys_columns = ["Package Name", "Type Name", "Method Name"]
         smells_columns = implementation_smells_list
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns, self.local_path)
@@ -257,7 +257,7 @@ class Designite(Extractor):
         path = os.path.join(out_dir, r"organicTypeCodeSmells.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["File Path", "Package Name", "Type Name"]
+        keys_columns = ["Package Name", "Type Name"]
         smells_columns = organic_type_smells_list
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns, self.local_path)
@@ -268,7 +268,7 @@ class Designite(Extractor):
         path = os.path.join(out_dir, r"organicMethodCodeSmells.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["File Path", "Package Name", "Type Name", "Method Name"]
+        keys_columns = ["Package Name", "Type Name", "Method Name"]
         smells_columns = organic_method_smells_list
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns, self.local_path)
@@ -279,7 +279,7 @@ class Designite(Extractor):
         path = os.path.join(out_dir, r"typeMetrics.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["File Path", "Package Name", "Type Name"]
+        keys_columns = ["Package Name", "Type Name"]
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns, self.local_path)
         type_metrics = self._get_metrics_dict(df)
@@ -289,7 +289,7 @@ class Designite(Extractor):
         path = os.path.join(out_dir, r"methodMetrics.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["File Path", "Package Name", "Type Name", "MethodName"]
+        keys_columns = ["Package Name", "Type Name", "MethodName"]
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns, self.local_path)
         type_metrics = self._get_metrics_dict(df)
