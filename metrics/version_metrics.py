@@ -221,7 +221,7 @@ class Designite(Extractor):
 
     @staticmethod
     def _execute_command(designite_runner, local_path):
-        out_dir = os.path.normpath(os.path.join(Config().config['CACHING']['RepositoryData'], Config.get_work_dir_path(Config().config['TEMP']['Designite'])))
+        out_dir = os.path.normpath(Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Designite'])))
         Config.assert_dir_exists(out_dir)
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
