@@ -161,9 +161,12 @@ class BuggedData(Data):
     def build(self, values, column_names):
         df = super().build(values, column_names)
         id = df['id'].iteritems()
-        files = pd.Series(list(map(lambda x: x[1], id))).values
+        files_id, classes_id = tee(id, 2)
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
+        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         df = df.drop(columns='id')
-        df.insert(0, 'File', files)
+        df.insert(0, 'Class',  classes)
+        df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
 
@@ -221,12 +224,14 @@ class DesigniteDesignSmellsData(Data):
     def build(self, values, column_names):
         df = super().build(values, column_names)
         id = df['id'].iteritems()
-        packages_id, classes_id = tee(id, 2)
+        packages_id, classes_id,files_id = tee(id, 3)
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('.')[-1], classes_id))).values
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
         df = df.drop(columns='id')
         df.insert(0, 'Class',  classes)
         df.insert(0, 'Package',  packages)
+        df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
 
@@ -240,16 +245,18 @@ class DesigniteImplementationSmellsData(Data):
     def build(self, values, column_names):
         df = super().build(values, column_names)
         id = df['id'].iteritems()
-        packages_id, classes_id, methods_id = tee(id, 3)
+        packages_id, classes_id, methods_id,files_id = tee(id, 4)
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1], methods_id))).values
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
         ids = df['id'].apply(os.path.normpath)
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
         df.insert(0, 'Method_ids', ids)
         df.insert(0, 'Class',  classes)
         df.insert(0, 'Package',  packages)
+        df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
 
@@ -263,12 +270,14 @@ class DesigniteOrganicTypeSmellsData(Data):
     def build(self, values, column_names):
         df = super().build(values, column_names)
         id = df['id'].iteritems()
-        packages_id, classes_id = tee(id, 2)
+        packages_id, classes_id,files_id = tee(id, 3)
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('.')[-1], classes_id))).values
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
         df = df.drop(columns='id')
         df.insert(0, 'Class',  classes)
         df.insert(0, 'Package',  packages)
+        df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
 
@@ -282,16 +291,18 @@ class DesigniteOrganicMethodSmellsData(Data):
     def build(self, values, column_names):
         df = super().build(values, column_names)
         id = df['id'].iteritems()
-        packages_id, classes_id, methods_id = tee(id, 3)
+        packages_id, classes_id, methods_id,files_id = tee(id, 4)
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('.')[:-1][-1], classes_id))).values
         methods = pd.Series(list(map(lambda x: x[1].split('.')[-1], methods_id))).values
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
         ids = df['id'].apply(os.path.normpath)
         df = df.drop(columns='id')
         df.insert(0, 'Method', methods)
         df.insert(0, 'Method_ids', ids)
         df.insert(0, 'Class',  classes)
         df.insert(0, 'Package',  packages)
+        df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
 
@@ -305,12 +316,14 @@ class DesigniteTypeMetricsData(Data):
     def build(self, values, column_names):
         df = super().build(values, column_names)
         id = df['id'].iteritems()
-        packages_id, classes_id = tee(id, 2)
+        packages_id, classes_id,files_id = tee(id,3)
         packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('.')[:-2]), packages_id))).values
         classes = pd.Series(list(map(lambda x: x[1].split('.')[-1], classes_id))).values
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
         df = df.drop(columns='id')
         df.insert(0, 'Class',  classes)
         df.insert(0, 'Package',  packages)
+        df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
 
@@ -346,8 +359,16 @@ class SourceMonitorFilesData(Data):
 
 
     def build(self, values, column_names):
-        df = super().build(values, column_names)
-        return df.rename(columns={"id": "File"})
+        df = super().build(values, column_names)        
+        id = df['id'].iteritems()
+        files_id, classes_id = tee(id, 2)
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
+        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
+        df = df.drop(columns='id')
+        df.insert(0, 'Class',  classes)
+        df.insert(0, 'File',  files)
+        df = df.rename(columns=column_names)
+        return df
 
 
 class SourceMonitorData(Data):
@@ -414,8 +435,11 @@ class HalsteadData(Data):
     def build(self, values, column_names):
         df = super().build(values, column_names)
         id = df['id'].iteritems()
-        files = pd.Series(list(map(lambda x: x[1], id))).values
+        files_id, classes_id = tee(id, 2)
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
+        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         df = df.drop(columns='id')
+        df.insert(0, 'Class',  classes)
         df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
