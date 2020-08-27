@@ -53,11 +53,11 @@ class Extractor(ABC):
     def _extract(self):
         pass
 
-    @abstractmethod
-    def _execute_command(self):
+    # @abstractmethod
+    def _execute(self):
         pass
 
-    @abstractmethod
+    # @abstractmethod
     def _process_data(self):
         pass
 
