@@ -97,7 +97,9 @@ class Main():
         return df
 
     def extract_features_to_version(self, classes_data, method_data, version):
+        start = time.time()
         extractors = Extractor.get_all_extractors(self.project, version)
+        print(time.time() - start, "get_all_extractors")
         for extractor in extractors:
             start = time.time()
             extractor.extract()
