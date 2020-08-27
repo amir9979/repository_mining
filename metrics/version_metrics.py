@@ -201,6 +201,8 @@ class Checkstyle(Extractor):
             keys.add(key)
             method_id = self.file_analyser.get_closest_id(file_path, line)
             if method_id:
+                if "npath" in key.lower():
+                    value = min(10000, int(value))
                 tmp.setdefault(method_id, dict())[key] = value
         return file_element, tmp, keys
 
