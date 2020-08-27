@@ -210,6 +210,7 @@ class Designite(Extractor):
         super().__init__("Designite", project, version, repo)
         self.out_dir = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Designite'])))
+        Config.assert_dir_exists(self.out_dir)
 
     def _set_data(self):
         self.data = CompositeData()
@@ -346,6 +347,7 @@ class SourceMonitor(Extractor):
         super().__init__("SourceMonitor", project, version, repo)
         self.out_dir = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['SourceMonitor'])))
+        Config.assert_dir_exists(self.out_dir)
 
 
     def _set_data(self):
@@ -420,6 +422,7 @@ class CK(Extractor):
         super().__init__("CK", project, version, repo)
         self.out_dir = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['CK'])))
+        Config.assert_dir_exists(self.out_dir)
 
     def _set_data(self):
         self.data = CKData(self.project, self.version)
