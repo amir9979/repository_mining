@@ -12,6 +12,7 @@ from metrics.version_metrics_data import DataBuilder
 from metrics.version_metrics_name import DataNameEnum
 from classification_instance import ClassificationInstance
 from itertools import tee
+import time
 
 class Main():
     def __init__(self):
@@ -98,7 +99,9 @@ class Main():
     def extract_features_to_version(self, classes_data, method_data, version):
         extractors = Extractor.get_all_extractors(self.project, version)
         for extractor in extractors:
+            start = time.time()
             extractor.extract()
+            print(time.time() - start, extractor.__class__.__name__)
         db = DataBuilder(self.project, version)
         list(map(lambda d: db.append(d), DataNameEnum))
         classes_df, methods_df = db.build()
