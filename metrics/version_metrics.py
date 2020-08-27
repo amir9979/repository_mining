@@ -386,7 +386,7 @@ class SourceMonitor(Extractor):
         for i in cols_to_drop + ['Name of Most Complex Method*']:
             files_df = files_df.drop(i, axis=1)
         files_cols = list(files_df.rename(columns={"Statements":"FileStatements"}).columns.drop("File Name"))
-        files_df['full_id'] = df.apply(lambda x: self.file_analyser.get_closest_id(x['File Name']), axis=1)
+        files_df['full_id'] = files_df.apply(lambda x: self.file_analyser.get_closest_id(x['File Name']), axis=1)
         files_df = files_df.drop(['File Name'], axis=1)
         source_monitor_files = dict(
             map(lambda x: (
