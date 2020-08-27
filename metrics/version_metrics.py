@@ -94,9 +94,12 @@ class Bugged(Extractor):
         extractor.extract()
         path = extractor.get_bugged_files_path(self.version, True)
         df = pd.read_csv(path, sep=';')
-        key = 'file_name'
-        if 'method_id' in df.columns:
-            key = 'method_id'
+        #key = 'file_name'
+        #if 'method_id' in df.columns:
+        #    key = 'method_id'        
+        df['full_id'] = df.apply(lambda x: self.file_analyser.get_closest_id(x['file_name']), axis=1)
+        df = df.drop(['file_name'], axis=1)
+        key = 'full_id'
         bugged = df.groupby(key).apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
         self.data.set_raw_data(bugged)
 
@@ -383,12 +386,13 @@ class SourceMonitor(Extractor):
         for i in cols_to_drop + ['Name of Most Complex Method*']:
             files_df = files_df.drop(i, axis=1)
         files_cols = list(files_df.rename(columns={"Statements":"FileStatements"}).columns.drop("File Name"))
+        files_df['full_id'] = df.apply(lambda x: self.file_analyser.get_closest_id(x['File Name']), axis=1)
+        files_df = files_df.drop(['File Name'], axis=1)
         source_monitor_files = dict(
             map(lambda x: (
-                x[1]["File Name"],
-                dict(zip(files_cols, list(x[1].drop("File Name"))))
+                x[1]['full_id'],
+                dict(zip(files_cols, list(x[1].drop('full_id'))))
             ), files_df.iterrows()))
-
         methods_path = os.path.join(self.out_dir, "source_monitor_methods.csv")
         methods_df = pd.read_csv(methods_path, encoding = "ISO-8859-8", error_bad_lines=False)
         for i in cols_to_drop:
@@ -497,4 +501,7 @@ class Halstead(Extractor):
 
     def _extract(self):
         halstead = metrics_for_project(self.local_path)
-        self.data.set_raw_data(halstead)
+        new_and_better_halstead = {}
+        for key, value in halstead.items():
+            new_and_better_halstead[self.file_analyser.get_closest_id(key)] = value
+        self.data.set_raw_data(new_and_better_halstead)
