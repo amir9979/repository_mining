@@ -54,6 +54,14 @@ class Extractor(ABC):
         pass
 
     @abstractmethod
+    def _execute_command(self):
+        pass
+
+    @abstractmethod
+    def _process_data(self):
+        pass
+
+    @abstractmethod
     def _set_data(self):
         pass
 
@@ -121,7 +129,7 @@ class Checkstyle(Extractor):
 
     def _extract(self):
         all_checks_xml = self._get_all_checks_xml(self.config)
-        self._execute_command(self.runner, all_checks_xml, self.local_path, self.out_path_to_xml)
+        self._execute_command(self.runner, all_checks_xml, self.local_path, self.out_path_to_xml.replace("\\\\?\\", ""))
         checkstyle = self._process_checkstyle_data(self.out_path_to_xml)
         self.data.set_raw_data(checkstyle)
 
@@ -139,7 +147,7 @@ class Checkstyle(Extractor):
                     "-jar", checkstyle_runner,
                     "-c", all_checks_xml,
                     "-f", "xml",
-                    "-o", out_path_to_xml,
+                    "-o", out_path_to_xml.replace("\\\\?\\", ""),
                     local_path]
         p = Popen(commands)
         p.communicate()
@@ -207,7 +215,7 @@ class Designite(Extractor):
         self.data = CompositeData()
 
     def _extract(self):
-        self._execute_command(self.runner, self.local_path, self.out_dir)
+        self._execute_command(self.runner, self.local_path, self.out_dir.replace("\\\\?\\", ""))
         design_code_smells = self._extract_design_code_smells()
         implementation_code_smells = self._extract_implementation_code_smells()
         organic_type_code_smells = self._extract_organic_type_code_smells()
@@ -345,7 +353,7 @@ class SourceMonitor(Extractor):
 
     def _extract(self):
         if os.name == "nt":
-            self._execute_command(self.runner, self.local_path, self.out_dir)
+            self._execute_command(self.runner, self.local_path, self.out_dir.replace("\\\\?\\", ""))
             source_monitor_files, source_monitor = self._process_metrics()
             self.data \
                 .add(SourceMonitorFilesData(self.project, self.version, data=source_monitor_files)) \
@@ -417,7 +425,7 @@ class CK(Extractor):
         self.data = CKData(self.project, self.version)
 
     def _extract(self):
-        self._execute_command(self.runner, self.local_path, self.out_dir)
+        self._execute_command(self.runner, self.local_path, self.out_dir.replace("\\\\?\\", ""))
         ck = self._process_metrics()
         self.data.set_raw_data(ck)
 
