@@ -113,14 +113,16 @@ class BuggedMethods(Extractor):
 class Checkstyle(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("Checkstyle", project, version, repo)
+        self.out_path_to_xml = os.path.normpath(Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Checkstyle'])))
 
     def _set_data(self):
         self.data = CheckstyleData(self.project, self.version)
 
     def _extract(self):
         all_checks_xml = self._get_all_checks_xml(self.config)
-        out_path_to_xml = self._execute_command(self.runner, all_checks_xml, self.local_path)
-        checkstyle = self._process_checkstyle_data(out_path_to_xml)
+        self._execute_command(self.runner, all_checks_xml, self.local_path, self.out_path_to_xml)
+        checkstyle = self._process_checkstyle_data(self.out_path_to_xml)
         self.data.set_raw_data(checkstyle)
 
     @staticmethod
@@ -132,8 +134,7 @@ class Checkstyle(Extractor):
         return all_checks_xml
 
     @staticmethod
-    def _execute_command(checkstyle_runner: str, all_checks_xml: str, local_path: str) -> str:
-        f, out_path_to_xml = tempfile.mkstemp()
+    def _execute_command(checkstyle_runner: str, all_checks_xml: str, local_path: str, out_path_to_xml: str) -> str:
         commands = ["java",
                     "-jar", checkstyle_runner,
                     "-c", all_checks_xml,
@@ -199,18 +200,20 @@ class Checkstyle(Extractor):
 class Designite(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("Designite", project, version, repo)
+        self.out_dir = os.path.normpath(Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Designite'])))
 
     def _set_data(self):
         self.data = CompositeData()
 
     def _extract(self):
-        out_dir = self._execute_command(self.runner, self.local_path)
-        design_code_smells = self._extract_design_code_smells(out_dir)
-        implementation_code_smells = self._extract_implementation_code_smells(out_dir)
-        organic_type_code_smells = self._extract_organic_type_code_smells(out_dir)
-        organic_method_code_smells = self._extract_organic_method_code_smells(out_dir)
-        type_metrics = self._extract_type_metrics(out_dir)
-        method_metrics = self._extract_method_metrics(out_dir)
+        self._execute_command(self.runner, self.local_path, self.out_dir)
+        design_code_smells = self._extract_design_code_smells()
+        implementation_code_smells = self._extract_implementation_code_smells()
+        organic_type_code_smells = self._extract_organic_type_code_smells()
+        organic_method_code_smells = self._extract_organic_method_code_smells()
+        type_metrics = self._extract_type_metrics()
+        method_metrics = self._extract_method_metrics()
         self.data \
             .add(DesigniteDesignSmellsData(self.project, self.version, data=design_code_smells)) \
             .add(DesigniteImplementationSmellsData(self.project, self.version, data=implementation_code_smells)) \
@@ -220,8 +223,7 @@ class Designite(Extractor):
             .add(DesigniteMethodMetricsData(self.project, self.version, data=method_metrics))
 
     @staticmethod
-    def _execute_command(designite_runner, local_path):
-        out_dir = os.path.normpath(Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Designite'])))
+    def _execute_command(designite_runner, local_path, out_dir):
         Config.assert_dir_exists(out_dir)
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
@@ -231,8 +233,8 @@ class Designite(Extractor):
         p.communicate()
         return out_dir
 
-    def _extract_design_code_smells(self, out_dir):
-        path = os.path.join(out_dir, r"designCodeSmells.csv")
+    def _extract_design_code_smells(self):
+        path = os.path.join(self.out_dir, r"designCodeSmells.csv")
         if not os.path.exists(path):
             return {}
         keys_columns = ["Package Name", "Type Name"]
@@ -242,8 +244,8 @@ class Designite(Extractor):
         design_smells = self._get_smells_dict(df, smells_columns)
         return design_smells
 
-    def _extract_implementation_code_smells(self, out_dir):
-        path = os.path.join(out_dir, r"implementationCodeSmells.csv")
+    def _extract_implementation_code_smells(self):
+        path = os.path.join(self.out_dir, r"implementationCodeSmells.csv")
         if not os.path.exists(path):
             return {}
         keys_columns = ["Package Name", "Type Name", "Method Name"]
@@ -253,8 +255,8 @@ class Designite(Extractor):
         implementation_smells = self._get_smells_dict(df, smells_columns)
         return implementation_smells
 
-    def _extract_organic_type_code_smells(self, out_dir):
-        path = os.path.join(out_dir, r"organicTypeCodeSmells.csv")
+    def _extract_organic_type_code_smells(self):
+        path = os.path.join(self.out_dir, r"organicTypeCodeSmells.csv")
         if not os.path.exists(path):
             return {}
         keys_columns = ["Package Name", "Type Name"]
@@ -264,8 +266,8 @@ class Designite(Extractor):
         organic_type_smells = self._get_smells_dict(df, smells_columns)
         return organic_type_smells
 
-    def _extract_organic_method_code_smells(self, out_dir):
-        path = os.path.join(out_dir, r"organicMethodCodeSmells.csv")
+    def _extract_organic_method_code_smells(self):
+        path = os.path.join(self.out_dir, r"organicMethodCodeSmells.csv")
         if not os.path.exists(path):
             return {}
         keys_columns = ["Package Name", "Type Name", "Method Name"]
@@ -275,8 +277,8 @@ class Designite(Extractor):
         organic_method_smells = self._get_smells_dict(df, smells_columns)
         return organic_method_smells
 
-    def _extract_type_metrics(self, out_dir):
-        path = os.path.join(out_dir, r"typeMetrics.csv")
+    def _extract_type_metrics(self):
+        path = os.path.join(self.out_dir, r"typeMetrics.csv")
         if not os.path.exists(path):
             return {}
         keys_columns = ["Package Name", "Type Name"]
@@ -285,8 +287,8 @@ class Designite(Extractor):
         type_metrics = self._get_metrics_dict(df)
         return type_metrics
 
-    def _extract_method_metrics(self, out_dir):
-        path = os.path.join(out_dir, r"methodMetrics.csv")
+    def _extract_method_metrics(self):
+        path = os.path.join(self.out_dir, r"methodMetrics.csv")
         if not os.path.exists(path):
             return {}
         keys_columns = ["Package Name", "Type Name", "MethodName"]
@@ -334,21 +336,23 @@ class Designite(Extractor):
 class SourceMonitor(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("SourceMonitor", project, version, repo)
+        self.out_dir = os.path.normpath(Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['SourceMonitor'])))
+
 
     def _set_data(self):
         self.data = CompositeData()
 
     def _extract(self):
         if os.name == "nt":
-            out_dir = self._execute_command(self.runner, self.local_path)
-            source_monitor_files, source_monitor = self._process_metrics(out_dir)
+            self._execute_command(self.runner, self.local_path, self.out_dir)
+            source_monitor_files, source_monitor = self._process_metrics()
             self.data \
                 .add(SourceMonitorFilesData(self.project, self.version, data=source_monitor_files)) \
                 .add(SourceMonitorData(self.project, self.version, data=source_monitor))
 
     @staticmethod
-    def _execute_command(source_monitor_runner, local_path):
-        out_dir = tempfile.mkdtemp()
+    def _execute_command(source_monitor_runner, local_path, out_dir):
         xml = source_monitor_xml.xml \
             .replace("verP", out_dir) \
             .replace("verREPO", local_path)
@@ -359,8 +363,8 @@ class SourceMonitor(Extractor):
         Popen([source_monitor_runner, "/C", xml_path]).communicate()
         return out_dir
 
-    def _process_metrics(self, out_dir):
-        files_path = os.path.join(out_dir, "source_monitor_classes.csv")
+    def _process_metrics(self):
+        files_path = os.path.join(self.out_dir, "source_monitor_classes.csv")
         files_df = pd.read_csv(files_path, encoding = "ISO-8859-8", error_bad_lines=False)
         files_df["Maximum Block Depth"] = files_df["Maximum Block Depth"].apply(lambda x: float(str(x).replace('+', '')))
         cols_to_drop = ["Project Name", "Checkpoint Name", "Created On"]
@@ -373,7 +377,7 @@ class SourceMonitor(Extractor):
                 dict(zip(files_cols, list(x[1].drop("File Name"))))
             ), files_df.iterrows()))
 
-        methods_path = os.path.join(out_dir, "source_monitor_methods.csv")
+        methods_path = os.path.join(self.out_dir, "source_monitor_methods.csv")
         methods_df = pd.read_csv(methods_path, encoding = "ISO-8859-8", error_bad_lines=False)
         for i in cols_to_drop:
             methods_df = methods_df.drop(i, axis=1)
@@ -387,7 +391,6 @@ class SourceMonitor(Extractor):
                 methods_cols,
                 list(x[1].drop("File Name").drop("Method"))))),
                                   methods_df.iterrows()))
-        shutil.rmtree(out_dir)
         return source_monitor_files, source_monitor
 
     @staticmethod
@@ -407,27 +410,27 @@ class SourceMonitor(Extractor):
 class CK(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("CK", project, version, repo)
+        self.out_dir = os.path.normpath(Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['CK'])))
 
     def _set_data(self):
         self.data = CKData(self.project, self.version)
 
     def _extract(self):
-        out_dir = self._execute_command(self.runner, self.local_path)
-        ck = self._process_metrics(out_dir)
+        self._execute_command(self.runner, self.local_path, self.out_dir)
+        ck = self._process_metrics()
         self.data.set_raw_data(ck)
 
     @staticmethod
-    def _execute_command(ck_runner, local_path):
-        out_dir = tempfile.mkdtemp()
+    def _execute_command(ck_runner, local_path, out_dir):
         project_path = os.path.join(os.getcwd(), local_path)
         command = ["java", "-jar", ck_runner, project_path, "True"]
         Popen(command, cwd=out_dir).communicate()
         return out_dir
 
-    def _process_metrics(self, out_dir):
+    def _process_metrics(self):
         ck = {}
-
-        df_path = os.path.join(out_dir, "method.csv")
+        df_path = os.path.join(self.out_dir, "method.csv")
         df = pd.read_csv(df_path)
         df = df.drop(['class', "method"], axis=1)
         df['method_id'] = df.apply(lambda x:
@@ -438,8 +441,6 @@ class CK(Extractor):
         df.apply(lambda x:
                  ck.setdefault(x["method_id"], x.drop("method_id")),
                  axis=1)
-
-        shutil.rmtree(out_dir)
         return ck
 
 
