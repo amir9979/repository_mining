@@ -98,12 +98,16 @@ class Bugged(Extractor):
         key = 'file_name'
         if 'method_id' in df.columns:
             key = 'method_id'        
-        df['full_id'] = df.apply(lambda x: self.file_analyser.get_closest_id(x[key]), axis=1)
-        df = df.drop([key], axis=1)
-        key = 'full_id'
+        #df['full_id'] = df.apply(lambda x: self.file_analyser.get_closest_id(x[key]), axis=1)
+        #df = df.drop([key], axis=1)
+        #key = 'full_id'
         bugged = df.groupby(key).apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
-        self.data.set_raw_data(bugged)
-
+        print(bugged)
+        new_and_better_bugged= {}
+        for key, value in bugged.items():
+            new_and_better_bugged[self.file_analyser.get_closest_id(key)] = value
+        print(new_and_better_bugged)
+        self.data.set_raw_data(new_and_better_bugged)
 
 class BuggedMethods(Extractor):
     def __init__(self, project: Project, version, repo=None):
@@ -502,7 +506,9 @@ class Halstead(Extractor):
 
     def _extract(self):
         halstead = metrics_for_project(self.local_path)
+        print(halstead)
         new_and_better_halstead = {}
         for key, value in halstead.items():
             new_and_better_halstead[self.file_analyser.get_closest_id(key)] = value
+        print(new_and_better_halstead)
         self.data.set_raw_data(new_and_better_halstead)
