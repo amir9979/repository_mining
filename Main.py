@@ -121,8 +121,15 @@ class Main():
         aggregated_methods_df = self.aggrate_methods_df(methods_df)
 
         classes_df.dropna(inplace=True)
+        
+        aggregated_methods_df.to_csv(os.path.join(intermediate_dir, version + "aggregated_methods_df.csv"), index=False, sep=';')
+        classes_df.to_csv(os.path.join(intermediate_dir, version + "classes_df.csv"), index=False, sep=';')
+
         classes_df = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
 
+        classes_df.to_csv(os.path.join(intermediate_dir, version + "merged.csv"), index=False, sep=';')
+
+        
         classes_df = self.fillna(classes_df)
         classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False, sep=';')
 
