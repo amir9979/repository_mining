@@ -66,6 +66,7 @@ class JavaParserFileAnalyser(FileAnalyser):
         return parser_df
 
     def get_closest_id(self, file_name, line=0):
+        file_name = os.path.normpath(file_name) 
         relative_file_name = file_name.replace(os.path.join(self.local_path, ""), "")
         cond = self.parser_df['File Path'] == relative_file_name
         df = self.parser_df.loc[cond]
