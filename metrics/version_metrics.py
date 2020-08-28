@@ -94,11 +94,12 @@ class Bugged(Extractor):
         extractor.extract()
         path = extractor.get_bugged_files_path(self.version, True)
         df = pd.read_csv(path, sep=';')
-        #key = 'file_name'
-        #if 'method_id' in df.columns:
-        #    key = 'method_id'        
-        df['full_id'] = df.apply(lambda x: self.file_analyser.get_closest_id(x['file_name']), axis=1)
-        df = df.drop(['file_name'], axis=1)
+        print(df)
+        key = 'file_name'
+        if 'method_id' in df.columns:
+            key = 'method_id'        
+        df['full_id'] = df.apply(lambda x: self.file_analyser.get_closest_id(x[key]), axis=1)
+        df = df.drop([key], axis=1)
         key = 'full_id'
         bugged = df.groupby(key).apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
         self.data.set_raw_data(bugged)
