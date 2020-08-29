@@ -102,11 +102,17 @@ class Bugged(Extractor):
         #df = df.drop([key], axis=1)
         #key = 'full_id'
         bugged = df.groupby(key).apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
-        print(bugged)
+        print(len(bugged))
         new_and_better_bugged= {}
+        count = 0
         for key, value in bugged.items():
-            new_and_better_bugged[self.file_analyser.get_closest_id(key)] = value
-        print(new_and_better_bugged)
+            new_key = self.file_analyser.get_closest_id(key)
+            if new_key is not None:
+                new_and_better_bugged[new_key] = value
+            else:
+                count = count+1
+        print(len(new_and_better_bugged))
+        print("deleted: "+ str(count))
         self.data.set_raw_data(new_and_better_bugged)
 
 class BuggedMethods(Extractor):
@@ -392,6 +398,9 @@ class SourceMonitor(Extractor):
             files_df = files_df.drop(i, axis=1)
         files_cols = list(files_df.rename(columns={"Statements":"FileStatements"}).columns.drop("File Name"))
         files_df['full_id'] = files_df.apply(lambda x: self.file_analyser.get_closest_id(x['File Name']), axis=1)
+        print(files_df.shape)
+        files_df = files_df.dropna()
+        print(files_df.shape)
         files_df = files_df.drop(['File Name'], axis=1)
         source_monitor_files = dict(
             map(lambda x: (
@@ -508,7 +517,13 @@ class Halstead(Extractor):
         halstead = metrics_for_project(self.local_path)
         print(halstead)
         new_and_better_halstead = {}
+        count = 0
         for key, value in halstead.items():
-            new_and_better_halstead[self.file_analyser.get_closest_id(key)] = value
+            new_key = self.file_analyser.get_closest_id(key)
+            if new_key is not None:
+                new_and_better_halstead[new_key] = value
+            else:
+                count = count+1        
         print(new_and_better_halstead)
+        print(count)
         self.data.set_raw_data(new_and_better_halstead)
