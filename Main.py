@@ -88,6 +88,10 @@ class Main():
         return pd.DataFrame(data)
 
     def fillna(self, df):
+        if 'Bugged' in df:
+            df = df[df['Bugged'].notna()]
+        if 'BuggedMethods' in df :
+            df = df[df['BuggedMethods'].notna()]
         for col in df:
             dt = df[col].dtype
             if dt == int or dt == float:
