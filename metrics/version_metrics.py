@@ -521,7 +521,7 @@ class Halstead(Extractor):
 
     def _extract(self):
         halstead = metrics_for_project(self.local_path)
-        print(halstead)
+        #print(halstead)
         new_and_better_halstead = {}
         count = 0
         for key, value in halstead.items():
@@ -530,6 +530,6 @@ class Halstead(Extractor):
                 new_and_better_halstead[new_key] = value
             else:
                 count = count+1        
-        print(new_and_better_halstead)
-        print(count)
+        #print(new_and_better_halstead)
+        print("deleted in halstead: " + str(count))
         self.data.set_raw_data(new_and_better_halstead)
