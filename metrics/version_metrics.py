@@ -94,7 +94,6 @@ class Bugged(Extractor):
         extractor.extract()
         path = extractor.get_bugged_files_path(self.version, True)
         df = pd.read_csv(path, sep=';')
-        print(df)
         key = 'file_name'
         if 'method_id' in df.columns:
             key = 'method_id'        
@@ -326,11 +325,19 @@ class Designite(Extractor):
     def _process_keys(df, keys_columns, local_path):
         df = df.drop(r"Project Name", axis=1)
         df = df.dropna()
-        df["id"] = df.apply(
-            lambda x: ".".join(map(lambda y: x[y], keys_columns)), axis=1)
-        df["id"] = df["id"].apply(lambda x: x.replace('.java.', '.java@', 1))
-        base_dir = os.path.join(os.getcwd(), local_path, '')
-        df["id"] = df["id"].apply(lambda x: x.replace(base_dir, ''))
+        df["id"] = df.apply(lambda x: "\\".join(map(lambda y: x[y], keys_columns)), axis=1)
+        df["id"] = df["id"].apply(lambda x: x.replace('.', '\\'))
+        #print(df["id"])
+        df['full_id'] = df.apply(lambda x: self.file_analyser.get_closest_id(x['id']), axis=1)
+        print(df.shape)
+        df = df.dropna()
+        print(df.shape)
+        
+        df = df.drop(['id'], axis=1)
+        df = df.rename(columns = {"full_id":"id"}) 
+
+        #base_dir = os.path.join(os.getcwd(), local_path, '')
+        #df["id"] = df["id"].apply(lambda x: x.replace(base_dir, ''))
         for i in keys_columns:
             df = df.drop(i, axis=1)
         return df
