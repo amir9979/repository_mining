@@ -124,7 +124,7 @@ class Main():
         methods_df = self.fillna(methods_df)
         aggregated_methods_df = self.aggrate_methods_df(methods_df)
 
-        classes_df.dropna(inplace=True)
+        classes_df = self.fillna(classes_df)
         
         aggregated_methods_df.to_csv(os.path.join(intermediate_dir, version + "aggregated_methods_df.csv"), index=False, sep=';')
         classes_df.to_csv(os.path.join(intermediate_dir, version + "classes_df.csv"), index=False, sep=';')
@@ -152,7 +152,9 @@ class Main():
         Path(classes_dataset_dir).mkdir(parents=True, exist_ok=True)
 
         classes_training = pd.concat(classes_datasets[:-1], ignore_index=True).drop(["File", "Class", "Method_ids"], axis=1, errors='ignore')
+        classes_training = self.fillna(classes_training)
         classes_testing = classes_datasets[-1].drop("Method_ids", axis=1, errors='ignore')
+        classes_testing = self.fillna(classes_testing)
         file_names = classes_testing.pop("File").values.tolist()
         classes_names = classes_testing.pop("Class").values.tolist()
         classes_testing_names = list(map("@".join, zip(file_names, classes_names)))
@@ -165,7 +167,9 @@ class Main():
         methods_dataset_dir = os.path.join(dataset_dir, "methods")
         Path(methods_dataset_dir).mkdir(parents=True, exist_ok=True)
         methods_training = pd.concat(methods_datasets[:-1], ignore_index=True).drop("Method_ids", axis=1, errors='ignore')
+        methods_training = self.fillna(methods_training)
         methods_testing = methods_datasets[-1]
+        methods_testing =  self.fillna(methods_testing)
         methods_testing_names = methods_testing.pop("Method_ids").values.tolist()
         return ClassificationInstance(methods_training, methods_testing, methods_testing_names, methods_dataset_dir, label="BuggedMethods")
 
