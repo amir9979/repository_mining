@@ -321,8 +321,7 @@ class Designite(Extractor):
         type_metrics = self._get_metrics_dict(df)
         return type_metrics
 
-    @staticmethod
-    def _process_keys(df, keys_columns, local_path):
+    def _process_keys(self,df, keys_columns, local_path):
         df = df.drop(r"Project Name", axis=1)
         df = df.dropna()
         df["id"] = df.apply(lambda x: "\\".join(map(lambda y: x[y], keys_columns)), axis=1)
