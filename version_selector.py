@@ -124,8 +124,10 @@ class BinSelectVersion(AbstractSelectVersions):
                 java_files = len(list(filter(lambda x: "java" in x, tag.version_files)))
                 if bugged_files * java_files == 0:
                     continue
-                bugged_ratio = 1.0 * bugged_files / java_files
-                bins[int(((bugged_ratio * 100) - start) / step) - 1].append(tag.version._name)
+                bugged_ratio = 100.0 * bugged_files / java_files
+                if bugged_ratio < start or bugged_ratio > stop:
+                    continue
+                bins[int((bugged_ratio - start) / step)].append(tag.version._name)
             for ind, bin_ in enumerate(bins):
                 if len(bin_) < self.version_num:
                     continue
