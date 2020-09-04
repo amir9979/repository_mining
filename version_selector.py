@@ -141,8 +141,8 @@ class BinSelectVersion(AbstractSelectVersions):
                     configuration = {'start': start, 'step': step, 'stop': stop, 'versions': selected_versions}
                     self.selected_versions.append(configuration)
         if len(self.selected_versions) == 0:
-		return None
-	return list(map(lambda x: x['versions'], self.selected_versions))[self.selected_config]
+			return None
+		return list(map(lambda x: x['versions'], self.selected_versions))[self.selected_config]
 
     def _store_versions(self, repo):
         config = Config().config
