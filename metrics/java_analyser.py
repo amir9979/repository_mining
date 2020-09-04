@@ -97,8 +97,8 @@ class JavaParserFileAnalyser(FileAnalyser):
         methods_by_path_and_name = dict()
         for row in self.parser_df.itertuples():
             __, file_path, package_name, type_name, method_name, parameters, __, __, __, __ = row
-            key = (file_path.lower(), type_name.lower() + "." + method_name.lower() + parameters)
-            value = file_path + '@' + package_name + "." + type_name + "." + method_name + parameters
+            key = (str(file_path).lower(), str(type_name).lower() + "." + str(method_name).lower() + str(parameters))
+            value = str(file_path) + '@' + str(package_name) + "." + str(type_name) + "." + str(method_name) + str(parameters)
             methods_by_path_and_name[key] = value
         return methods_by_path_and_name
 
