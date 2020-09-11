@@ -108,7 +108,7 @@ class AbstractSelectVersions(ABC):
 
 
 class BinSelectVersion(AbstractSelectVersions):
-    def __init__(self, repo, tags, versions, version_num, version_type, strict, start=[5, 10, 20, 30, 40], stop=[100], step=[5, 10, 15, 20], selected_config=0):
+    def __init__(self, repo, tags, versions, version_num, version_type, strict, start=[1, 5, 10, 20, 30, 40], stop=[100], step=[5, 10, 15, 20], selected_config=0):
         super().__init__(repo, tags, versions, version_num, version_type, strict)
         self.start = start
         self.stop = stop
