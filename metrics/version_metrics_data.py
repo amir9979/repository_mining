@@ -136,10 +136,16 @@ class CompositeData(Data):
         methods_df = None
 
         if classes_dfs:
-            classes_df = self.merge(['File', 'Class'], classes_dfs)
+            classes_df = classes_dfs.pop(0)
+            while classes_dfs:
+                gc.collect()
+                classes_df = classes_df.merge(classes_dfs.pop(0), on=['File', 'Class'], how='outer')
 
         if files_dfs:
-            classes_df = self.merge(['File'], [classes_df] + files_dfs)
+            classes_df = files_dfs.pop(0) if classes_df is None else classes_df
+            while files_dfs:
+                gc.collect()
+                classes_df = classes_df.merge(files_dfs.pop(0), on=['File'], how='outer')
 
         if methods_dfs:
             methods_df = methods_dfs.pop(0)
@@ -161,12 +167,9 @@ class BuggedData(Data):
     def build(self, values, column_names):
         df = super().build(values, column_names)
         id = df['id'].iteritems()
-        files_id, classes_id = tee(id, 2)
-        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
-        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
+        files = pd.Series(list(map(lambda x: x[1], id))).values
         df = df.drop(columns='id')
-        df.insert(0, 'Class',  classes)
-        df.insert(0, 'File',  files)
+        df.insert(0, 'File', files)
         df = df.rename(columns=column_names)
         return df
 
@@ -367,16 +370,8 @@ class SourceMonitorFilesData(Data):
 
 
     def build(self, values, column_names):
-        df = super().build(values, column_names)        
-        id = df['id'].iteritems()
-        files_id, classes_id = tee(id, 2)
-        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
-        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
-        df = df.drop(columns='id')
-        df.insert(0, 'Class',  classes)
-        df.insert(0, 'File',  files)
-        df = df.rename(columns=column_names)
-        return df
+        df = super().build(values, column_names)
+        return df.rename(columns={"id": "File"})
 
 
 class SourceMonitorData(Data):
@@ -443,11 +438,8 @@ class HalsteadData(Data):
     def build(self, values, column_names):
         df = super().build(values, column_names)
         id = df['id'].iteritems()
-        files_id, classes_id = tee(id, 2)
-        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
-        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
+        files = pd.Series(list(map(lambda x: x[1], id))).values
         df = df.drop(columns='id')
-        df.insert(0, 'Class',  classes)
         df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
