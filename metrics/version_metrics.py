@@ -1,7 +1,4 @@
 import os
-import shutil
-import tempfile
-import json
 from abc import ABC, abstractmethod
 from subprocess import Popen
 from xml.etree import ElementTree

@@ -101,9 +101,7 @@ class Main():
         return df
 
     def extract_features_to_version(self, classes_data, method_data, version):
-        start = time.time()
         extractors = Extractor.get_all_extractors(self.project, version)
-        print(time.time() - start, "get_all_extractors")
         for extractor in extractors:
             start = time.time()
             extractor.extract()
@@ -160,6 +158,7 @@ class Main():
         classes_testing = self.fillna(classes_testing)
         file_names = classes_testing.pop("File").values.tolist()
         classes_names = classes_testing.pop("Class").values.tolist()
+        print(zip(file_names, classes_names))
         classes_testing_names = list(map("@".join, zip(file_names, classes_names)))
         return ClassificationInstance(classes_training, classes_testing, classes_testing_names, classes_dataset_dir)
 
