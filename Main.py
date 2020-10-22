@@ -158,7 +158,7 @@ class Main():
         classes_testing = self.fillna(classes_testing)
         file_names = classes_testing.pop("File").values.tolist()
         classes_names = classes_testing.pop("Class").values.tolist()
-        print(zip(file_names, classes_names))
+        print(list(zip(file_names, classes_names)))
         classes_testing_names = list(map("@".join, zip(file_names, classes_names)))
         return ClassificationInstance(classes_training, classes_testing, classes_testing_names, classes_dataset_dir)
 
