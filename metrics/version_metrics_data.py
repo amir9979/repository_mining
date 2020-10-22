@@ -147,7 +147,7 @@ class CompositeData(Data):
                 gc.collect()
                 classes_df = classes_df.merge(files_dfs.pop(0), on=['File'], how='outer')
 
-        if methods_dfs:source_monitor_classes
+        if methods_dfs:
             methods_df = methods_dfs.pop(0)
             while methods_dfs:
                 gc.collect()
