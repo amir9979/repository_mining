@@ -159,7 +159,7 @@ class Main():
         file_names = classes_testing.pop("File").values.tolist()
         classes_names = classes_testing.pop("Class").values.tolist()
         print(list(zip(file_names, classes_names)))
-        classes_testing_names = list(map("@".join, zip(file_names, classes_names)))
+        classes_testing_names = list(map("@".join, zip(file_names, [x if x in (False, True) else '' for x in classes_names])))
         return ClassificationInstance(classes_training, classes_testing, classes_testing_names, classes_dataset_dir)
 
     def extract_methods_datasets(self, methods_datasets):
