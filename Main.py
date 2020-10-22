@@ -87,7 +87,7 @@ class Main():
             data.append(key_data)
         return pd.DataFrame(data)
 
-    def fillna(self, df):
+    def fillna(self, df, default=False):
         if 'Bugged' in df:
             df = df[df['Bugged'].notna()]
         if 'BuggedMethods' in df :
@@ -97,7 +97,7 @@ class Main():
             if dt == int or dt == float:
                 df[col].fillna(0, inplace=True)
             else:
-                df[col].fillna(False, inplace=True)
+                df[col].fillna(default, inplace=True)
         return df
 
     def extract_features_to_version(self, classes_data, method_data, version):
@@ -155,7 +155,7 @@ class Main():
         classes_training = pd.concat(classes_datasets[:-1], ignore_index=True).drop(["File", "Class", "Method_ids"], axis=1, errors='ignore')
         classes_training = self.fillna(classes_training)
         classes_testing = classes_datasets[-1].drop("Method_ids", axis=1, errors='ignore')
-        classes_testing = self.fillna(classes_testing)
+        classes_testing = self.fillna(classes_testing, default='')
         file_names = classes_testing.pop("File").values.tolist()
         classes_names = classes_testing.pop("Class").values.tolist()
         print(list(zip(file_names, classes_names)))
