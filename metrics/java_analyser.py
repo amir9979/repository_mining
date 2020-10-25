@@ -101,17 +101,17 @@ class JavaParserFileAnalyser(FileAnalyser):
             assert len(ans) == 1
             return list(ans)[0]
 
-def _get_classes_path(self):
-        classes_path = dict()
-        for row in self.parser_df.itertuples():
-            __, file_path, package_name, type_name, __, __, __, __, __, __ = row
-            try:
-                key = package_name + "." + type_name.lower()
-            except Exception:
-                continue
-            value = file_path
-            classes_path[key] = value
-        return classes_path
+    def _get_classes_path(self):
+            classes_path = dict()
+            for row in self.parser_df.itertuples():
+                __, file_path, package_name, type_name, __, __, __, __, __, __ = row
+                try:
+                    key = package_name + "." + type_name.lower()
+                except Exception:
+                    continue
+                value = file_path
+                classes_path[key] = value
+            return classes_path
 
     def _get_methods_by_path_and_name(self):
         methods_by_path_and_name = dict()

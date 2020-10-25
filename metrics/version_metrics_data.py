@@ -11,7 +11,6 @@ from metrics.version_metrics_name import DataNameEnum
 from metrics.version_metrics_name import DataType
 from projects import ProjectName, Project
 import gc
-import tempfile
 
 class Data(ABC):
     def __init__(self, project: Project, version: str):
