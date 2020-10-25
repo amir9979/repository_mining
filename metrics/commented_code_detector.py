@@ -466,7 +466,7 @@ def metrics_for_project(project_path):
     for root, dirs, files in os.walk(project_path):
         for name in files:
             if name.endswith(".java"):
-                full_path = os.path.join(root, name)
+                full_path = os.path.normpath(os.path.join(root, name))
                 ans[full_path[len(project_path)+1:]] = metrics_for_file(full_path)
     return ans
 

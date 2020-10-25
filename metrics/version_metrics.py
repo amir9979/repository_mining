@@ -92,24 +92,9 @@ class Bugged(Extractor):
         path = extractor.get_bugged_files_path(self.version, True)
         df = pd.read_csv(path, sep=';')
         key = 'file_name'
-        if 'method_id' in df.columns:
-            key = 'method_id'        
-        #df['full_id'] = df.apply(lambda x: self.file_analyser.get_closest_id(x[key]), axis=1)
-        #df = df.drop([key], axis=1)
-        #key = 'full_id'
+        assert key in df.columns
         bugged = df.groupby(key).apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
-        print(len(bugged))
-        new_and_better_bugged= {}
-        count = 0
-        for key, value in bugged.items():
-            new_key = self.file_analyser.get_closest_id(key)
-            if new_key is not None:
-                new_and_better_bugged[new_key] = value
-            else:
-                count = count+1
-        print(len(new_and_better_bugged))
-        print("deleted: "+ str(count))
-        self.data.set_raw_data(new_and_better_bugged)
+        self.data.set_raw_data(bugged)
 
 class BuggedMethods(Extractor):
     def __init__(self, project: Project, version, repo=None):
@@ -248,7 +233,6 @@ class Designite(Extractor):
         Config.assert_dir_exists(out_dir)
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
-        print(out_dir)
         commands = ["java", "-jar", designite_runner, "-i", local_path, "-o", out_dir]
         p = Popen(commands)
         p.communicate()
@@ -261,7 +245,7 @@ class Designite(Extractor):
         keys_columns = ["Package Name", "Type Name"]
         smells_columns = design_smells_list
         df = pd.read_csv(path)
-        df = self._process_keys(df, keys_columns, self.local_path)
+        df = self._process_keys(df, keys_columns)
         design_smells = self._get_smells_dict(df, smells_columns)
         return design_smells
 
@@ -272,7 +256,7 @@ class Designite(Extractor):
         keys_columns = ["Package Name", "Type Name", "Method Name"]
         smells_columns = implementation_smells_list
         df = pd.read_csv(path)
-        df = self._process_keys(df, keys_columns, self.local_path)
+        df = self._process_keys(df, keys_columns)
         implementation_smells = self._get_smells_dict(df, smells_columns)
         return implementation_smells
 
@@ -283,7 +267,7 @@ class Designite(Extractor):
         keys_columns = ["Package Name", "Type Name"]
         smells_columns = organic_type_smells_list
         df = pd.read_csv(path)
-        df = self._process_keys(df, keys_columns, self.local_path)
+        df = self._process_keys(df, keys_columns)
         organic_type_smells = self._get_smells_dict(df, smells_columns)
         return organic_type_smells
 
@@ -294,7 +278,7 @@ class Designite(Extractor):
         keys_columns = ["Package Name", "Type Name", "Method Name"]
         smells_columns = organic_method_smells_list
         df = pd.read_csv(path)
-        df = self._process_keys(df, keys_columns, self.local_path)
+        df = self._process_keys(df, keys_columns)
         organic_method_smells = self._get_smells_dict(df, smells_columns)
         return organic_method_smells
 
@@ -304,7 +288,7 @@ class Designite(Extractor):
             return {}
         keys_columns = ["Package Name", "Type Name"]
         df = pd.read_csv(path)
-        df = self._process_keys(df, keys_columns, self.local_path)
+        df = self._process_keys(df, keys_columns)
         type_metrics = self._get_metrics_dict(df)
         return type_metrics
 
@@ -314,26 +298,14 @@ class Designite(Extractor):
             return {}
         keys_columns = ["Package Name", "Type Name", "MethodName"]
         df = pd.read_csv(path)
-        df = self._process_keys(df, keys_columns, self.local_path)
+        df = self._process_keys(df, keys_columns)
         type_metrics = self._get_metrics_dict(df)
         return type_metrics
 
-    def _process_keys(self,df, keys_columns, local_path):
+    def _process_keys(self,df, keys_columns):
         df = df.drop(r"Project Name", axis=1)
         df = df.dropna()
-        df["id"] = df.apply(lambda x: "\\".join(map(lambda y: x[y], keys_columns)), axis=1)
-        df["id"] = df["id"].apply(lambda x: x.replace('.', '\\'))
-        #print(df["id"])
-        df['full_id'] = df.apply(lambda x: self.file_analyser.get_closest_id(x['id']), axis=1)
-        print(df.shape)
-        df = df.dropna()
-        print(df.shape)
-        
-        df = df.drop(['id'], axis=1)
-        df = df.rename(columns = {"full_id":"id"}) 
-
-        #base_dir = os.path.join(os.getcwd(), local_path, '')
-        #df["id"] = df["id"].apply(lambda x: x.replace(base_dir, ''))
+        df["id"] = df.apply(lambda x: self.file_analyser.get_file_path_by_designite(*map(lambda y: x[y], keys_columns)), axis=1)
         for i in keys_columns:
             df = df.drop(i, axis=1)
         return df
@@ -400,10 +372,8 @@ class SourceMonitor(Extractor):
         for i in cols_to_drop + ['Name of Most Complex Method*']:
             files_df = files_df.drop(i, axis=1)
         files_cols = list(files_df.rename(columns={"Statements":"FileStatements"}).columns.drop("File Name"))
-        files_df['full_id'] = files_df.apply(lambda x: self.file_analyser.get_closest_id(x['File Name']), axis=1)
-        print(files_df.shape)
+        files_df['full_id'] = files_df.apply(lambda x: x['File Name'], axis=1)
         files_df = files_df.dropna()
-        print(files_df.shape)
         files_df = files_df.drop(['File Name'], axis=1)
         source_monitor_files = dict(
             map(lambda x: (
@@ -517,16 +487,4 @@ class Halstead(Extractor):
         self.data = HalsteadData(self.project, self.version)
 
     def _extract(self):
-        halstead = metrics_for_project(self.local_path)
-        #print(halstead)
-        new_and_better_halstead = {}
-        count = 0
-        for key, value in halstead.items():
-            new_key = self.file_analyser.get_closest_id(key)
-            if new_key is not None:
-                new_and_better_halstead[new_key] = value
-            else:
-                count = count+1        
-        #print(new_and_better_halstead)
-        print("deleted in halstead: " + str(count))
-        self.data.set_raw_data(new_and_better_halstead)
+        self.data.set_raw_data(metrics_for_project(self.local_path))

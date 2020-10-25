@@ -81,7 +81,27 @@ class JavaParserFileAnalyser(FileAnalyser):
         closest_id = file_path + '@' + package_name + "." + type_name + "." + method_name + parameters
         return closest_id
 
-    def _get_classes_path(self):
+    def get_file_path_by_designite(self, package_name, type_name, method_name=None):
+        cond = self.parser_df['Package Name'].str.contains(package_name, case=False, regex=False)
+        df = self.parser_df.loc[cond]
+        cond = df['Type Name'].str.contains(type_name, case=False, regex=False)
+        df = df.loc[cond]
+        if method_name:
+            cond = df['Method Name'].str.contains(method_name, case=False, regex=False)
+            df = df.loc[cond]
+            file_path = str(df["File Path"].values[0])
+            package_name = str(df["Package Name"].values[0])
+            type_name = str(df["Type Name"].values[0])
+            method_name = str(df["Method Name"].values[0])
+            parameters = str(df["Parameters"].values[0])
+            closest_id = file_path + '@' + package_name + "." + type_name + "." + method_name + parameters
+            return closest_id
+        else:
+            ans = set(df['File Path'].values.tolist())
+            assert len(ans) == 1
+            return list(ans)[0]
+
+def _get_classes_path(self):
         classes_path = dict()
         for row in self.parser_df.itertuples():
             __, file_path, package_name, type_name, __, __, __, __, __, __ = row
