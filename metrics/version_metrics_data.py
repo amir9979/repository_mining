@@ -16,6 +16,7 @@ import tempfile
 class Data(ABC):
     def __init__(self, project: Project, version: str):
         self.path = self._get_path(self.data_type, project, version)
+        self.describe_path = self.path.replace(".csv", '_describe.csv')
         if self.raw_data is None:
             try:
                 self.data = self._read_data_to_df()
@@ -59,6 +60,7 @@ class Data(ABC):
     def store(self):
         # self.data.dropna(inplace=True)
         self.data.to_csv(self.path, index=False, sep=';')
+        self.data.describe().to_csv(self.describe_path, index=False, sep=';')
 
     @abstractmethod
     def build(self, values, column_names) -> pd.DataFrame:
