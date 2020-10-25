@@ -86,9 +86,13 @@ class JavaParserFileAnalyser(FileAnalyser):
         df = self.parser_df.loc[cond]
         cond = df['Type Name'].str.contains(type_name, case=False, regex=False)
         df = df.loc[cond]
+        if df.empty:
+            return None
         if method_name:
             cond = df['Method Name'].str.contains(method_name, case=False, regex=False)
             df = df.loc[cond]
+            if df.empty:
+                return None
             file_path = str(df["File Path"].values[0])
             package_name = str(df["Package Name"].values[0])
             type_name = str(df["Type Name"].values[0])
@@ -98,7 +102,7 @@ class JavaParserFileAnalyser(FileAnalyser):
             return closest_id
         else:
             ans = set(df['File Path'].values.tolist())
-            assert len(ans) == 1
+            assert len(ans) == 1, (ans, package_name, type_name, method_name)
             return list(ans)[0]
 
     def _get_classes_path(self):
