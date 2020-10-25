@@ -82,14 +82,14 @@ class JavaParserFileAnalyser(FileAnalyser):
         return closest_id
 
     def get_file_path_by_designite(self, package_name, type_name, method_name=None):
-        cond = self.parser_df['Package Name'].str.contains(package_name, case=False, regex=False)
+        cond = self.parser_df['Package Name'].str.equals(package_name, case=False, regex=False)
         df = self.parser_df.loc[cond]
-        cond = df['Type Name'].str.contains(type_name, case=False, regex=False)
+        cond = df['Type Name'].str.equals(type_name, case=False, regex=False)
         df = df.loc[cond]
         if df.empty:
             return None
         if method_name:
-            cond = df['Method Name'].str.contains(method_name, case=False, regex=False)
+            cond = df['Method Name'].str.equals(method_name, case=False, regex=False)
             df = df.loc[cond]
             if df.empty:
                 return None
