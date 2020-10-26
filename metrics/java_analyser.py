@@ -102,6 +102,8 @@ class JavaParserFileAnalyser(FileAnalyser):
             return closest_id
         else:
             ans = set(df['File Path'].values.tolist())
+            if len(ans)> 1:
+                return None
             assert len(ans) == 1, (ans, package_name, type_name, method_name)
             return list(ans)[0]
 
