@@ -230,11 +230,11 @@ class DesigniteDesignSmellsData(Data):
         id = df['id'].iteritems()        
         files_id, packages_id, classes_id = tee(id, 3)
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
-        packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
-        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values        
+        # packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
+        # classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
         df = df.drop(columns='id')
-        df.insert(0, 'Class',  classes)
-        df.insert(0, 'Package',  packages)
+        # df.insert(0, 'Class',  classes)
+        # df.insert(0, 'Package',  packages)
         df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
@@ -277,12 +277,12 @@ class DesigniteOrganicTypeSmellsData(Data):
         packages_id, classes_id,files_id = tee(id, 3)
         
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
-        packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
-        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
+        # packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
+        # classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
        
         df = df.drop(columns='id')
-        df.insert(0, 'Class',  classes)
-        df.insert(0, 'Package',  packages)
+        # df.insert(0, 'Class',  classes)
+        # df.insert(0, 'Package',  packages)
         df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
@@ -327,12 +327,12 @@ class DesigniteTypeMetricsData(Data):
         packages_id, classes_id,files_id = tee(id,3)
         
         files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
-        packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
-        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values        
+        # packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
+        # classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
        
         df = df.drop(columns='id')
-        df.insert(0, 'Class',  classes)
-        df.insert(0, 'Package',  packages)
+        # df.insert(0, 'Class',  classes)
+        # df.insert(0, 'Package',  packages)
         df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)
         return df
