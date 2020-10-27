@@ -492,24 +492,23 @@ class Halstead(Extractor):
 class Jasome(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("Jasome", project, version, repo)
-        self.out_dir = os.path.normpath(Config.get_work_dir_path(
+        self.out_path_to_xml = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Jasome'])))
-        Config.assert_dir_exists(self.out_dir)
 
     def _set_data(self):
         self.data = JasomeData(self.project, self.version)
 
     def _extract(self):
-        self._execute_command(self.runner, self.local_path, self.out_dir)
+        self._execute_command(self.runner, self.local_path, self.out_path_to_xml)
         data = self._process_metrics()
         self.data.set_raw_data(data)
 
     @staticmethod
-    def _execute_command(jasome_runner, local_path, out_dir):
-        command = ["java", "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", local_path, '-o', os.path.join(out_dir, "out.xml")]
+    def _execute_command(jasome_runner, local_path, out_path_to_xml):
+        command = ["java", "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", local_path, '-o', out_path_to_xml]
         Popen(command).communicate()
 
     def _process_metrics(self):
-        with open(os.path.join(self.out_dir, "out.xml")) as file:
+        with open(self.out_path_to_xml) as file:
             data = None
         return data
