@@ -474,8 +474,7 @@ class Mood(Extractor):
         with open(os.path.join(self.out_dir, "_metrics.json")) as file:
             mood = dict(map(lambda x: (
                 self.file_analyser.classes_paths.get(x[0].lower()),
-                x[1]),
-                            json.loads(file.read()).items()))
+                x[1]), json.loads(file.read()).items()))
         return mood
 
 
