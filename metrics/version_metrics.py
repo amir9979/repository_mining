@@ -461,19 +461,19 @@ class Mood(Extractor):
         self.data = MoodData(self.project, self.version)
 
     def _extract(self):
-        self._execute_command(self.runner, self.local_path)
+        self._execute_command(self.runner, self.local_path, self.out_dir)
         mood = self._process_metrics()
         self.data.set_raw_data(mood)
 
-    def _execute_command(self, mood_runner, local_path):
-        command = ["java", "-jar", mood_runner, local_path, self.out_dir]
+    @staticmethod
+    def _execute_command(mood_runner, local_path, out_dir):
+        command = ["java", "-jar", mood_runner, local_path, out_dir]
         Popen(command).communicate()
 
-    # TODO There is a but with the Mood id
     def _process_metrics(self):
         with open(os.path.join(self.out_dir, "_metrics.json")) as file:
             mood = dict(map(lambda x: (
-                self.file_analyser.classes_paths.get(x[0].lower()),
+                self.file_analyser.classes_paths.get(x[0]),
                 x[1]), json.loads(file.read()).items()))
         return mood
 
