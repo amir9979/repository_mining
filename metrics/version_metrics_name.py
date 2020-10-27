@@ -16,6 +16,7 @@ class DataType(Enum):
     HalsteadDataType = "halstead"
     BuggedDataType = "bugged"
     BuggedMethodsDataType = "bugged_methods"
+    JasomeDataType = "jasome"
 
 
 class DataName:

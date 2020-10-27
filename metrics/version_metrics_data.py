@@ -429,6 +429,17 @@ class HalsteadData(Data):
         return df
 
 
+class JasomeData(Data):
+    def __init__(self, project, version, data=None):
+        self.data_type = DataType.JasomeDataType.value
+        self.raw_data = data
+        super().__init__(project, version)
+
+    def build(self, values, column_names):
+        df = super().build(values, column_names)
+        return df
+
+
 class DataBuilder:
     def __init__(self, project: ProjectName, version):
         self.data_collection = CompositeData().add_all(project, version)
