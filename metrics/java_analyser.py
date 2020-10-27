@@ -112,7 +112,7 @@ class JavaParserFileAnalyser(FileAnalyser):
             for row in self.parser_df.itertuples():
                 __, file_path, package_name, type_name, __, __, __, __, __, __ = row
                 try:
-                    key = package_name + "." + type_name.lower()
+                    key = package_name + "." + type_name
                 except Exception:
                     continue
                 value = file_path
