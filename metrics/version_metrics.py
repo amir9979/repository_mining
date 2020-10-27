@@ -1,4 +1,5 @@
 import os
+import json
 from abc import ABC, abstractmethod
 from subprocess import Popen
 from xml.etree import ElementTree
@@ -12,7 +13,7 @@ from metrics.version_metrics_data import (
     Data,
     CompositeData, HalsteadData, CKData, SourceMonitorFilesData, SourceMonitorData, DesigniteDesignSmellsData,
     DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData,
-    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData, BuggedMethodData)
+    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData, BuggedMethodData, MoodData)
 from projects import Project
 from repo import Repo
 from .commented_code_detector import metrics_for_project
@@ -451,31 +452,30 @@ class CK(Extractor):
 class Mood(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("MOOD", project, version, repo)
+        self.out_dir = os.path.normpath(Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['MOOD'])))
+        Config.assert_dir_exists(self.out_dir)
+
 
     def _set_data(self):
-        from metrics.version_metrics_data import MoodData
         self.data = MoodData(self.project, self.version)
 
     def _extract(self):
-        out_dir = self._execute_command(self.runner, self.local_path)
-        mood = self._process_metrics(out_dir)
+        self._execute_command(self.runner, self.local_path)
+        mood = self._process_metrics()
         self.data.set_raw_data(mood)
 
-    @staticmethod
-    def _execute_command(mood_runner, local_path):
-        out_dir = tempfile.mkdtemp()
-        command = ["java", "-jar", mood_runner, local_path, out_dir]
+    def _execute_command(self, mood_runner, local_path):
+        command = ["java", "-jar", mood_runner, local_path, self.out_dir]
         Popen(command).communicate()
-        return out_dir
 
     # TODO There is a but with the Mood id
-    def _process_metrics(self, out_dir):
-        with open(os.path.join(out_dir, "_metrics.json")) as file:
+    def _process_metrics(self):
+        with open(os.path.join(self.out_dir, "_metrics.json")) as file:
             mood = dict(map(lambda x: (
                 self.file_analyser.classes_paths.get(x[0].lower()),
                 x[1]),
                             json.loads(file.read()).items()))
-        shutil.rmtree(out_dir)
         return mood
 
 
