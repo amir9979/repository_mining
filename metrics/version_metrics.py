@@ -448,35 +448,35 @@ class CK(Extractor):
         return ck
 
 
-# class Mood(Extractor):
-#     def __init__(self, project: Project, version, repo=None):
-#         super().__init__("MOOD", project, version, repo)
-#
-#     def _set_data(self):
-#         from metrics.version_metrics_data import MoodData
-#         self.data = MoodData(self.project, self.version)
-#
-#     def _extract(self):
-#         out_dir = self._execute_command(self.runner, self.local_path)
-#         mood = self._process_metrics(out_dir)
-#         self.data.set_raw_data(mood)
-#
-#     @staticmethod
-#     def _execute_command(mood_runner, local_path):
-#         out_dir = tempfile.mkdtemp()
-#         command = ["java", "-jar", mood_runner, local_path, out_dir]
-#         Popen(command).communicate()
-#         return out_dir
-#
-#     # TODO There is a but with the Mood id
-#     def _process_metrics(self, out_dir):
-#         with open(os.path.join(out_dir, "_metrics.json")) as file:
-#             mood = dict(map(lambda x: (
-#                 self.file_analyser.classes_paths.get(x[0].lower()),
-#                 x[1]),
-#                             json.loads(file.read()).items()))
-#         shutil.rmtree(out_dir)
-#         return mood
+class Mood(Extractor):
+    def __init__(self, project: Project, version, repo=None):
+        super().__init__("MOOD", project, version, repo)
+
+    def _set_data(self):
+        from metrics.version_metrics_data import MoodData
+        self.data = MoodData(self.project, self.version)
+
+    def _extract(self):
+        out_dir = self._execute_command(self.runner, self.local_path)
+        mood = self._process_metrics(out_dir)
+        self.data.set_raw_data(mood)
+
+    @staticmethod
+    def _execute_command(mood_runner, local_path):
+        out_dir = tempfile.mkdtemp()
+        command = ["java", "-jar", mood_runner, local_path, out_dir]
+        Popen(command).communicate()
+        return out_dir
+
+    # TODO There is a but with the Mood id
+    def _process_metrics(self, out_dir):
+        with open(os.path.join(out_dir, "_metrics.json")) as file:
+            mood = dict(map(lambda x: (
+                self.file_analyser.classes_paths.get(x[0].lower()),
+                x[1]),
+                            json.loads(file.read()).items()))
+        shutil.rmtree(out_dir)
+        return mood
 
 
 class Halstead(Extractor):

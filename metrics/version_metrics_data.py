@@ -377,7 +377,6 @@ class CKData(Data):
         self.data_type = DataType.CKDataType.value
         self.raw_data = data
         super().__init__(project, version)
-        pass
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
@@ -398,21 +397,20 @@ class CKData(Data):
         return df
 
 
-# class MoodData(Data):
-#     def __init__(self, project, version, data=None):
-#         self.data_type = DataType.MoodDataType.value
-#         self.raw_data = data
-#         super().__init__(project, version)
-#         pass
-#
-#     def build(self, values, column_names):
-#         df = super().build(values, column_names)
-#         id = df['id'].iteritems()
-#         files = pd.Series(list(map(lambda x: x[1], id))).values
-#         df = df.drop(columns='id')
-#         df.insert(0, 'File',  files)
-#         df = df.rename(columns=column_names)
-#         return df
+class MoodData(Data):
+    def __init__(self, project, version, data=None):
+        self.data_type = DataType.MoodDataType.value
+        self.raw_data = data
+        super().__init__(project, version)
+
+    def build(self, values, column_names):
+        df = super().build(values, column_names)
+        id = df['id'].iteritems()
+        files = pd.Series(list(map(lambda x: x[1], id))).values
+        df = df.drop(columns='id')
+        df.insert(0, 'File',  files)
+        df = df.rename(columns=column_names)
+        return df
 
 
 class HalsteadData(Data):
@@ -420,7 +418,6 @@ class HalsteadData(Data):
         self.data_type = DataType.HalsteadDataType.value
         self.raw_data = data
         super().__init__(project, version)
-        pass
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
