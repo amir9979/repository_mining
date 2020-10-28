@@ -13,7 +13,7 @@ from metrics.version_metrics_data import (
     Data,
     CompositeData, HalsteadData, CKData, SourceMonitorFilesData, SourceMonitorData, DesigniteDesignSmellsData,
     DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData,
-    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData, BuggedMethodData, MoodData, JasomeData)
+    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData, BuggedMethodData, MoodData, JasomeFilesData, JasomeMethodsData)
 from projects import Project
 from repo import Repo
 from .commented_code_detector import metrics_for_project
@@ -473,7 +473,7 @@ class Mood(Extractor):
     def _process_metrics(self):
         with open(os.path.join(self.out_dir, "_metrics.json")) as file:
             mood = dict(map(lambda x: (
-                self.file_analyser.classes_paths.get(x[0]),
+                self.file_analyser.classes_paths.get(x[0].lower()),
                 x[1]), json.loads(file.read()).items()))
         return mood
 
@@ -496,12 +496,14 @@ class Jasome(Extractor):
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Jasome'])))
 
     def _set_data(self):
-        self.data = JasomeData(self.project, self.version)
+        self.data = CompositeData()
 
     def _extract(self):
         self._execute_command(self.runner, self.local_path, self.out_path_to_xml)
-        data = self._process_metrics()
-        self.data.set_raw_data(data)
+        classes_metrics, methods_metrics = self._process_metrics()
+        self.data \
+            .add(JasomeFilesData(self.project, self.version, data=classes_metrics)) \
+            .add(JasomeMethodsData(self.project, self.version, data=methods_metrics))
 
     @staticmethod
     def _execute_command(jasome_runner, local_path, out_path_to_xml):
@@ -509,6 +511,13 @@ class Jasome(Extractor):
         Popen(command).communicate()
 
     def _process_metrics(self):
-        with open(self.out_path_to_xml) as file:
-            data = None
-        return data
+        from metrics.jasome_xml_parser import parse
+        classes_metrics, methods_metrics = parse(self.out_path_to_xml)
+        methods_metrics["File"] = methods_metrics.apply(lambda x: self.file_analyser.classes_paths.get(x['Class Path'].lower()), axis=1)
+        classes_metrics = classes_metrics.drop('Class Path', axis=1)
+
+        methods_metrics["Method_ids"] = methods_metrics.apply(lambda x: self.file_analyser.get_file_path_by_designite(x['File Name'], x['start_line']), axis=1)
+        methods_metrics = methods_metrics.drop('File Name', axis=1)
+        methods_metrics = methods_metrics.drop('start_line', axis=1)
+
+        return classes_metrics, methods_metrics

@@ -116,7 +116,7 @@ class JavaParserFileAnalyser(FileAnalyser):
                 except Exception:
                     continue
                 value = file_path
-                classes_path[key] = value
+                classes_path[key] = value.lower()
             return classes_path
 
     def _get_methods_by_path_and_name(self):

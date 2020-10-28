@@ -429,9 +429,20 @@ class HalsteadData(Data):
         return df
 
 
-class JasomeData(Data):
+class JasomeFilesData(Data):
     def __init__(self, project, version, data=None):
-        self.data_type = DataType.JasomeDataType.value
+        self.data_type = DataType.JasomeFilesDataType.value
+        self.raw_data = data
+        super().__init__(project, version)
+
+    def build(self, values, column_names):
+        df = super().build(values, column_names)
+        return df
+
+
+class JasomeMethodsData(Data):
+    def __init__(self, project, version, data=None):
+        self.data_type = DataType.JasomeMethodsDataType.value
         self.raw_data = data
         super().__init__(project, version)
 
