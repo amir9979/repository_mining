@@ -138,6 +138,8 @@ class CompositeData(Data):
 
         if classes_dfs:
             classes_df = classes_dfs.pop(0)
+            classes_df['File'] = classes_df.File.astype(str)
+            classes_df['Class'] = classes_df.Class.astype(str)
             classes_df['File'] = classes_df['File'].str.lower()
             classes_df['Class'] = classes_df['Class'].str.lower()
             while classes_dfs:
@@ -150,6 +152,7 @@ class CompositeData(Data):
         if files_dfs:
             if classes_df is None:
                 classes_df = files_dfs.pop(0)
+                classes_df['File'] = classes_df.File.astype(str)
                 classes_df['File'] = classes_df['File'].str.lower()
             while files_dfs:
                 gc.collect()
@@ -159,6 +162,7 @@ class CompositeData(Data):
 
         if methods_dfs:
             methods_df = methods_dfs.pop(0)
+            methods_df['Method_ids'] = methods_df.Method_ids.astype(str)
             methods_df['Method_ids'] = methods_df['Method_ids'].str.lower()
             while methods_dfs:
                 gc.collect()
