@@ -138,22 +138,33 @@ class CompositeData(Data):
 
         if classes_dfs:
             classes_df = classes_dfs.pop(0)
+            classes_df['File'] = classes_df['File'].str.lower()
+            classes_df['Class'] = classes_df['Class'].str.lower()
             while classes_dfs:
                 gc.collect()
-                classes_df = classes_df.merge(classes_dfs.pop(0), on=['File', 'Class'], how='outer')
+                other = classes_dfs.pop(0)
+                other['File'] = other['File'].str.lower()
+                other['Class'] = other['Class'].str.lower()
+                classes_df = classes_df.merge(other, on=['File', 'Class'], how='outer')
 
         if files_dfs:
-            classes_df = files_dfs.pop(0) if classes_df is None else classes_df
+            if classes_df is None:
+                classes_df = files_dfs.pop(0)
+                classes_df['File'] = classes_df['File'].str.lower()
             while files_dfs:
                 gc.collect()
-                classes_df = classes_df.merge(files_dfs.pop(0), on=['File'], how='outer')
+                other = files_dfs.pop(0)
+                other['File'] = other['File'].str.lower()
+                classes_df = classes_df.merge(other, on=['File'], how='outer')
 
         if methods_dfs:
             methods_df = methods_dfs.pop(0)
+            methods_df['Method_ids'] = methods_df['Method_ids'].str.lower()
             while methods_dfs:
                 gc.collect()
                 method_df = methods_dfs.pop(0)
                 method_df = method_df.drop(["File", "Class", "Package", "Method"], axis=1, errors='ignore')
+                method_df['Method_ids'] = method_df['Method_ids'].str.lower()
                 methods_df = methods_df.merge(method_df, on=['Method_ids'], how='outer')
 
         return classes_df, methods_df

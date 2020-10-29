@@ -157,7 +157,7 @@ class Checkstyle(Extractor):
             root = ElementTree.parse(file).getroot()
             for file_element in root:
                 try:
-                    filepath = file_element.attrib['name']
+                    filepath = file_element.attrib['name'].lower()
                 except:
                     continue
                 if not filepath.endswith(".java"):
