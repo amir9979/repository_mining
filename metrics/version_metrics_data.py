@@ -145,6 +145,8 @@ class CompositeData(Data):
             while classes_dfs:
                 gc.collect()
                 other = classes_dfs.pop(0)
+                other['File'] = other.File.astype(str)
+                other['Class'] = other.Class.astype(str)
                 other['File'] = other['File'].str.lower()
                 other['Class'] = other['Class'].str.lower()
                 classes_df = classes_df.merge(other, on=['File', 'Class'], how='outer')
@@ -157,6 +159,7 @@ class CompositeData(Data):
             while files_dfs:
                 gc.collect()
                 other = files_dfs.pop(0)
+                other['File'] = other.File.astype(str)
                 other['File'] = other['File'].str.lower()
                 classes_df = classes_df.merge(other, on=['File'], how='outer')
 
@@ -168,6 +171,7 @@ class CompositeData(Data):
                 gc.collect()
                 method_df = methods_dfs.pop(0)
                 method_df = method_df.drop(["File", "Class", "Package", "Method"], axis=1, errors='ignore')
+                method_df['Method_ids'] = method_df.Method_ids.astype(str)
                 method_df['Method_ids'] = method_df['Method_ids'].str.lower()
                 methods_df = methods_df.merge(method_df, on=['Method_ids'], how='outer')
 
