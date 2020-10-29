@@ -513,7 +513,7 @@ class Jasome(Extractor):
     def _process_metrics(self):
         from metrics.jasome_xml_parser import parse
         classes_metrics, methods_metrics = parse(self.out_path_to_xml)
-        methods_metrics["File"] = methods_metrics.apply(lambda x: self.file_analyser.classes_paths.get(x['Class Path'].lower()), axis=1)
+        classes_metrics["File"] = classes_metrics.apply(lambda x: self.file_analyser.classes_paths.get(x['Class Path'].lower()), axis=1)
         classes_metrics = classes_metrics.drop('Class Path', axis=1)
 
         methods_metrics["Method_ids"] = methods_metrics.apply(lambda x: self.file_analyser.get_file_path_by_designite(x['File Name'], x['start_line']), axis=1)
