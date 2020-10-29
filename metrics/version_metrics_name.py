@@ -205,7 +205,8 @@ class DataNameEnum(Enum):
     Difficulty = DataName("Difficulty", DataType.HalsteadDataType, "getDifficulty")
     Effort = DataName("Effort", DataType.HalsteadDataType, "getEffort")
 
-    AHF = DataName("AHF", DataType.JasomeFilesDataType, "Attribute Hiding Factor")
+    # AHF = DataName("AHF", DataType.JasomeFilesDataType, "Attribute Hiding Factor")
+    AHF = DataName("Attribute Hiding Factor", DataType.JasomeFilesDataType, "AHF")
     AIF = DataName("AIF", DataType.JasomeFilesDataType, "Attribute Inheritance Factor")
     Aa = DataName("Aa", DataType.JasomeFilesDataType, "Number of Attributes (All)")
     Ad = DataName("Ad", DataType.JasomeFilesDataType, "Number of Attributes Defined")
