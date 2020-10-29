@@ -66,7 +66,7 @@ class JavaParserFileAnalyser(FileAnalyser):
         return parser_df
 
     def get_closest_id(self, file_name, line=0):
-        file_name = os.path.normpath(file_name) 
+        file_name = os.path.normpath(file_name).lower()
         relative_file_name = file_name.replace(os.path.join(self.local_path, ""), "")
         cond = self.parser_df['File Path'].str.contains(relative_file_name , case=False, regex=False) 
         df = self.parser_df.loc[cond]
@@ -116,7 +116,7 @@ class JavaParserFileAnalyser(FileAnalyser):
                 except Exception:
                     continue
                 value = file_path
-                classes_path[key] = value.lower()
+                classes_path[key.lower()] = value.lower()
             return classes_path
 
     def _get_methods_by_path_and_name(self):
