@@ -16,19 +16,6 @@ def get_elements_by_path(root, path):
     return list(elements)
 
 
-def get_metrics_dict(df):
-    types = {}
-    metrics_columns = list(df.columns.drop("id"))
-    for id_ in df["id"]:
-        types[id_] = dict.fromkeys(metrics_columns, 0)
-    types.update(
-        dict(map(lambda x: (
-            x[1]["id"],
-            dict(zip(metrics_columns, list(x[1].drop("id"))))
-        ), df.iterrows())))
-    return types
-
-
 def parse(xml_path):
     root = et.parse(xml_path).getroot()
     classes_metrics = []

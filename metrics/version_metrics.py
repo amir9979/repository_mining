@@ -526,4 +526,18 @@ class Jasome(Extractor):
         cols = methods_metrics.columns.tolist()
         cols.remove("id")
         methods_metrics = methods_metrics[["id"] + cols]
-        return classes_metrics, methods_metrics
+        return self._get_metrics_dict(classes_metrics), self._get_metrics_dict(methods_metrics)
+
+    @staticmethod
+    def _get_metrics_dict(df):
+        types = {}
+        metrics_columns = list(df.columns.drop("id"))
+        for id_ in df["id"]:
+            types[id_] = dict.fromkeys(metrics_columns, 0)
+        types.update(
+            dict(map(lambda x: (
+                x[1]["id"],
+                dict(zip(metrics_columns, list(x[1].drop("id"))))
+            ), df.iterrows())))
+        return types
+
