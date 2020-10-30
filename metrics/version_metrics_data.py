@@ -457,8 +457,7 @@ class HalsteadData(Data):
 class JasomeFilesData(Data):
     def __init__(self, project, version, data=None):
         self.data_type = DataType.JasomeFilesDataType.value
-        self.raw_data = None
-        self.data = data
+        self.raw_data = data
         super().__init__(project, version)
 
     def build(self, values, column_names):
@@ -469,8 +468,7 @@ class JasomeFilesData(Data):
 class JasomeMethodsData(Data):
     def __init__(self, project, version, data=None):
         self.data_type = DataType.JasomeMethodsDataType.value
-        self.raw_data = None
-        self.data = data
+        self.raw_data = data
         super().__init__(project, version)
 
     def build(self, values, column_names):
