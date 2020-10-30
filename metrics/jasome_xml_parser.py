@@ -15,6 +15,20 @@ def get_elements_by_path(root, path):
                                                get_children_by_name(elem[1], name))), elements), [])
     return list(elements)
 
+
+def get_metrics_dict(df):
+    types = {}
+    metrics_columns = list(df.columns.drop("id"))
+    for id_ in df["id"]:
+        types[id_] = dict.fromkeys(metrics_columns, 0)
+    types.update(
+        dict(map(lambda x: (
+            x[1]["id"],
+            dict(zip(metrics_columns, list(x[1].drop("id"))))
+        ), df.iterrows())))
+    return types
+
+
 def parse(xml_path):
     root = et.parse(xml_path).getroot()
     classes_metrics = []
@@ -31,4 +45,4 @@ def parse(xml_path):
             for metric_path, metric in get_elements_by_path(method, ['Metrics', 'Metric']):
                 method_metrics[metric.attrib['name']] = metric.attrib['value']
             methods_metrics.append(method_metrics)
-    return pd.DataFrame(classes_metrics), pd.DataFrame(methods_metrics)
+    return get_metrics_dict(pd.DataFrame(classes_metrics)), get_metrics_dict(pd.DataFrame(methods_metrics))

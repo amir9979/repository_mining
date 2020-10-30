@@ -463,7 +463,7 @@ class JasomeFilesData(Data):
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
-        return df
+        return df.rename(columns={"id": "File"})
 
 
 class JasomeMethodsData(Data):
@@ -475,6 +475,20 @@ class JasomeMethodsData(Data):
 
     def build(self, values, column_names):
         df = super().build(values, column_names)
+        id = df['id'].iteritems()
+        files_id, packages_id, classes_id, methods_id = tee(id, 4)
+        files = pd.Series(list(map(lambda x: x[1].split('@')[0], files_id))).values
+        packages = pd.Series(list(map(lambda x: '.'.join(x[1].split('@')[1].split('.')[:-2]), packages_id))).values
+        classes = pd.Series(list(map(lambda x: x[1].split('@')[1].split('.')[:-1][-1], classes_id))).values
+        methods = pd.Series(list(map(lambda x: x[1].split('.')[-1].split('(')[0], methods_id))).values
+        ids = df['id'].apply(os.path.normpath)
+        df = df.drop(columns='id')
+        df.insert(0, 'Method', methods)
+        df.insert(0, 'Method_ids', ids)
+        df.insert(0, 'Class', classes)
+        df.insert(0, 'Package', packages)
+        df.insert(0, 'File', files)
+        df = df.rename(columns=column_names)
         return df
 
 
