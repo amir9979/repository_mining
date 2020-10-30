@@ -32,4 +32,4 @@ def parse(xml_path):
             for metric_path, metric in get_elements_by_path(method, ['Metrics', 'Metric']):
                 method_metrics[metric.attrib['name']] = metric.attrib['value']
             methods_metrics.append(method_metrics)
-    return get_metrics_dict(pd.DataFrame(classes_metrics)), get_metrics_dict(pd.DataFrame(methods_metrics))
+    return pd.DataFrame(classes_metrics), pd.DataFrame(methods_metrics)
