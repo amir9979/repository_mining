@@ -79,7 +79,7 @@ class JavaParserFileAnalyser(FileAnalyser):
         method_name = str(closest_df["Method Name"].values[0])
         parameters = str(closest_df["Parameters"].values[0])
         closest_id = file_path + '@' + package_name + "." + type_name + "." + method_name + parameters
-        return closest_id
+        return closest_id.lower()
 
     def get_file_path_by_designite(self, package_name, type_name, method_name=None):
         cond = self.parser_df['Package Name'].str.fullmatch(package_name, case=False)
