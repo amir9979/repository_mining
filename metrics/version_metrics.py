@@ -507,7 +507,7 @@ class Jasome(Extractor):
 
     @staticmethod
     def _execute_command(jasome_runner, local_path, out_path_to_xml):
-        command = ["java", "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", local_path, '-o', out_path_to_xml]
+        command = ["java", "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
         print('jasome command', command)
         Popen(command).communicate()
 
