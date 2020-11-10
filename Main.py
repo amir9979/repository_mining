@@ -40,25 +40,29 @@ class Main():
         self.extractor = DataExtractor(self.project, self.jira_url, self.github_user_name)
 
     def extract_metrics(self):
-        classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['ClassesData'], self.project.github()))
-        Path(classes_data).mkdir(parents=True, exist_ok=True)
-        method_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['MethodData'], self.project.github()))
-        Path(method_data).mkdir(parents=True, exist_ok=True)
-
         classes_datasets = []
         methods_datasets = []
-
         for version in self.extractor.get_selected_versions()[:-1]:
-            self.extractor.checkout_version(version)
-            classes_df, methods_df = self.extract_features_to_version(classes_data, method_data, version)
+            classes_df, methods_df = self.extract_features_to_version(version)
             classes_datasets.append(classes_df)
             methods_datasets.append(methods_df)
 
-        classes_instance = self.extract_classes_datasets(classes_datasets)
+        classes_instance = self.extract_classes_datasets(classes_datasets[:-1], classes_datasets[-1])
         classes_instance.predict()
 
-        methods_instance  = self.extract_methods_datasets(methods_datasets)
+        methods_instance = self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1])
         methods_instance.predict()
+
+    def get_data_dirs(self):
+        classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'],
+                                                             Config().config['VERSION_METRICS']['ClassesData'],
+                                                             self.project.github()))
+        Path(classes_data).mkdir(parents=True, exist_ok=True)
+        method_data = Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['MethodData'],
+                         self.project.github()))
+        Path(method_data).mkdir(parents=True, exist_ok=True)
+        return classes_data, method_data
 
     def aggrate_methods_df(self, df):
         def clean(s):
@@ -100,8 +104,10 @@ class Main():
                 df[col].fillna(default, inplace=True)
         return df
 
-    def extract_features_to_version(self, classes_data, method_data, version):
+    def extract_features_to_version(self, version):
+        classes_data, method_data = self.get_data_dirs()
         extractors = Extractor.get_all_extractors(self.project, version)
+        self.extractor.checkout_version(version)
         for extractor in extractors:
             start = time.time()
             extractor.extract()
@@ -145,34 +151,31 @@ class Main():
 
         return classes_df, methods_df
 
-    def extract_classes_datasets(self, classes_datasets):
-        dataset_dir = Config.get_work_dir_path(
-            os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['Dataset'],
-                         self.project.github()))
-        classes_dataset_dir = os.path.join(dataset_dir, "classes")
-        Path(classes_dataset_dir).mkdir(parents=True, exist_ok=True)
-
-        classes_training = pd.concat(classes_datasets[:-1], ignore_index=True).drop(["File", "Class", "Method_ids"], axis=1, errors='ignore')
-        classes_training = self.fillna(classes_training)
-        classes_testing = classes_datasets[-1].drop("Method_ids", axis=1, errors='ignore')
-        classes_testing = self.fillna(classes_testing, default='')
-        file_names = classes_testing.pop("File").values.tolist()
-        classes_names = classes_testing.pop("Class").values.tolist()
+    def extract_classes_datasets(self, training_datasets, testing_dataset):
+        training = pd.concat(training_datasets, ignore_index=True).drop(["File", "Class", "Method_ids"], axis=1, errors='ignore')
+        training = self.fillna(training)
+        testing = testing_dataset.drop("Method_ids", axis=1, errors='ignore')
+        testing = self.fillna(testing, default='')
+        file_names = testing.pop("File").values.tolist()
+        classes_names = testing.pop("Class").values.tolist()
         classes_testing_names = list(map("@".join, zip(file_names, ['' if x in (False, True) else x for x in classes_names])))
-        return ClassificationInstance(classes_training, classes_testing, classes_testing_names, classes_dataset_dir)
+        return ClassificationInstance(training, testing, classes_testing_names, self.get_dataset_dir("classes"))
 
-    def extract_methods_datasets(self, methods_datasets):
+    def get_dataset_dir(self, sub_dir):
         dataset_dir = Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['Dataset'],
                          self.project.github()))
-        methods_dataset_dir = os.path.join(dataset_dir, "methods")
-        Path(methods_dataset_dir).mkdir(parents=True, exist_ok=True)
-        methods_training = pd.concat(methods_datasets[:-1], ignore_index=True).drop("Method_ids", axis=1, errors='ignore')
-        methods_training = self.fillna(methods_training)
-        methods_testing = methods_datasets[-1]
-        methods_testing =  self.fillna(methods_testing)
-        methods_testing_names = methods_testing.pop("Method_ids").values.tolist()
-        return ClassificationInstance(methods_training, methods_testing, methods_testing_names, methods_dataset_dir, label="BuggedMethods")
+        sub_dataset_dir = os.path.join(dataset_dir, sub_dir)
+        Path(sub_dataset_dir).mkdir(parents=True, exist_ok=True)
+        return sub_dataset_dir
+
+    def extract_methods_datasets(self, training_datasets, testing_dataset):
+        training = pd.concat(training_datasets, ignore_index=True).drop("Method_ids", axis=1, errors='ignore')
+        training = self.fillna(training)
+        testing = testing_dataset
+        testing = self.fillna(testing)
+        methods_testing_names = testing.pop("Method_ids").values.tolist()
+        return ClassificationInstance(training, testing, methods_testing_names, self.get_dataset_dir("methods"), label="BuggedMethods")
 
     def choose_versions(self, version_num=5, algorithm="bin", version_type=VersionType.Untyped, strict=True):
         self.extractor.choose_versions(version_num=version_num, algorithm=algorithm, strict=strict, version_type=version_type)

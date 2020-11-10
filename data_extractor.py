@@ -278,7 +278,6 @@ class DataExtractor(object):
         if os.path.exists(in_path):
             with open(in_path) as f:
                 self.selected_versions = list(filter(lambda c: str(c['ind']) == str(self.selected_config), json.loads(f.read())))[0]['versions']
-            # self.selected_versions = list(map(str, pd.read_csv(in_path, dtype=str)['version'].to_list()))
             return self.selected_versions
         assert None
 
