@@ -39,18 +39,22 @@ class Main():
     def set_extractor(self):
         self.extractor = DataExtractor(self.project, self.jira_url, self.github_user_name)
 
-    def extract_metrics(self):
+    def extract_metrics(self, rest_versions):
         classes_datasets = []
         methods_datasets = []
         for version in self.extractor.get_selected_versions()[:-1]:
             classes_df, methods_df = self.extract_features_to_version(version)
             classes_datasets.append(classes_df)
             methods_datasets.append(methods_df)
+        for version in rest_versions:
+            self.extract_features_to_version(version)
+        return classes_datasets[:-1], classes_datasets[-1], methods_datasets[:-1], methods_datasets[-1]
 
-        classes_instance = self.extract_classes_datasets(classes_datasets[:-1], classes_datasets[-1])
+    def predict(self, c_training, c_testing, m_training, m_testing):
+        classes_instance = self.extract_classes_datasets(c_training, c_testing)
         classes_instance.predict()
 
-        methods_instance = self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1])
+        methods_instance = self.extract_methods_datasets(m_training, m_testing)
         methods_instance.predict()
 
     def get_data_dirs(self):
@@ -105,9 +109,9 @@ class Main():
         return df
 
     def extract_features_to_version(self, version):
+        self.extractor.checkout_version(version)
         classes_data, method_data = self.get_data_dirs()
         extractors = Extractor.get_all_extractors(self.project, version)
-        self.extractor.checkout_version(version)
         for extractor in extractors:
             start = time.time()
             extractor.extract()
@@ -208,6 +212,7 @@ class Main():
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
         parser.add_argument('-f', '--free_choose', dest='free_choose', action='store_true', help='the versions type to select')
+        parser.add_argument('rest', nargs=argparse.REMAINDER)
         args = parser.parse_args()
         self.github_user_name = args.github_user_name
         self.jira_url = args.jira_url
@@ -223,7 +228,8 @@ class Main():
             self.set_version_selection(version_num=args.num_versions, algorithm='bin',
                                  version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
             self.extract()
-            self.extract_metrics()
+            c_training, c_testing, m_training, m_testing = self.extract_metrics(args.rest)
+            self.predict(c_training, c_testing, m_training, m_testing)
 
 
 if __name__ == "__main__":
