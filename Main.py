@@ -119,7 +119,10 @@ class Main():
             extractor.extract()
             print(time.time() - start, extractor.__class__.__name__)
         db = DataBuilder(self.project, version)
-        list(map(lambda d: db.append(d), DataNameEnum))
+        for d in DataNameEnum:
+            if not extract_bugs and "bugged" in d.name.lower():
+                continue
+            db.append(d)
         classes_df, methods_df = db.build()
         intermediate_dir = Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['Intermediate'],
