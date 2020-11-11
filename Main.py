@@ -47,7 +47,7 @@ class Main():
             classes_datasets.append(classes_df)
             methods_datasets.append(methods_df)
         for version in rest_versions:
-            self.extract_features_to_version(version)
+            self.extract_features_to_version(version, False)
         return classes_datasets[:-1], classes_datasets[-1], methods_datasets[:-1], methods_datasets[-1]
 
     def predict(self, c_training, c_testing, m_training, m_testing):
@@ -108,11 +108,13 @@ class Main():
                 df[col].fillna(default, inplace=True)
         return df
 
-    def extract_features_to_version(self, version):
+    def extract_features_to_version(self, version, extract_bugs=True):
         self.extractor.checkout_version(version)
         classes_data, method_data = self.get_data_dirs()
         extractors = Extractor.get_all_extractors(self.project, version)
         for extractor in extractors:
+            if not extract_bugs and "bugged" in extractor.__class__.__name__.lower():
+                continue
             start = time.time()
             extractor.extract()
             print(time.time() - start, extractor.__class__.__name__)
