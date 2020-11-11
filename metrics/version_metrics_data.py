@@ -503,7 +503,6 @@ class DataBuilder:
         data = self.metrics.groupby('data_type')['data_column'] \
             .apply(lambda x: x.values.tolist()).to_dict()
         column_names = dict(zip(self.metrics['data_column'], self.metrics['data_value']))
-        print(data, column_names)
         return self.data_collection.build(data, column_names)
 
     def __repr__(self):
