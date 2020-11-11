@@ -42,10 +42,10 @@ class Main():
     def extract_metrics(self, rest_versions):
         classes_datasets = []
         methods_datasets = []
-        # for version in self.extractor.get_selected_versions()[:-1]:
-        #     classes_df, methods_df = self.extract_features_to_version(version)
-        #     classes_datasets.append(classes_df)
-        #     methods_datasets.append(methods_df)
+        for version in self.extractor.get_selected_versions()[:-1]:
+            classes_df, methods_df = self.extract_features_to_version(version)
+            classes_datasets.append(classes_df)
+            methods_datasets.append(methods_df)
         for version in rest_versions:
             self.extract_features_to_version(version, False)
         return classes_datasets[:-1], classes_datasets[-1], methods_datasets[:-1], methods_datasets[-1]
