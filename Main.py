@@ -47,7 +47,10 @@ class Main():
             classes_datasets.append(classes_df)
             methods_datasets.append(methods_df)
         for version in rest_versions:
-            self.extract_features_to_version(version, False)
+            try:
+                self.extract_features_to_version(version, False)
+            except:
+                pass
         return classes_datasets[:-1], classes_datasets[-1], methods_datasets[:-1], methods_datasets[-1]
 
     def predict(self, c_training, c_testing, m_training, m_testing):
