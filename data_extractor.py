@@ -6,7 +6,7 @@ import git
 import json
 import pandas as pd
 
-from commit import Commit
+from commit import Commit, CommittedFile
 from config import Config
 from fixing_issues import VersionInfo
 from issues import get_jira_issues
@@ -36,8 +36,9 @@ class DataExtractor(object):
         self.head_commit = self.git_repo.head.commit.hexsha
         self.git_repo.git.checkout(self.head_commit, force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
+        self.jira_issues = get_jira_issues(self.jira_project_name, self.jira_url)
 
-        self.commits = self._get_repo_commits(self.git_repo, self.jira_project_name, self.jira_url)
+        self.commits = self._get_repo_commits(self.git_repo, self.jira_issues)
         self.versions = self._get_repo_versions(self.git_repo)
         self.bugged_files_between_versions = self._get_bugged_files_between_versions(self.versions)
         self.selected_versions = None
@@ -50,10 +51,8 @@ class DataExtractor(object):
         self.git_repo.git.checkout(self.head_commit, force=True)
 
     @staticmethod
-    def _get_repo_commits(repo, jira_project_name, jira_url):
-        jira_issues = get_jira_issues(jira_project_name, jira_url)
-        issues = dict(map(lambda x: (x.key.strip().split("-")[1], x),
-                          list(filter(lambda issue: issue.type == 'bug', jira_issues))))
+    def _get_repo_commits(repo, jira_issues):
+        issues = dict(map(lambda x: (x.key.strip().split("-")[1], x), jira_issues))
         commits = DataExtractor._commits_and_issues(repo, issues)
         return commits
 
@@ -75,6 +74,7 @@ class DataExtractor(object):
 
     def extract(self, selected_versions=False):
         tags = self.bugged_files_between_versions
+        self._store_issues()
         self._store_commited_files()
         self._store_commits()
         self._store_versions(tags)
@@ -87,13 +87,19 @@ class DataExtractor(object):
             self._store_files(tags, True)
             self._store_methods(tags)
 
+    def _store_issues(self):
+        df = pd.DataFrame(list(map(lambda x: x.fields, self.jira_issues)), columns=self.jira_issues[0].fields.keys())
+        commited_files_dir = self._get_caching_path("Issues")
+        path = os.path.join(commited_files_dir, self.jira_project_name + ".csv")
+        df.to_csv(path, index=False, sep=';')
+
     def _store_commited_files(self):
-        columns = ["file_name", "commit_id", "bug_id", "commit_date", "commit_url", "bug_url"]
+        columns = ["file_name", "insertions", "deletions", "changes", 'is_java', "commit_id", "issue_id", "commit_date", "commit_url", "bug_url"]
         commited_files = list(map(lambda c:
-                                  list(map(lambda file_name:
-                                           [file_name, c._commit_id,
-                                            c._bug_id, c._commit_formatted_date, self.get_commit_url(c._commit_id), c.get_issue_url()],
-                                    c._files)), self.commits))
+                                  list(map(lambda f:
+                                           [f.name, f.insertions, f.deletions, f.insertions + f.deletions, f.is_java, c._commit_id,
+                                            c._issue_id, c._commit_formatted_date, self.get_commit_url(c._commit_id), c.get_issue_url()],
+                                           c._files)), self.commits))
 
         commited_files = reduce(list.__add__, commited_files, [])
         df = pd.DataFrame(commited_files, columns=columns)
@@ -102,8 +108,8 @@ class DataExtractor(object):
         df.to_csv(path, index=False, sep=';')
 
     def _store_commits(self):
-        columns = ["commit_id", "bug_id", "commit_date", "commit_url", "bug_url"]
-        commits = list(map(lambda c: [c._commit_id, c._bug_id, c._commit_formatted_date, self.get_commit_url(c._commit_id), c.get_issue_url()], self.commits))
+        columns = ["commit_id", 'is_java', "issue_id", "commit_date", "commit_url", "bug_url"]
+        commits = list(map(lambda c: [c._commit_id, c.is_java_commit, c._issue_id, c._commit_formatted_date, self.get_commit_url(c._commit_id), c.get_issue_url()], self.commits))
         df = pd.DataFrame(commits, columns=columns)
         commits_dir = self._get_caching_path("Commits")
         path = os.path.join(commits_dir, self.jira_project_name + ".csv")
@@ -185,7 +191,7 @@ class DataExtractor(object):
 
     def _get_commits_between_versions(self, versions):
         sorted_versions = sorted(versions, key=lambda version: version._commit._commit_date)
-        sorted_commits_and_versions = sorted(versions + self.commits,
+        sorted_commits_and_versions = sorted(versions + list(filter(lambda x: x.is_java_commit, self.commits)),
                                              key=lambda version: version._commit._commit_date if hasattr(version,
                                                                                                          "_commit") else version._commit_date)
         versions_indices = list(map(lambda version: (version, sorted_commits_and_versions.index(version)), sorted_versions))
@@ -232,6 +238,11 @@ class DataExtractor(object):
         commits = []
         java_commits = DataExtractor._get_commits_files(repo)
         for git_commit in java_commits:
+            bug_id = "0"
+            if all(list(map(lambda x: not x.is_java, java_commits[git_commit]))):
+                commit = Commit.init_commit_by_git_commit(git_commit, bug_id, None, java_commits[git_commit], False)
+                commits.append(commit)
+                continue
             try:
                 commit_text = DataExtractor._clean_commit_message(git_commit.summary)
             except:
@@ -243,9 +254,16 @@ class DataExtractor(object):
 
     @staticmethod
     def _get_commits_files(repo):
-        data = repo.git.log('--pretty=format:"sha: %H"', '--name-only').split("sha: ")
-        comms = dict(map(lambda d: (d[0], list(filter(lambda x: x.endswith(".java"), d[1:-1]))),
-                         map(lambda d: d.replace('"', '').replace('\n\n', '\n').split('\n'), data)))
+        data = repo.git.log('--numstat','--pretty=format:"sha: %H"').split("sha: ")
+        comms = {}
+        for d in data[1:]:
+            d = d.replace('"', '').replace('\n\n', '\n').split('\n')
+            commit_sha = d[0]
+            comms[commit_sha] = []
+            for x in d[1:-1]:
+                insertions, deletions, name = x.split('\t')
+                names = Commit.fix_renamed_files([name])
+                comms[commit_sha].extend(list(map(lambda n: CommittedFile(commit_sha, n, insertions, deletions), names)))
         return dict(map(lambda x: (repo.commit(x), comms[x]), filter(lambda x: comms[x], comms)))
 
     def choose_versions(self, repo=None, version_num=5, configurations=False,

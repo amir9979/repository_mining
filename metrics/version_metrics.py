@@ -97,6 +97,7 @@ class Bugged(Extractor):
         bugged = df.groupby(key).apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
         self.data.set_raw_data(bugged)
 
+
 class BuggedMethods(Extractor):
     def __init__(self, project: Project, version, repo=None):
         super().__init__("BuggedMethods", project, version, repo=repo)

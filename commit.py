@@ -9,22 +9,40 @@ except:
     from javadiff.diff import get_commit_methods
 
 
+class CommittedFile(object):
+    def __init__(self, sha, name, insertions, deletions):
+        self.sha = sha
+        self.name = Commit.fix_renamed_files([name])[0]
+        if insertions.isnumeric():
+            self.insertions = int(insertions)
+            self.deletions = int(deletions)
+        else:
+            self.insertions = 0
+            self.deletions = 0
+        self.is_java = self.name.endswith(".java")
+
+
 class Commit(object):
-    def __init__(self, bug_id, git_commit, issue=None, files=None):
+    def __init__(self, bug_id, git_commit, issue=None, files=None, is_java_commit=True):
         self._commit_id = git_commit.hexsha
         self._repo_dir = git_commit.repo.working_dir
-        self._bug_id = bug_id
+        self._issue_id = bug_id
         if files:
-            self._files = Commit.fix_renamed_files(files)
+            self._files = files
         else:
-            self._files = Commit.fix_renamed_files(git_commit.stats.files.keys())
+            self._files = list(map(lambda f: CommittedFile(self._commit_id, f, '0', '0'), git_commit.stats.files.keys()))
         self._methods = list()
         self._commit_date = time.mktime(git_commit.committed_datetime.timetuple())
         self._commit_formatted_date = datetime.utcfromtimestamp(self._commit_date).strftime('%Y-%m-%d %H:%M:%S')
         self.issue = issue
+        if issue:
+            self.issue_type = self.issue.type
+        else:
+            self.issue_type = ''
+        self.is_java_commit = is_java_commit
 
     def is_bug(self):
-        return self._bug_id != '0'
+        return self._issue_id != '0' and self.issue_type == 'bug'
 
     def get_issue_url(self):
         if self.issue:
@@ -38,11 +56,11 @@ class Commit(object):
         return self._methods
 
     @classmethod
-    def init_commit_by_git_commit(cls, git_commit, bug_id=0, issue=None, files=None):
-        return Commit(bug_id, git_commit, issue, files=files)
+    def init_commit_by_git_commit(cls, git_commit, bug_id=0, issue=None, files=None, is_java_commit=True):
+        return Commit(bug_id, git_commit, issue, files=files, is_java_commit=is_java_commit)
 
     def to_list(self):
-        return [self._commit_id, str(self._bug_id), ";".join(self._files)]
+        return [self._commit_id, str(self._issue_id), ";".join(list(map(lambda x: x.name, self._files)))]
 
     @staticmethod
     def fix_renamed_files(files):

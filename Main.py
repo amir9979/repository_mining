@@ -39,13 +39,14 @@ class Main():
     def set_extractor(self):
         self.extractor = DataExtractor(self.project, self.jira_url, self.github_user_name)
 
-    def extract_metrics(self, rest_versions):
+    def extract_metrics(self, rest_versions, rest_only=False):
         classes_datasets = []
         methods_datasets = []
-        for version in self.extractor.get_selected_versions()[:-1]:
-            classes_df, methods_df = self.extract_features_to_version(version)
-            classes_datasets.append(classes_df)
-            methods_datasets.append(methods_df)
+        if not rest_only:
+            for version in self.extractor.get_selected_versions()[:-1]:
+                classes_df, methods_df = self.extract_features_to_version(version)
+                classes_datasets.append(classes_df)
+                methods_datasets.append(methods_df)
         for version in rest_versions:
             try:
                 self.extract_features_to_version(version, False)
@@ -213,13 +214,14 @@ class Main():
         parser.add_argument('-c', '--choose', dest='choose', action='store', help='choose a project to extract')
         parser.add_argument('-g', '--github_repo_name', dest='github', action='store', help='the github repository name to the project to extract (lowercase)')
         parser.add_argument('-j', '--jira_name', dest='jira', action='store', help='the jira name to the project to extract (uppercase)')
-        parser.add_argument('-עu', '--github_user_name', dest='github_user_name', action='store', help='the github user name to the project to extract (lowercase)', default="apache")
+        parser.add_argument('-u', '--github_user_name', dest='github_user_name', action='store', help='the github user name to the project to extract (lowercase)', default="apache")
         parser.add_argument('-jl', '--jira_url', dest='jira_url', action='store', help='the link to jira', default="http://issues.apache.org/jira")
         parser.add_argument('-l', '--list_select_verions', dest='list_selected', action='store', help='the algorithm to select the versions : [bin]', default='bin')
         parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=-1, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
         parser.add_argument('-f', '--free_choose', dest='free_choose', action='store_true', help='the versions type to select')
+        parser.add_argument('-r', '--only_rest', dest='only_rest', action='store_true', help='extract only rest versions')
         parser.add_argument('rest', nargs=argparse.REMAINDER)
         args = parser.parse_args()
         self.github_user_name = args.github_user_name
@@ -236,7 +238,7 @@ class Main():
             self.set_version_selection(version_num=args.num_versions, algorithm='bin',
                                  version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
             self.extract()
-            c_training, c_testing, m_training, m_testing = self.extract_metrics(args.rest)
+            c_training, c_testing, m_training, m_testing = self.extract_metrics(args.rest, args.only_rest)
             self.predict(c_training, c_testing, m_training, m_testing)
 
 
