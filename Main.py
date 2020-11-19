@@ -52,7 +52,10 @@ class Main():
                 self.extract_features_to_version(version, False)
             except:
                 pass
-        return classes_datasets[:-1], classes_datasets[-1], methods_datasets[:-1], methods_datasets[-1]
+        if rest_only:
+            return
+        self.predict(classes_datasets[:-1], classes_datasets[-1], methods_datasets[:-1], methods_datasets[-1])
+
 
     def predict(self, c_training, c_testing, m_training, m_testing):
         classes_instance = self.extract_classes_datasets(c_training, c_testing)
@@ -239,7 +242,7 @@ class Main():
                                  version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
             self.extract()
             c_training, c_testing, m_training, m_testing = self.extract_metrics(args.rest, args.only_rest)
-            self.predict(c_training, c_testing, m_training, m_testing)
+
 
 
 if __name__ == "__main__":
