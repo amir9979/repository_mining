@@ -241,7 +241,7 @@ class Main():
             self.set_version_selection(version_num=args.num_versions, algorithm='bin',
                                  version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
             self.extract()
-            c_training, c_testing, m_training, m_testing = self.extract_metrics(args.rest, args.only_rest)
+            self.extract_metrics(args.rest, args.only_rest)
 
 
 
