@@ -1,5 +1,5 @@
 from enum import Enum, auto
-
+from typing import List
 
 class DataType(Enum):
     CheckstyleDataType = "checkstyle"
@@ -263,3 +263,11 @@ class DataNameEnum(Enum):
     NVAR = DataName("NVAR", DataType.JasomeMethodsDataType, "Number of Control Variables")
     Si = DataName("Si", DataType.JasomeMethodsDataType, "Structural Complexity")
     VG = DataName("VG", DataType.JasomeMethodsDataType, "McCabe Cyclomatic Complexity")
+
+    @staticmethod
+    def get_data_names_by_type(data_types: List[DataType]):
+        ans = []
+        for d in DataNameEnum:
+            if d.value.data_type in data_types:
+                ans.append(d)
+        return ans

@@ -11,6 +11,8 @@ from metrics.version_metrics_name import DataNameEnum
 from metrics.version_metrics_name import DataType
 from projects import ProjectName, Project
 import gc
+from typing import List
+
 
 class Data(ABC):
     def __init__(self, project: Project, version: str):
@@ -498,6 +500,13 @@ class DataBuilder:
 
     def append(self, metric_name: DataNameEnum):
         self.metrics = self.metrics.append(metric_name.value.as_data_dict(), ignore_index=True)
+
+    def extend(self, metrics: List[DataNameEnum]):
+        for m in metrics:
+            self.append(m)
+
+    def add_data_types(self, data_types: List[DataType]):
+            self.extend(DataNameEnum.get_data_names_by_type(data_types))
 
     def build(self):
         self.metrics = self.metrics.drop_duplicates().reset_index(drop=True)

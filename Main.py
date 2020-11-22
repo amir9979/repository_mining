@@ -14,6 +14,7 @@ from classification_instance import ClassificationInstance
 from itertools import tee
 import time
 
+
 class Main():
     def __init__(self):
         self.project = None
@@ -44,7 +45,7 @@ class Main():
         methods_datasets = []
         if not rest_only:
             for version in self.extractor.get_selected_versions()[:-1]:
-                classes_df, methods_df = self.extract_features_to_version(version)
+                classes_df, methods_df = self.extract_features_to_version(version, True)
                 classes_datasets.append(classes_df)
                 methods_datasets.append(methods_df)
         for version in rest_versions:
@@ -55,7 +56,6 @@ class Main():
         if rest_only:
             return
         self.predict(classes_datasets[:-1], classes_datasets[-1], methods_datasets[:-1], methods_datasets[-1])
-
 
     def predict(self, c_training, c_testing, m_training, m_testing):
         classes_instance = self.extract_classes_datasets(c_training, c_testing)
@@ -119,17 +119,14 @@ class Main():
         self.extractor.checkout_version(version)
         classes_data, method_data = self.get_data_dirs()
         extractors = Extractor.get_all_extractors(self.project, version)
+        db = DataBuilder(self.project, version)
         for extractor in extractors:
             if not extract_bugs and "bugged" in extractor.__class__.__name__.lower():
                 continue
+            db.add_data_types(extractor.data_types)
             start = time.time()
             extractor.extract()
             print(time.time() - start, extractor.__class__.__name__)
-        db = DataBuilder(self.project, version)
-        for d in DataNameEnum:
-            if not extract_bugs and "bugged" in d.name.lower():
-                continue
-            db.append(d)
         classes_df, methods_df = db.build()
         intermediate_dir = Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['Intermediate'],

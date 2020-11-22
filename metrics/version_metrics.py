@@ -24,14 +24,17 @@ from metrics.rsc.designite_smells import (
     organic_type_smells_list,
     organic_method_smells_list)
 from .java_analyser import JavaParserFileAnalyser
+from metrics.version_metrics_name import DataType
+from typing import List
 
 
 class Extractor(ABC):
-    def __init__(self, extractor_name, project: Project, version, repo=None):
+    def __init__(self, extractor_name, project: Project, version, data_types: List[DataType], repo=None):
         self.extractor_name = extractor_name
         self.project = project
         self.project_name = project.github()
         self.version = version
+        self.data_types = data_types
         self.config = Config().config
         self.runner = self._get_runner(self.config, extractor_name)
         if repo is None:
@@ -85,7 +88,7 @@ class Extractor(ABC):
 
 class Bugged(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("Bugged", project, version, repo=repo)
+        super().__init__("Bugged", project, version, [DataType.BuggedDataType], repo=repo)
 
     def _set_data(self):
         self.data = BuggedData(self.project, self.version)
@@ -103,7 +106,7 @@ class Bugged(Extractor):
 
 class BuggedMethods(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("BuggedMethods", project, version, repo=repo)
+        super().__init__("BuggedMethods", project, version, [DataType.BuggedMethodsDataType], repo=repo)
 
     def _set_data(self):
         self.data = BuggedMethodData(self.project, self.version)
@@ -120,7 +123,7 @@ class BuggedMethods(Extractor):
 
 class Checkstyle(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("Checkstyle", project, version, repo)
+        super().__init__("Checkstyle", project, version, [DataType.CheckstyleDataType], repo)
         self.out_path_to_xml = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Checkstyle'])))
 
@@ -209,7 +212,9 @@ class Checkstyle(Extractor):
 
 class Designite(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("Designite", project, version, repo)
+        super().__init__("Designite", project, version, [DataType.DesigniteDesignSmellsDataType, DataType.DesigniteImplementationSmellsDataType,
+                                                         DataType.DesigniteMethodMetricsDataType, DataType.DesigniteOrganicMethodSmellsDataType,
+                                                         DataType.DesigniteTypeMetricsDataType, DataType.DesigniteOrganicTypeSmellsDataType], repo)
         self.out_dir = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Designite'])))
         Config.assert_dir_exists(self.out_dir)
@@ -340,7 +345,7 @@ class Designite(Extractor):
 
 class SourceMonitor(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("SourceMonitor", project, version, repo)
+        super().__init__("SourceMonitor", project, version, [DataType.SourceMonitorDataType, DataType.SourceMonitorFilesDataType], repo)
         self.out_dir = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['SourceMonitor'])))
         Config.assert_dir_exists(self.out_dir)
@@ -417,7 +422,7 @@ class SourceMonitor(Extractor):
 
 class CK(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("CK", project, version, repo)
+        super().__init__("CK", project, version, [DataType.CKDataType], repo)
         self.out_dir = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['CK'])))
         Config.assert_dir_exists(self.out_dir)
@@ -455,7 +460,7 @@ class CK(Extractor):
 
 class Mood(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("MOOD", project, version, repo)
+        super().__init__("MOOD", project, version, [DataType.MoodDataType], repo)
         self.out_dir = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['MOOD'])))
         Config.assert_dir_exists(self.out_dir)
@@ -484,7 +489,7 @@ class Mood(Extractor):
 
 class Halstead(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("Halstead", project, version, repo)
+        super().__init__("Halstead", project, version, [DataType.HalsteadDataType], repo)
 
     def _set_data(self):
         self.data = HalsteadData(self.project, self.version)
@@ -495,7 +500,7 @@ class Halstead(Extractor):
 
 class Jasome(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("Jasome", project, version, repo)
+        super().__init__("Jasome", project, version, [DataType.JasomeFilesDataType, DataType.JasomeMethodsDataType], repo)
         self.out_path_to_xml = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Jasome'])))
 
@@ -548,7 +553,7 @@ class Jasome(Extractor):
 
 class ProcessExtractor(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("ProcessExtractor", project, version, repo)
+        super().__init__("ProcessExtractor", project, version, [DataType.ProcessFilesDataType], repo)
 
     def _set_data(self):
         self.data = ProcessData(self.project, self.version)
@@ -595,7 +600,7 @@ class ProcessExtractor(Extractor):
 #
 # class IssuesExtractor(Extractor):
 #     def __init__(self, project: Project, version, repo=None):
-#         super().__init__("IssuesExtractor", project, version, repo)
+#         super().__init__("IssuesExtractor", project, version, [DataType.ProcessFilesDataType], repo)
 #
 #     def _set_data(self):
 #         self.data = IssuesData(self.project, self.version)
