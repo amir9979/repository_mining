@@ -42,6 +42,8 @@ class Extractor(ABC):
 
     @staticmethod
     def _get_runner(config, extractor_name):
+        if extractor_name not in config['EXTERNALS']:
+            return ''
         externals_path = config['EXTERNALS']['BaseDir']
         runner_name = config['EXTERNALS'][extractor_name]
         externals = Config.get_work_dir_path(externals_path)
