@@ -40,17 +40,17 @@ class Main():
     def set_extractor(self):
         self.extractor = DataExtractor(self.project, self.jira_url, self.github_user_name)
 
-    def extract_metrics(self, rest_versions, rest_only=False):
+    def extract_metrics(self, rest_versions, rest_only, data_types):
         classes_datasets = []
         methods_datasets = []
         if not rest_only:
             for version in self.extractor.get_selected_versions()[:-1]:
-                classes_df, methods_df = self.extract_features_to_version(version, True)
+                classes_df, methods_df = self.extract_features_to_version(version, True, data_types)
                 classes_datasets.append(classes_df)
                 methods_datasets.append(methods_df)
         for version in rest_versions:
             try:
-                self.extract_features_to_version(version, False)
+                self.extract_features_to_version(version, False, data_types)
             except:
                 pass
         if rest_only:
@@ -115,15 +115,22 @@ class Main():
                 df[col].fillna(default, inplace=True)
         return df
 
-    def extract_features_to_version(self, version, extract_bugs=True):
+    def extract_features_to_version(self, version, extract_bugs, data_types):
         self.extractor.checkout_version(version)
         classes_data, method_data = self.get_data_dirs()
         extractors = Extractor.get_all_extractors(self.project, version)
         db = DataBuilder(self.project, version)
+        if not extract_bugs:
+            data_types.add("bugged")
+            data_types.add("bugged_methods")
         for extractor in extractors:
             if not extract_bugs and "bugged" in extractor.__class__.__name__.lower():
                 continue
-            db.add_data_types(extractor.data_types)
+            extractor_data_types = []
+            for dt in extractor.data_types:
+                if dt.value in data_types:
+                    extractor_data_types.append(dt)
+            db.add_data_types(extractor_data_types)
             start = time.time()
             extractor.extract()
             print(time.time() - start, extractor.__class__.__name__)
@@ -217,11 +224,11 @@ class Main():
         parser.add_argument('-u', '--github_user_name', dest='github_user_name', action='store', help='the github user name to the project to extract (lowercase)', default="apache")
         parser.add_argument('-jl', '--jira_url', dest='jira_url', action='store', help='the link to jira', default="http://issues.apache.org/jira")
         parser.add_argument('-l', '--list_select_verions', dest='list_selected', action='store', help='the algorithm to select the versions : [bin]', default='bin')
-        parser.add_argument('-', '--data_types_to_extract', dest='data_types', action='store', help='the data types to extract as features. Choose a sublist of '
+        parser.add_argument('-d', '--data_types_to_extract', dest='data_types', action='store', help='Json file of the data types to extract as features. Choose a sublist of '
                                                                                                     '[checkstyle, designite_design, designite_implementation, '
                                                                                                     'designite_type_organic, designite_method_organic, designite_type_metrics,'
                                                                                                     'designite_method_metrics, source_monitor_files, source_monitor, ck, mood, halstead,'
-                                                                                                    'jasome_files, jasome_methods, process_files, issues_files]', default='bin')
+                                                                                                    'jasome_files, jasome_methods, process_files, issues_files]. You can use the files under externals\configurations', default=r"externals\configurations\default.json")
         parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=-1, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
@@ -243,7 +250,11 @@ class Main():
             self.set_version_selection(version_num=args.num_versions, algorithm='bin',
                                  version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
             self.extract()
-            self.extract_metrics(args.rest, args.only_rest)
+            data_types = None
+            if os.path.exists(args.data_types):
+                with open(args.data_types) as f:
+                    data_types = set(json.loads(f.read()))
+            self.extract_metrics(args.rest, args.only_rest, data_types)
 
 
 
