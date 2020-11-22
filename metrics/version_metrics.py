@@ -588,7 +588,7 @@ class ProcessExtractor(Extractor):
             des = d.describe()
             des = des.drop(['25%', '50%', '75%'])
             for col in des:
-                for k, v in des[col].to_dict():
+                for k, v in des[col].to_dict().iteritems():
                     ans["_".join([initial, col, k])] = v
             return ans
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
