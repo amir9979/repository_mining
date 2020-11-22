@@ -561,16 +561,16 @@ class ProcessExtractor(Extractor):
     def _extract(self):
         # get version_date from apache_versions
         config = Config().config
-        file_name = config['DATA_EXTRACTION']["Versions"]
         repository_data = config["CACHING"]["RepositoryData"]
-        path = os.path.join(repository_data, file_name, self.project.github(), self.project.jira() + ".csv")
+        path = os.path.join(repository_data, config['DATA_EXTRACTION']["Versions"], self.project.github(), self.project.jira() + ".csv")
         df = pd.read_csv(path, sep=';')
+        issues_path = os.path.join(repository_data, config['DATA_EXTRACTION']["Issues"], self.project.github(), self.project.jira() + ".csv")
+        issues_df = pd.read_csv(path, sep=';')
         print(self.version)
         version_date = df[df['version_name'] == self.version]['version_date'].to_list()[0]
         version_date = datetime.strptime(version_date, '%Y-%m-%d %H:%M:%S')
         # get file list from committed_files
-        file_name = config['DATA_EXTRACTION']["CommittedFiles"]
-        path = os.path.join(repository_data, file_name, self.project.github(), self.project.jira() + ".csv")
+        path = os.path.join(repository_data, config['DATA_EXTRACTION']["CommittedFiles"], self.project.github(), self.project.jira() + ".csv")
         df = pd.read_csv(path, sep=';')
         # filter commits after version date
         df = df[df.apply(lambda r: datetime.strptime(r['commit_date'], '%Y-%m-%d %H:%M:%S') < version_date, axis=1)]
@@ -579,6 +579,7 @@ class ProcessExtractor(Extractor):
         for file_name, d in df.groupby('file_name', as_index=False):
             if file_name.endswith('.java'):
                 data[file_name] = self._extract_process_features(d)
+                self._extract_issues_features(df, issues_df)
         # extract the following features:
         self.data.set_raw_data(data)
 
@@ -588,7 +589,7 @@ class ProcessExtractor(Extractor):
             des = d.describe()
             des = des.drop(['25%', '50%', '75%'])
             for col in des:
-                for k, v in des[col].to_dict().iteritems():
+                for k, v in des[col].to_dict().items():
                     ans["_".join([initial, col, k])] = v
             return ans
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
@@ -598,15 +599,9 @@ class ProcessExtractor(Extractor):
         ans.update(_get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
         return ans
 
-#
-# class IssuesExtractor(Extractor):
-#     def __init__(self, project: Project, version, repo=None):
-#         super().__init__("IssuesExtractor", project, version, [DataType.ProcessFilesDataType], repo)
-#
-#     def _set_data(self):
-#         self.data = IssuesData(self.project, self.version)
-#
-#     def _extract(self):
-#         data = {}
-#         self.data.set_raw_data(data)
-#
+    def _extract_issues_features(self, df, issues_df):
+        df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
+        df['issue_id'] = df['issue_id'].apply(lambda k: k.lower())
+        issues_df['issue_id'] = issues_df['key'].apply(lambda k: k.lower())
+        merged = df.merge(issues_df, on=['issue_id'], how='outer')
+        ans = {}
