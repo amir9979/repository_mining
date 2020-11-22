@@ -565,6 +565,7 @@ class ProcessExtractor(Extractor):
         repository_data = config["CACHING"]["RepositoryData"]
         path = os.path.join(repository_data, file_name, self.project.github(), self.project.jira() + ".csv")
         df = pd.read_csv(path, sep=';')
+        print(self.version)
         version_date = df[df['version_name'] == self.version]['version_date'].to_list()[0]
         version_date = datetime.strptime(version_date, '%Y-%m-%d %H:%M:%S')
         # get file list from committed_files
