@@ -68,12 +68,20 @@ class Main():
         classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'],
                                                              Config().config['VERSION_METRICS']['ClassesData'],
                                                              self.project.github()))
-        Path(classes_data).mkdir(parents=True, exist_ok=True)
         method_data = Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['MethodData'],
                          self.project.github()))
+        intermediate_dir = Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'],
+                         Config().config['VERSION_METRICS']['Intermediate'],
+                         self.project.github()))
+        classes_intermediate_dir = os.path.join(intermediate_dir, "classes")
+        methods_intermediate_dir = os.path.join(intermediate_dir, "methods")
+        Path(classes_intermediate_dir).mkdir(parents=True, exist_ok=True)
+        Path(methods_intermediate_dir).mkdir(parents=True, exist_ok=True)
+        Path(classes_data).mkdir(parents=True, exist_ok=True)
         Path(method_data).mkdir(parents=True, exist_ok=True)
-        return classes_data, method_data
+        return classes_data, method_data, classes_intermediate_dir, methods_intermediate_dir, intermediate_dir
 
     def aggrate_methods_df(self, df):
         def clean(s):
@@ -117,59 +125,49 @@ class Main():
 
     def extract_features_to_version(self, version, extract_bugs, data_types):
         self.extractor.checkout_version(version)
-        classes_data, method_data = self.get_data_dirs()
-        extractors = Extractor.get_all_extractors(self.project, version)
+        db, extractors_to_run = self.get_extractors(data_types, extract_bugs, version)
+        for extractor in extractors_to_run:
+            start = time.time()
+            extractor.extract()
+            print(time.time() - start, extractor.__class__.__name__)
+        classes_df, methods_df = db.build()
+        methods_df = self.fillna(methods_df)
+        aggregated_methods_df = self.aggrate_methods_df(methods_df)
+        if 'Class' in classes_df.columns and 'Class' in aggregated_methods_df.columns:
+            classes_df = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
+        else:
+            classes_df = classes_df.merge(aggregated_methods_df, on=['File'], how='outer')
+        classes_df = self.fillna(classes_df)
+        methods_df = methods_df.drop('File', axis=1, errors='ignore')
+        methods_df = methods_df.drop('Class', axis=1, errors='ignore')
+        methods_df = methods_df.drop('Method', axis=1, errors='ignore')
+        self.save_dfs(classes_df, methods_df, aggregated_methods_df, version)
+        return classes_df, methods_df
+
+    def save_dfs(self, classes_df, methods_df, aggregated_methods_df, version):
+        classes_data, method_data, classes_intermediate_dir, methods_intermediate_dir, intermediate_dir = self.get_data_dirs()
+        classes_df.to_csv(os.path.join(classes_intermediate_dir, version + ".csv"), index=False, sep=';')
+        methods_df.to_csv(os.path.join(methods_intermediate_dir, version + ".csv"), index=False, sep=';')
+        aggregated_methods_df.to_csv(os.path.join(intermediate_dir, version + "aggregated_methods_df.csv"), index=False, sep=';')
+        classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False, sep=';')
+        methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False, sep=';')
+
+    def get_extractors(self, data_types, extract_bugs, version):
         db = DataBuilder(self.project, version)
         if not extract_bugs:
             data_types.add("bugged")
             data_types.add("bugged_methods")
-        for extractor in extractors:
+        extractors_to_run = set()
+        for extractor in Extractor.get_all_extractors(self.project, version):
             if not extract_bugs and "bugged" in extractor.__class__.__name__.lower():
                 continue
             extractor_data_types = []
             for dt in extractor.data_types:
                 if dt.value in data_types:
                     extractor_data_types.append(dt)
+                    extractors_to_run.add(extractor)
             db.add_data_types(extractor_data_types)
-            start = time.time()
-            extractor.extract()
-            print(time.time() - start, extractor.__class__.__name__)
-        classes_df, methods_df = db.build()
-        intermediate_dir = Config.get_work_dir_path(
-            os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['Intermediate'],
-                         self.project.github()))
-        classes_intermediate_dir = os.path.join(intermediate_dir, "classes")
-        methods_intermediate_dir = os.path.join(intermediate_dir, "methods")
-        Path(classes_intermediate_dir).mkdir(parents=True, exist_ok=True)
-        Path(methods_intermediate_dir).mkdir(parents=True, exist_ok=True)
-        classes_df.to_csv(os.path.join(classes_intermediate_dir, version + ".csv"), index=False, sep=';')
-        methods_df.to_csv(os.path.join(methods_intermediate_dir, version + ".csv"), index=False, sep=';')
-
-        methods_df = self.fillna(methods_df)
-        aggregated_methods_df = self.aggrate_methods_df(methods_df)
-
-        classes_df = self.fillna(classes_df)
-        
-        aggregated_methods_df.to_csv(os.path.join(intermediate_dir, version + "aggregated_methods_df.csv"), index=False, sep=';')
-        classes_df.to_csv(os.path.join(intermediate_dir, version + "classes_df.csv"), index=False, sep=';')
-
-        if 'Class' in classes_df.columns and 'Class' in aggregated_methods_df.columns:
-            classes_df = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
-        else:
-            classes_df = classes_df.merge(aggregated_methods_df, on=['File'], how='outer')
-
-        classes_df.to_csv(os.path.join(intermediate_dir, version + "merged.csv"), index=False, sep=';')
-
-        
-        classes_df = self.fillna(classes_df)
-        classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False, sep=';')
-
-        methods_df = methods_df.drop('File', axis=1, errors='ignore')
-        methods_df = methods_df.drop('Class', axis=1, errors='ignore')
-        methods_df = methods_df.drop('Method', axis=1, errors='ignore')
-        methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False, sep=';')
-
-        return classes_df, methods_df
+        return db, extractors_to_run
 
     def extract_classes_datasets(self, training_datasets, testing_dataset):
         training = pd.concat(training_datasets, ignore_index=True).drop(["File", "Class", "Method_ids"], axis=1, errors='ignore')
