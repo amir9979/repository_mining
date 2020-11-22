@@ -518,3 +518,35 @@ class DataBuilder:
             output += "\n".join(rows)
             output += "\n"
         return output
+
+
+class ProcessData(Data):
+    def __init__(self, project, version, data=None):
+        self.data_type = DataType.ProcessFilesDataType.value
+        self.raw_data = data
+        super().__init__(project, version)
+
+    def build(self, values, column_names):
+        df = super().build(values, column_names)
+        id = df['id'].iteritems()
+        files = pd.Series(list(map(lambda x: x[1], id))).values
+        df = df.drop(columns='id')
+        df.insert(0, 'File',  files)
+        df = df.rename(columns=column_names)
+        return df
+
+
+class IssuesData(Data):
+    def __init__(self, project, version, data=None):
+        self.data_type = DataType.IssuesFilesDataType.value
+        self.raw_data = data
+        super().__init__(project, version)
+
+    def build(self, values, column_names):
+        df = super().build(values, column_names)
+        id = df['id'].iteritems()
+        files = pd.Series(list(map(lambda x: x[1], id))).values
+        df = df.drop(columns='id')
+        df.insert(0, 'File',  files)
+        df = df.rename(columns=column_names)
+        return df
