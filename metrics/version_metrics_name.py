@@ -19,7 +19,7 @@ class DataType(Enum):
     JasomeFilesDataType = "jasome_files"
     JasomeMethodsDataType = "jasome_methods"
     ProcessFilesDataType = "process_files"
-    issuesFilesDataType = "issues_files"
+    IssuesFilesDataType = "issues_files"
 
 
 class DataName:

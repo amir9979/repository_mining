@@ -217,6 +217,11 @@ class Main():
         parser.add_argument('-u', '--github_user_name', dest='github_user_name', action='store', help='the github user name to the project to extract (lowercase)', default="apache")
         parser.add_argument('-jl', '--jira_url', dest='jira_url', action='store', help='the link to jira', default="http://issues.apache.org/jira")
         parser.add_argument('-l', '--list_select_verions', dest='list_selected', action='store', help='the algorithm to select the versions : [bin]', default='bin')
+        parser.add_argument('-', '--data_types_to_extract', dest='data_types', action='store', help='the data types to extract as features. Choose a sublist of '
+                                                                                                    '[checkstyle, designite_design, designite_implementation, '
+                                                                                                    'designite_type_organic, designite_method_organic, designite_type_metrics,'
+                                                                                                    'designite_method_metrics, source_monitor_files, source_monitor, ck, mood, halstead,'
+                                                                                                    'jasome_files, jasome_methods, process_files, issues_files]', default='bin')
         parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=-1, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
