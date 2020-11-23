@@ -565,7 +565,7 @@ class ProcessExtractor(Extractor):
         path = os.path.join(repository_data, config['DATA_EXTRACTION']["Versions"], self.project.github(), self.project.jira() + ".csv")
         df = pd.read_csv(path, sep=';')
         issues_path = os.path.join(repository_data, config['DATA_EXTRACTION']["Issues"], self.project.github(), self.project.jira() + ".csv")
-        issues_df = pd.read_csv(path, sep=';')
+        issues_df = pd.read_csv(issues_path, sep=';')
         print(self.version)
         version_date = df[df['version_name'] == self.version]['version_date'].to_list()[0]
         version_date = datetime.strptime(version_date, '%Y-%m-%d %H:%M:%S')
