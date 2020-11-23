@@ -36,12 +36,10 @@ class DataExtractor(object):
         self.head_commit = self.git_repo.head.commit.hexsha
         # self.git_repo.git.checkout(self.head_commit, force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
-        self.jira_issues = get_jira_issues(self.jira_project_name, self.jira_url)
-        self.commits = self._get_repo_commits(self.git_repo, self.jira_issues)
-        self.versions = self._get_repo_versions(self.git_repo)
-        print("number of commits: ", len(self.commits))
-        print("number of tags: ", len(self.versions))
-        self.bugged_files_between_versions = self._get_bugged_files_between_versions(self.versions)
+        self.jira_issues = None
+        self.commits = None
+        self.versions = None
+        self.bugged_files_between_versions = None
         self.selected_versions = None
         self.selected_config = 0
 
@@ -76,6 +74,14 @@ class DataExtractor(object):
         return sorted(tags, key=lambda x: x.version._commit._commit_date)
 
     def extract(self, selected_versions=False):
+        self.jira_issues = get_jira_issues(self.jira_project_name, self.jira_url)
+        self.commits = self._get_repo_commits(self.git_repo, self.jira_issues)
+        self.versions = self._get_repo_versions(self.git_repo)
+        print("number of commits: ", len(self.commits))
+        print("number of tags: ", len(self.versions))
+        self.bugged_files_between_versions = self._get_bugged_files_between_versions(self.versions)
+        self.selected_versions = None
+        self.selected_config = 0
         tags = self.bugged_files_between_versions
         self._store_issues()
         self._store_commited_files()
