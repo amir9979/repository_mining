@@ -71,6 +71,8 @@ class DataExtractor(object):
         for tag in tags_commits:
             if tags_commits[tag]:
                 tags.append(VersionInfo(tag, tags_commits[tag], self.git_repo, analyze_methods=analyze_methods))
+            else:
+                print("not commits for", tag)
         return sorted(tags, key=lambda x: x.version._commit._commit_date)
 
     def extract(self, selected_versions=False):
