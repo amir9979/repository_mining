@@ -601,7 +601,6 @@ class ProcessExtractor(Extractor):
 
     def _extract_issues_features(self, df, issues_df):
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
-        df['issue_id'] = df['issue_id'].apply(lambda k: k.lower())
-        issues_df['issue_id'] = issues_df['key'].apply(lambda k: k.lower())
+        issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
         merged = df.merge(issues_df, on=['issue_id'], how='outer')
         ans = {}
