@@ -73,15 +73,15 @@ class DataExtractor(object):
                 print("not commits for", tag._name)
         return sorted(tags, key=lambda x: x.version._commit._commit_date)
 
-    def extract(self, selected_versions=False):
+    def init_jira_commits(self):
         self.jira_issues = get_jira_issues(self.jira_project_name, self.jira_url)
         self.commits = self._get_repo_commits(self.git_repo, self.jira_issues)
         self.versions = self._get_repo_versions(self.git_repo)
         print("number of commits: ", len(self.commits))
         print("number of tags: ", len(self.versions))
         self.bugged_files_between_versions = self._get_bugged_files_between_versions(self.versions)
-        self.selected_versions = None
-        self.selected_config = 0
+
+    def extract(self, selected_versions=False):
         tags = self.bugged_files_between_versions
         self._store_issues()
         self._store_commited_files()
