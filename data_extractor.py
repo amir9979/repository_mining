@@ -34,7 +34,7 @@ class DataExtractor(object):
                          github_user_name=self.github_user_name)
         self.git_repo = git.Repo(self.git_path)
         self.head_commit = self.git_repo.head.commit.hexsha
-        self.git_repo.git.checkout(self.head_commit, force=True)
+        # self.git_repo.git.checkout(self.head_commit, force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
         self.jira_issues = get_jira_issues(self.jira_project_name, self.jira_url)
         self.commits = self._get_repo_commits(self.git_repo, self.jira_issues)
@@ -324,7 +324,7 @@ class DataExtractor(object):
             path = os.path.join(cache_path, self.jira_project_name, version.replace(os.path.sep, "_") + '.csv')
         return path
 
-    def get_bugged_methods_path(self, version, selected_versions=True):
+    def get_bugged_methods_path(self, version):
         cache_path = self._get_caching_path("SelectedMethods")
         path = os.path.join(cache_path, self.jira_project_name, Config.get_short_name(self.get_selected_versions()), version.replace(os.path.sep, "_") + '.csv')
         return path
