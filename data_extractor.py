@@ -62,6 +62,7 @@ class DataExtractor(object):
         tags = zip(list(repo_tags)[1:], list(repo_tags))
         versions = list(map(lambda tag: Version(tag[0], DataExtractor._version_files(tag[0], tag[1])),
                             tags))
+        assert len(versions) > 10
         return sorted(versions, key=lambda version: version._commit._commit_date)
 
     def _get_bugged_files_between_versions(self, versions, analyze_methods=False):
@@ -77,7 +78,7 @@ class DataExtractor(object):
         self._store_issues()
         self._store_commited_files()
         self._store_commits()
-        self._store_versions(tags)
+        self._store_versions(tags, False)
         self._store_versions_infos(tags)
         self._store_files(tags)
         if selected_versions:
