@@ -29,8 +29,8 @@ class Repo(object):
     def clone_if_needed(self, github_path):
         if not os.path.exists(self.local_path):
             git_path = os.path.join(github_path, self.github_name + ".git")
-            git.Repo.clone_from(git_path, self.local_path)
-            print("number of commits: ", len(list(git.Repo(git_path).iter_commits())))
+            repo = git.Repo.clone_from(git_path, self.local_path)
+            print("number of commits: ", len(list(repo.iter_commits())))
             exit()
 
     def get_github_jira(self):
