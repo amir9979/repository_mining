@@ -37,9 +37,10 @@ class DataExtractor(object):
         self.git_repo.git.checkout(self.head_commit, force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
         self.jira_issues = get_jira_issues(self.jira_project_name, self.jira_url)
-
         self.commits = self._get_repo_commits(self.git_repo, self.jira_issues)
         self.versions = self._get_repo_versions(self.git_repo)
+        print("number of commits: ", len(self.commits))
+        print("number of tags: ", len(self.versions))
         self.bugged_files_between_versions = self._get_bugged_files_between_versions(self.versions)
         self.selected_versions = None
         self.selected_config = 0
@@ -62,7 +63,6 @@ class DataExtractor(object):
         tags = zip(list(repo_tags)[1:], list(repo_tags))
         versions = list(map(lambda tag: Version(tag[0], DataExtractor._version_files(tag[0], tag[1])),
                             tags))
-        assert len(versions) > 10
         return sorted(versions, key=lambda version: version._commit._commit_date)
 
     def _get_bugged_files_between_versions(self, versions, analyze_methods=False):
