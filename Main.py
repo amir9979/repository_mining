@@ -154,7 +154,7 @@ class Main():
 
     def get_extractors(self, data_types, extract_bugs, version):
         db = DataBuilder(self.project, version)
-        if not extract_bugs:
+        if extract_bugs:
             data_types.add("bugged")
             data_types.add("bugged_methods")
         extractors_to_run = set()
