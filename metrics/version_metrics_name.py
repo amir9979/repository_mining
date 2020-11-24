@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from typing import List
 
+
 class DataType(Enum):
     CheckstyleDataType = "checkstyle"
     DesigniteDesignSmellsDataType = "designite_design"

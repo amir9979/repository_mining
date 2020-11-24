@@ -13,7 +13,7 @@ from metrics.version_metrics_name import DataNameEnum
 from classification_instance import ClassificationInstance
 from itertools import tee
 import time
-
+from functools import reduce
 
 class Main():
     def __init__(self):
@@ -60,6 +60,34 @@ class Main():
         self.extract_classes_datasets(aggregated_classes_datasets[:-1], aggregated_classes_datasets[-1]).predict()
         self.extract_classes_datasets(classes_datasets[:-1], classes_datasets[-1], "classes_no_aggregate").predict()
         self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1]).predict()
+
+    def create_all_but_one_dataset(self, data_types):
+        alls = {}
+        ones = {}
+        detailed = {}
+        for d in DataNameEnum:
+            if d.value.data_type.value in data_types:
+                detailed.setdefault(d.value.data_type.value, set()).add(d.value.column_name)
+        for d in detailed:
+            ones[d] = detailed[d]
+            all_but_d = list(detailed.keys())
+            all_but_d.remove(d)
+            alls[d] = reduce(set.__or__, list(map(detailed.get, all_but_d)), set())
+        for d in detailed:
+            ones[d] = ones[d].union({"Bugged", "BuggedMethods"})
+            alls[d] = alls[d].union({"Bugged", "BuggedMethods"})
+
+        for sub_dir in ["methods", "classes_no_aggregate"]:
+            training_df = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "training.csv"), sep=';')
+            testing_df = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "testing.csv"), sep=';')
+            names = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "prediction.csv"), sep=';')['name'].to_list()
+            for dir_name, columns in (('one', ones), ('all', alls)):
+                for d in columns:
+                    cols = list(columns[d].intersection(set(training_df.columns.to_list()).intersection(set(testing_df.columns.to_list()))))
+                    train = training_df[cols]
+                    test = testing_df[cols]
+                    ClassificationInstance(train, test, names, self.get_dataset_dir(os.path.join(dir_name, sub_dir, d))).predict()
+
 
     def get_data_dirs(self):
         classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'],
@@ -248,18 +276,18 @@ class Main():
             self.set_project_enum(args.choose)
         if args.github and args.jira:
             self.set_project(args.github, args.jira)
-        if args.list_selected:
-            self.choose_versions(version_num=args.num_versions, algorithm=args.list_selected, version_type=VersionType[args.versions_type], strict=args.free_choose)
+        # if args.list_selected:
+            # self.choose_versions(version_num=args.num_versions, algorithm=args.list_selected, version_type=VersionType[args.versions_type], strict=args.free_choose)
         if args.select != -1:
-            self.set_version_selection(version_num=args.num_versions, algorithm='bin',
-                                 version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
-            self.extract()
-            data_types = None
+            # self.set_version_selection(version_num=args.num_versions, algorithm='bin',
+            #                      version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
+            # self.extract()
+            # data_types = None
             if os.path.exists(args.data_types):
                 with open(args.data_types) as f:
                     data_types = set(json.loads(f.read()))
-            self.extract_metrics(args.rest, args.only_rest, data_types)
-
+            # self.extract_metrics(args.rest, args.only_rest, data_types)
+            self.create_all_but_one_dataset(data_types)
 
 if __name__ == "__main__":
     m = Main()
