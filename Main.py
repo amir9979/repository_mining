@@ -276,17 +276,17 @@ class Main():
             self.set_project_enum(args.choose)
         if args.github and args.jira:
             self.set_project(args.github, args.jira)
-        # if args.list_selected:
-            # self.choose_versions(version_num=args.num_versions, algorithm=args.list_selected, version_type=VersionType[args.versions_type], strict=args.free_choose)
+        if args.list_selected:
+            self.choose_versions(version_num=args.num_versions, algorithm=args.list_selected, version_type=VersionType[args.versions_type], strict=args.free_choose)
         if args.select != -1:
-            # self.set_version_selection(version_num=args.num_versions, algorithm='bin',
-            #                      version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
-            # self.extract()
-            # data_types = None
+            self.set_version_selection(version_num=args.num_versions, algorithm='bin',
+                                 version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
+            self.extract()
+            data_types = None
             if os.path.exists(args.data_types):
                 with open(args.data_types) as f:
                     data_types = set(json.loads(f.read()))
-            # self.extract_metrics(args.rest, args.only_rest, data_types)
+            self.extract_metrics(args.rest, args.only_rest, data_types)
             self.create_all_but_one_dataset(data_types)
 
 if __name__ == "__main__":
