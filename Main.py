@@ -42,12 +42,14 @@ class Main():
 
     def extract_metrics(self, rest_versions, rest_only, data_types):
         classes_datasets = []
+        aggregated_classes_datasets = []
         methods_datasets = []
         if not rest_only:
             for version in self.extractor.get_selected_versions()[:-1]:
-                classes_df, methods_df = self.extract_features_to_version(version, True, data_types)
+                classes_df, methods_df, aggregated_classes_df = self.extract_features_to_version(version, True, data_types)
                 classes_datasets.append(classes_df)
                 methods_datasets.append(methods_df)
+                aggregated_classes_datasets.append(aggregated_classes_df)
         for version in rest_versions:
             try:
                 self.extract_features_to_version(version, False, data_types)
@@ -55,14 +57,9 @@ class Main():
                 pass
         if rest_only:
             return
-        self.predict(classes_datasets[:-1], classes_datasets[-1], methods_datasets[:-1], methods_datasets[-1])
-
-    def predict(self, c_training, c_testing, m_training, m_testing):
-        classes_instance = self.extract_classes_datasets(c_training, c_testing)
-        classes_instance.predict()
-
-        methods_instance = self.extract_methods_datasets(m_training, m_testing)
-        methods_instance.predict()
+        self.extract_classes_datasets(aggregated_classes_datasets[:-1], aggregated_classes_datasets[-1]).predict()
+        self.extract_classes_datasets(classes_datasets[:-1], classes_datasets[-1], "classes_no_aggregate").predict()
+        self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1]).predict()
 
     def get_data_dirs(self):
         classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'],
@@ -131,25 +128,33 @@ class Main():
             extractor.extract()
             print(time.time() - start, extractor.__class__.__name__)
         classes_df, methods_df = db.build()
-        methods_df = self.fillna(methods_df)
         aggregated_methods_df = self.aggrate_methods_df(methods_df)
-        if 'Class' in classes_df.columns and 'Class' in aggregated_methods_df.columns:
-            classes_df = classes_df.merge(aggregated_methods_df, on=['File', 'Class'], how='outer')
-        else:
-            classes_df = classes_df.merge(aggregated_methods_df, on=['File'], how='outer')
+        methods_df = self.fillna(methods_df)
+        aggregated_classes_df = self.merge_aggregated_methods_to_class(aggregated_methods_df, classes_df)
         classes_df = self.fillna(classes_df)
         methods_df = methods_df.drop('File', axis=1, errors='ignore')
         methods_df = methods_df.drop('Class', axis=1, errors='ignore')
         methods_df = methods_df.drop('Method', axis=1, errors='ignore')
-        self.save_dfs(classes_df, methods_df, aggregated_methods_df, version)
-        return classes_df, methods_df
+        self.save_dfs(classes_df, methods_df, aggregated_classes_df, aggregated_methods_df, version)
+        return classes_df, methods_df, aggregated_classes_df
 
-    def save_dfs(self, classes_df, methods_df, aggregated_methods_df, version):
+    def merge_aggregated_methods_to_class(self, aggregated_methods_df, classes_df):
+        aggregated_classes_df = classes_df.copy(deep=True)
+        if 'Class' in aggregated_classes_df.columns and 'Class' in aggregated_methods_df.columns:
+            aggregated_classes_df = aggregated_classes_df.merge(aggregated_methods_df, on=['File', 'Class'],
+                                                                how='outer')
+        else:
+            aggregated_classes_df = aggregated_classes_df.merge(aggregated_methods_df, on=['File'], how='outer')
+        return self.fillna(aggregated_classes_df)
+
+    def save_dfs(self, classes_df, methods_df, aggregated_classes_df, aggregated_methods_df, version):
         classes_data, method_data, classes_intermediate_dir, methods_intermediate_dir, intermediate_dir = self.get_data_dirs()
         classes_df.to_csv(os.path.join(classes_intermediate_dir, version + ".csv"), index=False, sep=';')
+        aggregated_classes_df.to_csv(os.path.join(classes_intermediate_dir, version + "_aggregated_classes.csv"), index=False, sep=';')
         methods_df.to_csv(os.path.join(methods_intermediate_dir, version + ".csv"), index=False, sep=';')
-        aggregated_methods_df.to_csv(os.path.join(intermediate_dir, version + "aggregated_methods_df.csv"), index=False, sep=';')
+        aggregated_methods_df.to_csv(os.path.join(intermediate_dir, version + "_aggregated_methods_df.csv"), index=False, sep=';')
         classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False, sep=';')
+        aggregated_classes_df.to_csv(os.path.join(classes_data, version + "_aggregated_classes_.csv"), index=False, sep=';')
         methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False, sep=';')
 
     def get_extractors(self, data_types, extract_bugs, version):
@@ -169,7 +174,7 @@ class Main():
             db.add_data_types(extractor_data_types)
         return db, extractors_to_run
 
-    def extract_classes_datasets(self, training_datasets, testing_dataset):
+    def extract_classes_datasets(self, training_datasets, testing_dataset, sub_dir="classes"):
         training = pd.concat(training_datasets, ignore_index=True).drop(["File", "Class", "Method_ids"], axis=1, errors='ignore')
         training = self.fillna(training)
         testing = testing_dataset.drop("Method_ids", axis=1, errors='ignore')
@@ -177,7 +182,7 @@ class Main():
         file_names = testing.pop("File").values.tolist()
         classes_names = testing.pop("Class").values.tolist()
         classes_testing_names = list(map("@".join, zip(file_names, ['' if x in (False, True) else x for x in classes_names])))
-        return ClassificationInstance(training, testing, classes_testing_names, self.get_dataset_dir("classes"))
+        return ClassificationInstance(training, testing, classes_testing_names, self.get_dataset_dir(sub_dir))
 
     def get_dataset_dir(self, sub_dir):
         dataset_dir = Config.get_work_dir_path(
