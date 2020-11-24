@@ -103,7 +103,7 @@ class Main():
             key_data = {}
             key_data.update(dict(zip(groupby, key)))
             for feature in columns:
-                pt = pd.DataFrame(group[feature].describe()).T
+                pt = pd.DataFrame(group[feature].describe(include = 'all')).T
                 cols = ["{0}_{1}".format(feature, c) for c in pt.columns.values.tolist()]
                 pt.columns = cols
                 key_data.update(list(pt.iterrows())[0][1].to_dict())

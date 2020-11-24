@@ -5,6 +5,7 @@ from subprocess import Popen
 from xml.etree import ElementTree
 from datetime import datetime
 import pandas as pd
+import math
 
 from config import Config
 from data_extractor import DataExtractor
@@ -592,12 +593,13 @@ class ProcessExtractor(Extractor):
                     ans["_".join([initial, col, metric])] = 0.0
             for col in des:
                 for k, v in des[col].to_dict().items():
-                    ans["_".join([initial, col, k])] = v
+                    if v and not math.isnan(v):
+                        ans["_".join([initial, col, k])] = v
             return ans
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
         ans = {}
         ans.update(_get_features(df.drop('issue_id', axis=1), "all_process"))
-        ans.update(_get_features(df[df['issue_id'] != '0'].drop('issue_id', axis=1), "fixes"))
+        ans.update(_get_features(df[df['issue_id'] != '0'].drop(de'issue_id', axis=1), "fixes"))
         ans.update(_get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
         return ans
 
@@ -605,5 +607,5 @@ class ProcessExtractor(Extractor):
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
         issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
         merged = df.merge(issues_df, on=['issue_id'], how='outer')
-        merged = merged.drop(["summary", "description"], axis=1)
+        merged = merged.drop(["summary", "description", 'key'], axis=1)
         ans = {}

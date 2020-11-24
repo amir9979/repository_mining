@@ -61,7 +61,7 @@ class Data(ABC):
     def store(self):
         # self.data.dropna(inplace=True)
         self.data.to_csv(self.path, index=False, sep=';')
-        self.data.describe().to_csv(self.describe_path, index=False, sep=';')
+        self.data.describe(include = 'all').to_csv(self.describe_path, index=False, sep=';')
 
     @abstractmethod
     def build(self, values, column_names) -> pd.DataFrame:
