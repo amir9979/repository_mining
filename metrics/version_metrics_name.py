@@ -131,7 +131,6 @@ class DataNameEnum(Enum):
     ClassDataAbstractionCoupling = DataName("ClassDataAbstractionCoupling", DataType.CheckstyleDataType, "Class_Data_Abstraction_Coupling")
     NestedForDepth = DataName("NestedForDepth", DataType.CheckstyleDataType, "Nested_for_depth")
 
-    # TODO SourceMonitorColumns - Need windows to do this
     SourceMonitorComplexity = DataName("SourceMonitorComplexity", DataType.SourceMonitorDataType, "Complexity")
     SourceMonitorStatements = DataName("SourceMonitorStatements", DataType.SourceMonitorDataType, "Statements")
     SourceMonitorMaximumDepth = DataName("SourceMonitorMaximumDepth", DataType.SourceMonitorDataType, "Maximum Depth")
@@ -263,6 +262,82 @@ class DataNameEnum(Enum):
     NVAR = DataName("NVAR", DataType.JasomeMethodsDataType, "Number of Control Variables")
     Si = DataName("Si", DataType.JasomeMethodsDataType, "Structural Complexity")
     VG = DataName("VG", DataType.JasomeMethodsDataType, "McCabe Cyclomatic Complexity")
+
+
+    all_process_count = DataName("all_process_count", DataType.ProcessFilesDataType, "all_process_count")
+    all_process_insertions_count = DataName("all_process_insertions_count", DataType.ProcessFilesDataType,
+                                            "all_process_insertions_count")
+    all_process_insertions_mean = DataName("all_process_insertions_mean", DataType.ProcessFilesDataType,
+                                           "all_process_insertions_mean")
+    all_process_insertions_std = DataName("all_process_insertions_std", DataType.ProcessFilesDataType,
+                                          "all_process_insertions_std")
+    all_process_insertions_min = DataName("all_process_insertions_min", DataType.ProcessFilesDataType,
+                                          "all_process_insertions_min")
+    all_process_insertions_max = DataName("all_process_insertions_max", DataType.ProcessFilesDataType,
+                                          "all_process_insertions_max")
+    all_process_deletions_count = DataName("all_process_deletions_count", DataType.ProcessFilesDataType,
+                                           "all_process_deletions_count")
+    all_process_deletions_mean = DataName("all_process_deletions_mean", DataType.ProcessFilesDataType,
+                                          "all_process_deletions_mean")
+    all_process_deletions_std = DataName("all_process_deletions_std", DataType.ProcessFilesDataType,
+                                         "all_process_deletions_std")
+    all_process_deletions_min = DataName("all_process_deletions_min", DataType.ProcessFilesDataType,
+                                         "all_process_deletions_min")
+    all_process_deletions_max = DataName("all_process_deletions_max", DataType.ProcessFilesDataType,
+                                         "all_process_deletions_max")
+    all_process_changes_count = DataName("all_process_changes_count", DataType.ProcessFilesDataType,
+                                         "all_process_changes_count")
+    all_process_changes_mean = DataName("all_process_changes_mean", DataType.ProcessFilesDataType,
+                                        "all_process_changes_mean")
+    all_process_changes_std = DataName("all_process_changes_std", DataType.ProcessFilesDataType,
+                                       "all_process_changes_std")
+    all_process_changes_min = DataName("all_process_changes_min", DataType.ProcessFilesDataType,
+                                       "all_process_changes_min")
+    all_process_changes_max = DataName("all_process_changes_max", DataType.ProcessFilesDataType,
+                                       "all_process_changes_max")
+    fixes_count = DataName("fixes_count", DataType.ProcessFilesDataType, "fixes_count")
+    fixes_insertions_count = DataName("fixes_insertions_count", DataType.ProcessFilesDataType, "fixes_insertions_count")
+    fixes_insertions_mean = DataName("fixes_insertions_mean", DataType.ProcessFilesDataType, "fixes_insertions_mean")
+    fixes_insertions_std = DataName("fixes_insertions_std", DataType.ProcessFilesDataType, "fixes_insertions_std")
+    fixes_insertions_min = DataName("fixes_insertions_min", DataType.ProcessFilesDataType, "fixes_insertions_min")
+    fixes_insertions_max = DataName("fixes_insertions_max", DataType.ProcessFilesDataType, "fixes_insertions_max")
+    fixes_deletions_count = DataName("fixes_deletions_count", DataType.ProcessFilesDataType, "fixes_deletions_count")
+    fixes_deletions_mean = DataName("fixes_deletions_mean", DataType.ProcessFilesDataType, "fixes_deletions_mean")
+    fixes_deletions_std = DataName("fixes_deletions_std", DataType.ProcessFilesDataType, "fixes_deletions_std")
+    fixes_deletions_min = DataName("fixes_deletions_min", DataType.ProcessFilesDataType, "fixes_deletions_min")
+    fixes_deletions_max = DataName("fixes_deletions_max", DataType.ProcessFilesDataType, "fixes_deletions_max")
+    fixes_changes_count = DataName("fixes_changes_count", DataType.ProcessFilesDataType, "fixes_changes_count")
+    fixes_changes_mean = DataName("fixes_changes_mean", DataType.ProcessFilesDataType, "fixes_changes_mean")
+    fixes_changes_std = DataName("fixes_changes_std", DataType.ProcessFilesDataType, "fixes_changes_std")
+    fixes_changes_min = DataName("fixes_changes_min", DataType.ProcessFilesDataType, "fixes_changes_min")
+    fixes_changes_max = DataName("fixes_changes_max", DataType.ProcessFilesDataType, "fixes_changes_max")
+    non_fixes_count = DataName("non_fixes_count", DataType.ProcessFilesDataType, "non_fixes_count")
+    non_fixes_insertions_count = DataName("non_fixes_insertions_count", DataType.ProcessFilesDataType,
+                                          "non_fixes_insertions_count")
+    non_fixes_insertions_mean = DataName("non_fixes_insertions_mean", DataType.ProcessFilesDataType,
+                                         "non_fixes_insertions_mean")
+    non_fixes_insertions_std = DataName("non_fixes_insertions_std", DataType.ProcessFilesDataType,
+                                        "non_fixes_insertions_std")
+    non_fixes_insertions_min = DataName("non_fixes_insertions_min", DataType.ProcessFilesDataType,
+                                        "non_fixes_insertions_min")
+    non_fixes_insertions_max = DataName("non_fixes_insertions_max", DataType.ProcessFilesDataType,
+                                        "non_fixes_insertions_max")
+    non_fixes_deletions_count = DataName("non_fixes_deletions_count", DataType.ProcessFilesDataType,
+                                         "non_fixes_deletions_count")
+    non_fixes_deletions_mean = DataName("non_fixes_deletions_mean", DataType.ProcessFilesDataType,
+                                        "non_fixes_deletions_mean")
+    non_fixes_deletions_std = DataName("non_fixes_deletions_std", DataType.ProcessFilesDataType,
+                                       "non_fixes_deletions_std")
+    non_fixes_deletions_min = DataName("non_fixes_deletions_min", DataType.ProcessFilesDataType,
+                                       "non_fixes_deletions_min")
+    non_fixes_deletions_max = DataName("non_fixes_deletions_max", DataType.ProcessFilesDataType,
+                                       "non_fixes_deletions_max")
+    non_fixes_changes_count = DataName("non_fixes_changes_count", DataType.ProcessFilesDataType,
+                                       "non_fixes_changes_count")
+    non_fixes_changes_mean = DataName("non_fixes_changes_mean", DataType.ProcessFilesDataType, "non_fixes_changes_mean")
+    non_fixes_changes_std = DataName("non_fixes_changes_std", DataType.ProcessFilesDataType, "non_fixes_changes_std")
+    non_fixes_changes_min = DataName("non_fixes_changes_min", DataType.ProcessFilesDataType, "non_fixes_changes_min")
+    non_fixes_changes_max = DataName("non_fixes_changes_max", DataType.ProcessFilesDataType, "non_fixes_changes_max")
 
     @staticmethod
     def get_data_names_by_type(data_types: List[DataType]):
