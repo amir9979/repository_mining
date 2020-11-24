@@ -555,7 +555,7 @@ class ProcessExtractor(Extractor):
         super().__init__("ProcessExtractor", project, version, [DataType.ProcessFilesDataType], repo)
 
     def _set_data(self):
-        self.data = ProcessData(self.project, self.version)
+        self.data = CompositeData()
 
     def _extract(self):
         # get version_date from apache_versions
@@ -565,6 +565,11 @@ class ProcessExtractor(Extractor):
         df = pd.read_csv(path, sep=';')
         issues_path = os.path.join(repository_data, config['DATA_EXTRACTION']["Issues"], self.project.github(), self.project.jira() + ".csv")
         issues_df = pd.read_csv(issues_path, sep=';')
+        issues_df = issues_df.drop(['creator', 'lastViewed', 'environment', 'summary', 'components', 'workratio', 'timeoriginalestimate', 'reporter', 'assignee', 'status', 'timespent', 'issuelinks', 'created', 'fixVersions', 'aggregatetimespent', 'labels', 'timeestimate', 'aggregatetimeestimate', 'versions', 'resolutiondate', 'duedate', 'aggregatetimeoriginalestimate', 'description', 'updated', 'project', 'subtasks'], axis=1)
+        to_dummies = ['priority', 'resolution', 'issuetype']
+        for d in to_dummies:
+            issues_df = pd.concat([issues_df, pd.get_dummies(issues_df[d], prefix=d)], axis=1)
+            issues_df.drop([d], axis=1, inplace=True)
         print(self.version)
         version_date = df[df['version_name'] == self.version]['version_date'].to_list()[0]
         version_date = datetime.strptime(version_date, '%Y-%m-%d %H:%M:%S')
@@ -575,37 +580,39 @@ class ProcessExtractor(Extractor):
         df = df[df.apply(lambda r: datetime.strptime(r['commit_date'], '%Y-%m-%d %H:%M:%S') < version_date, axis=1)]
         # split by file_name
         data = {}
+        issues_data = {}
         for file_name, d in df.groupby('file_name', as_index=False):
             if file_name.endswith('.java'):
                 data[file_name] = self._extract_process_features(d)
-                self._extract_issues_features(d, issues_df)
+                issues_data[file_name] = self._extract_issues_features(d, issues_df)
         # extract the following features:
-        self.data.set_raw_data(data)
+        self.data.add(ProcessData(self.project, self.version, data=data)).add(IssuesData(self.project, self.version, data=data))
+
+    def _get_features(self, d, initial=''):
+        ans = {initial + "_count": d.shape[0]}
+        des = d.describe()
+        des = des.drop(['25%', '50%', '75%'])
+        for col in des:
+            for metric in des.index.to_list():
+                # set default value
+                ans["_".join([initial, col, metric])] = 0.0
+        for col in des:
+            for k, v in des[col].to_dict().items():
+                if v and not math.isnan(v):
+                    ans["_".join([initial, col, k])] = v
+        return ans
 
     def _extract_process_features(self, df):
-        def _get_features(d, initial=''):
-            ans = {initial + "_count": d.shape[0]}
-            des = d.describe()
-            des = des.drop(['25%', '50%', '75%'])
-            for col in des:
-                for metric in des.index.to_list():
-                    # set default value
-                    ans["_".join([initial, col, metric])] = 0.0
-            for col in des:
-                for k, v in des[col].to_dict().items():
-                    if v and not math.isnan(v):
-                        ans["_".join([initial, col, k])] = v
-            return ans
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
         ans = {}
-        ans.update(_get_features(df.drop('issue_id', axis=1), "all_process"))
-        ans.update(_get_features(df[df['issue_id'] != '0'].drop('issue_id', axis=1), "fixes"))
-        ans.update(_get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
+        ans.update(self._get_features(df.drop('issue_id', axis=1), "all_process"))
+        ans.update(self._get_features(df[df['issue_id'] != '0'].drop('issue_id', axis=1), "fixes"))
+        ans.update(self._get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
         return ans
 
     def _extract_issues_features(self, df, issues_df):
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
         issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
-        merged = df.merge(issues_df, on=['issue_id'], how='outer')
-        merged = merged.drop(["summary", "description", 'key'], axis=1)
-        ans = {}
+        merged = df.merge(issues_df, on=['issue_id'], how='inner')
+        merged = merged.drop(['key', 'issue_id'], axis=1)
+        return self._get_features(merged, 'issues')
