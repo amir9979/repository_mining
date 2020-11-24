@@ -578,7 +578,7 @@ class ProcessExtractor(Extractor):
         for file_name, d in df.groupby('file_name', as_index=False):
             if file_name.endswith('.java'):
                 data[file_name] = self._extract_process_features(d)
-                self._extract_issues_features(df, issues_df)
+                self._extract_issues_features(d, issues_df)
         # extract the following features:
         self.data.set_raw_data(data)
 
@@ -599,7 +599,7 @@ class ProcessExtractor(Extractor):
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
         ans = {}
         ans.update(_get_features(df.drop('issue_id', axis=1), "all_process"))
-        ans.update(_get_features(df[df['issue_id'] != '0'].drop(de'issue_id', axis=1), "fixes"))
+        ans.update(_get_features(df[df['issue_id'] != '0'].drop('issue_id', axis=1), "fixes"))
         ans.update(_get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
         return ans
 
