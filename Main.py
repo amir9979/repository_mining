@@ -177,12 +177,12 @@ class Main():
     def extract_classes_datasets(self, training_datasets, testing_dataset, sub_dir="classes"):
         training = pd.concat(training_datasets, ignore_index=True).drop(["File", "Class", "Method_ids"], axis=1, errors='ignore')
         training = self.fillna(training)
-        testing = testing_dataset.drop("Method_ids", axis=1, errors='ignore')
+        testing = testing_dataset.drop(["Method_ids", "Class"], axis=1, errors='ignore')
         testing = self.fillna(testing, default='')
         file_names = testing.pop("File").values.tolist()
-        classes_names = testing.pop("Class").values.tolist()
-        classes_testing_names = list(map("@".join, zip(file_names, ['' if x in (False, True) else x for x in classes_names])))
-        return ClassificationInstance(training, testing, classes_testing_names, self.get_dataset_dir(sub_dir))
+        # classes_names = testing.pop("Class").values.tolist()
+        # classes_testing_names = list(map("@".join, zip(file_names, ['' if x in (False, True) else x for x in classes_names])))
+        return ClassificationInstance(training, testing, file_names, self.get_dataset_dir(sub_dir))
 
     def get_dataset_dir(self, sub_dir):
         dataset_dir = Config.get_work_dir_path(

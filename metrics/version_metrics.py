@@ -586,7 +586,7 @@ class ProcessExtractor(Extractor):
                 data[file_name] = self._extract_process_features(d)
                 issues_data[file_name] = self._extract_issues_features(d, issues_df)
         # extract the following features:
-        self.data.add(ProcessData(self.project, self.version, data=data)).add(IssuesData(self.project, self.version, data=data))
+        self.data.add(ProcessData(self.project, self.version, data=data)).add(IssuesData(self.project, self.version, data=issues_data))
 
     def _get_features(self, d, initial=''):
         ans = {initial + "_count": d.shape[0]}
