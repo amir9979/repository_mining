@@ -1,1 +1,1 @@
-["source_monitor", "process_files"]
+["source_monitor", "process_files", "checkstyle", "halstead", "issues_files", "source_monitor_files"]
