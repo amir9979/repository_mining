@@ -89,12 +89,12 @@ class DataExtractor(object):
         self._store_versions(tags, False)
         self._store_versions_infos(tags)
         self._store_files(tags)
-        # if selected_versions:
-        #     tags = self._get_bugged_files_between_versions(list(filter(lambda tag: tag._name in list(map(lambda x: os.path.normpath(str(x)), self.get_selected_versions())), self.versions)), True)
-        #     self._store_versions(tags, True)
-        #     self._store_versions_infos(tags, True)
-        #     self._store_files(tags, True)
-        #     self._store_methods(tags)
+        if selected_versions:
+            tags = self._get_bugged_files_between_versions(list(filter(lambda tag: tag._name in list(map(lambda x: os.path.normpath(str(x)), self.get_selected_versions())), self.versions)), True)
+            self._store_versions(tags, True)
+            self._store_versions_infos(tags, True)
+            self._store_files(tags, True)
+            self._store_methods(tags)
 
     def _store_issues(self):
         df = pd.DataFrame(list(map(lambda x: x.fields, self.jira_issues)), columns=self.jira_issues[0].fields.keys())
