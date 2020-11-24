@@ -587,6 +587,10 @@ class ProcessExtractor(Extractor):
             des = d.describe()
             des = des.drop(['25%', '50%', '75%'])
             for col in des:
+                for metric in des.index.to_list():
+                    # set default value
+                    ans["_".join([initial, col, metric])] = 0.0
+            for col in des:
                 for k, v in des[col].to_dict().items():
                     ans["_".join([initial, col, k])] = v
             return ans
@@ -601,4 +605,5 @@ class ProcessExtractor(Extractor):
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
         issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
         merged = df.merge(issues_df, on=['issue_id'], how='outer')
+        merged = merged.drop(["summary", "description"], axis=1)
         ans = {}
