@@ -67,26 +67,30 @@ class Main():
         detailed = {}
         for d in DataNameEnum:
             if d.value.data_type.value in data_types:
-                detailed.setdefault(d.value.data_type.value, set()).add(d.value.column_name)
+                detailed.setdefault(d.value.data_type.value, set()).add(d.value.name)
         for d in detailed:
             ones[d] = detailed[d]
             all_but_d = list(detailed.keys())
             all_but_d.remove(d)
             alls[d] = reduce(set.__or__, list(map(detailed.get, all_but_d)), set())
-        for d in detailed:
-            ones[d] = ones[d].union({"Bugged", "BuggedMethods"})
-            alls[d] = alls[d].union({"Bugged", "BuggedMethods"})
 
-        for sub_dir in ["methods", "classes_no_aggregate"]:
+        for sub_dir, label in [("methods", "BuggedMethods"), ("classes_no_aggregate", "Bugged")]:
             training_df = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "training.csv"), sep=';')
             testing_df = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "testing.csv"), sep=';')
+            dataset_cols = set(training_df.columns.to_list()).intersection(set(testing_df.columns.to_list()))
             names = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "prediction.csv"), sep=';')['name'].to_list()
             for dir_name, columns in (('one', ones), ('all', alls)):
                 for d in columns:
-                    cols = list(columns[d].intersection(set(training_df.columns.to_list()).intersection(set(testing_df.columns.to_list()))))
+                    cols = columns[d].intersection(dataset_cols)
+                    cols.add(label)
+                    cols = list(cols)
                     train = training_df[cols]
                     test = testing_df[cols]
-                    ClassificationInstance(train, test, names, self.get_dataset_dir(os.path.join(dir_name, sub_dir, d))).predict()
+                    ci = ClassificationInstance(train, test, names, self.get_dataset_dir(os.path.join(dir_name, sub_dir, d)), label=label)
+                    try:
+                        ci.predict()
+                    except:
+                        pass
 
 
     def get_data_dirs(self):
