@@ -13,8 +13,8 @@ class ClassificationInstance(object):
             self.training.to_csv(os.path.join(dataset_dir, training_path), index=False, sep=';')
             self.testing.to_csv(os.path.join(dataset_dir, testing_path), index=False, sep=';')
 
-            self.training.describe().to_csv(os.path.join(dataset_dir, training_describe_path), sep=';')
-            self.testing.describe().to_csv(os.path.join(dataset_dir, testing_describe_path), sep=';')
+            self.training.describe(include = 'all').to_csv(os.path.join(dataset_dir, training_describe_path), sep=';')
+            self.testing.describe(include = 'all').to_csv(os.path.join(dataset_dir, testing_describe_path), sep=';')
         self.prediction_path = os.path.join(dataset_dir, prediction_path)
 
         self.training_y = self.training.pop(label).values
@@ -28,13 +28,14 @@ class ClassificationInstance(object):
     def predict(self):
         classifier = RandomForestClassifier(n_estimators=1000, random_state=42)
         model = classifier.fit(self.training_X, self.training_y)
-        predictions = classifier.predict_proba(self.testing_X)
+        classes = list(map(lambda x: str(x) + "_probability", classifier.classes_.tolist()))
+        predictions = list(zip(*classifier.predict_proba(self.testing_X)))
         if self.testing_y is not None:
-            columns = ['name', 'actual', 'faulty_probability']
-            data = zip(self.names, self.testing_y.tolist(), predictions)
+            columns = ['name', 'actual'] + classes
+            data = zip(self.names, self.testing_y.tolist(), *predictions)
         else:
-            columns = ['name', 'faulty_probability']
-            data = zip(self.names, predictions)
+            columns = ['name'] + classes
+            data = zip(self.names, *predictions)
         prediction = pd.DataFrame(data, columns=columns)
         if self.prediction_path:
             prediction.to_csv(self.prediction_path, index=False, sep=';')
