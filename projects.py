@@ -133,7 +133,6 @@ class ProjectName(Enum):
 
 
     # Projects that failed selection
-    # new
     # Groovy = Project("groovy", "GROOVY")
     # Ignite = Project("ignite", "IGNITE")
     # Bahir = Project("bahir", "BAHIR")
@@ -166,3 +165,6 @@ class ProjectName(Enum):
     # def path(self):
     #     return self.path()
 
+if __name__ == "__main__":
+    ans = list(map(lambda x: "gh issue create -t {} -b skip".format(x.name), ProjectName))
+    pass

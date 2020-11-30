@@ -73,8 +73,8 @@ class Main():
             all_but_d = list(detailed.keys())
             all_but_d.remove(d)
             alls[d] = reduce(set.__or__, list(map(detailed.get, all_but_d)), set())
-
         for sub_dir, label in [("methods", "BuggedMethods"), ("classes_no_aggregate", "Bugged")]:
+            scores = []
             training_df = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "training.csv"), sep=';')
             testing_df = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "testing.csv"), sep=';')
             dataset_cols = set(training_df.columns.to_list()).intersection(set(testing_df.columns.to_list()))
@@ -89,9 +89,12 @@ class Main():
                     ci = ClassificationInstance(train, test, names, self.get_dataset_dir(os.path.join(dir_name, sub_dir, d)), label=label)
                     try:
                         ci.predict()
+                        ci_scores = dict(ci.scores)
+                        ci_scores.update({"type": dir_name, "data_type": d})
+                        scores.append(ci_scores)
                     except:
                         pass
-
+            pd.DataFrame(scores).to_csv(self.get_dataset_dir(sub_dir +  "_metrics.csv"), index=False, sep=';')
 
     def get_data_dirs(self):
         classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'],
