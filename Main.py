@@ -75,10 +75,10 @@ class Main():
             alls[d] = reduce(set.__or__, list(map(detailed.get, all_but_d)), set())
         for sub_dir, label in [("methods", "BuggedMethods"), ("classes_no_aggregate", "Bugged")]:
             scores = []
-            training_df = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "training.csv"), sep=';')
-            testing_df = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "testing.csv"), sep=';')
+            training_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "training.csv"), sep=';')
+            testing_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "testing.csv"), sep=';')
             dataset_cols = set(training_df.columns.to_list()).intersection(set(testing_df.columns.to_list()))
-            names = pd.read_csv(os.path.join(self.get_dataset_dir(sub_dir), "prediction.csv"), sep=';')['name'].to_list()
+            names = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "prediction.csv"), sep=';')['name'].to_list()
             for dir_name, columns in (('one', ones), ('all', alls)):
                 for d in columns:
                     cols = columns[d].intersection(dataset_cols)
@@ -86,7 +86,7 @@ class Main():
                     cols = list(cols)
                     train = training_df[cols]
                     test = testing_df[cols]
-                    ci = ClassificationInstance(train, test, names, self.get_dataset_dir(os.path.join(dir_name, sub_dir, d)), label=label)
+                    ci = ClassificationInstance(train, test, names, self.get_dataset_path(os.path.join(dir_name, sub_dir, d)), label=label)
                     try:
                         ci.predict()
                         ci_scores = dict(ci.scores)
@@ -94,7 +94,7 @@ class Main():
                         scores.append(ci_scores)
                     except:
                         pass
-            pd.DataFrame(scores).to_csv(self.get_dataset_dir(sub_dir +  "_metrics.csv"), index=False, sep=';')
+            pd.DataFrame(scores).to_csv(self.get_dataset_path(sub_dir + "_metrics.csv", False), index=False, sep=';')
 
     def get_data_dirs(self):
         classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'],
@@ -217,15 +217,16 @@ class Main():
         file_names = testing.pop("File").values.tolist()
         # classes_names = testing.pop("Class").values.tolist()
         # classes_testing_names = list(map("@".join, zip(file_names, ['' if x in (False, True) else x for x in classes_names])))
-        return ClassificationInstance(training, testing, file_names, self.get_dataset_dir(sub_dir))
+        return ClassificationInstance(training, testing, file_names, self.get_dataset_path(sub_dir))
 
-    def get_dataset_dir(self, sub_dir):
+    def get_dataset_path(self, name, is_dir=True):
         dataset_dir = Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['Dataset'],
                          self.project.github()))
-        sub_dataset_dir = os.path.join(dataset_dir, sub_dir)
-        Path(sub_dataset_dir).mkdir(parents=True, exist_ok=True)
-        return sub_dataset_dir
+        path = os.path.join(dataset_dir, name)
+        if is_dir:
+            Path(path).mkdir(parents=True, exist_ok=True)
+        return path
 
     def extract_methods_datasets(self, training_datasets, testing_dataset):
         training = pd.concat(training_datasets, ignore_index=True).drop("Method_ids", axis=1, errors='ignore')
@@ -233,7 +234,7 @@ class Main():
         testing = testing_dataset
         testing = self.fillna(testing)
         methods_testing_names = testing.pop("Method_ids").values.tolist()
-        return ClassificationInstance(training, testing, methods_testing_names, self.get_dataset_dir("methods"), label="BuggedMethods")
+        return ClassificationInstance(training, testing, methods_testing_names, self.get_dataset_path("methods"), label="BuggedMethods")
 
     def choose_versions(self, version_num=5, algorithm="bin", version_type=VersionType.Untyped, strict=True):
         self.extractor.init_jira_commits()
