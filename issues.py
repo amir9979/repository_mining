@@ -1,6 +1,6 @@
 import jira
 from caching import cached
-import json
+import time
 import os
 
 
@@ -34,12 +34,17 @@ def get_jira_issues(project_name, url="http://issues.apache.org/jira", bunch=100
     jira_conn = jira.JIRA(url)
     all_issues=[]
     extracted_issues = 0
+    sleep_time = 30
     while True:
-        issues = jira_conn.search_issues("project={0}".format(project_name), maxResults=bunch, startAt=extracted_issues)
-        all_issues.extend(issues)
-        extracted_issues=extracted_issues+bunch
-        if len(issues) < bunch:
-            break
+        try:
+            issues = jira_conn.search_issues("project={0}".format(project_name), maxResults=bunch, startAt=extracted_issues)
+            all_issues.extend(issues)
+            extracted_issues=extracted_issues+bunch
+            if len(issues) < bunch:
+                break
+        except:
+            sleep_time = sleep_time * 2
+            time.sleep(sleep_time)
     return list(map(lambda issue: Issue(issue, url), all_issues))
 
 
