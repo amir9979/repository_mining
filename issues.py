@@ -30,7 +30,7 @@ class Issue(object):
 
 
 @cached("apache_jira")
-def get_jira_issues(project_name, url, bunch=100):
+def get_jira_issues(project_name, url="http://issues.apache.org/jira", bunch=100):
     jira_conn = jira.JIRA(url)
     all_issues=[]
     extracted_issues = 0
@@ -41,3 +41,10 @@ def get_jira_issues(project_name, url, bunch=100):
         if len(issues) < bunch:
             break
     return list(map(lambda issue: Issue(issue, url), all_issues))
+
+
+if __name__ == "__main__":
+    import sys
+    from projects import ProjectName
+    p = ProjectName[sys.argv[1]]
+    get_jira_issues(p.value.jira())

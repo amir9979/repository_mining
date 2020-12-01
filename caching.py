@@ -8,14 +8,15 @@ from config import Config
 REPOSITORY_DATA_DIR = Config.get_work_dir_path(Config().config['CACHING']['RepositoryData'])
 REPOSITORY_CACHING_DIR = Config.get_work_dir_path(Config().config['CACHING']['RepositoryCaching'])
 
-assert REPOSITORY_DATA_DIR and REPOSITORY_DATA_DIR.exists()
-assert REPOSITORY_CACHING_DIR and REPOSITORY_CACHING_DIR.exists()
-
 
 def assert_dir_exists(cache_dir):
     if not cache_dir.exists():
         cache_dir.mkdir()
     return cache_dir
+
+
+assert REPOSITORY_DATA_DIR and assert_dir_exists(REPOSITORY_DATA_DIR)
+assert REPOSITORY_CACHING_DIR and assert_dir_exists(REPOSITORY_CACHING_DIR)
 
 
 def cached(cache_name, cache_dir=REPOSITORY_CACHING_DIR):
