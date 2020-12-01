@@ -30,7 +30,7 @@ def cached(cache_name, cache_dir=REPOSITORY_CACHING_DIR):
         def wrapped(key='KEY', *args, **kwargs):   # define a wrapper that will finally call "fn" with all arguments
             gzip_cachefile = cache_dir.joinpath(key + ".gzip")
             assert_dir_exists(gzip_cachefile.parent)
-            print(f"looking for cache {gzip_cachefile}: " + gzip_cachefile.exists())
+            print(f"looking for cache {gzip_cachefile}: " + str(gzip_cachefile.exists()))
             exit()
             if gzip_cachefile.exists():
                 try:
