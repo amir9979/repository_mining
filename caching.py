@@ -33,6 +33,7 @@ def cached(cache_name, cache_dir=REPOSITORY_CACHING_DIR):
             if gzip_cachefile.exists():
                 try:
                     with gzip.GzipFile(gzip_cachefile, 'rb') as cachehandle:
+                        print(f"read {key} from cache")
                         return pickle.load(cachehandle)
                 except:
                     pass
