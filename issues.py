@@ -42,8 +42,10 @@ def get_jira_issues(project_name, url="http://issues.apache.org/jira", bunch=100
             extracted_issues=extracted_issues+bunch
             if len(issues) < bunch:
                 break
-        except:
+        except Exception as e:
             sleep_time = sleep_time * 2
+            if sleep_time >= 480:
+                raise e
             time.sleep(sleep_time)
     return list(map(lambda issue: Issue(issue, url), all_issues))
 
