@@ -81,7 +81,7 @@ class Main():
             names = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "prediction.csv"), sep=';')['name'].to_list()
             for dir_name, columns in (('one', ones), ('all', alls)):
                 for d in columns:
-                    cols = set(filter(lambda dc: any(map(lambda c: dc in c, columns[d])), dataset_cols))
+                    cols = set(filter(lambda dc: any(map(lambda c: c in dc, columns[d])), dataset_cols))
                     if len(cols) == 0:
                         continue
                     cols.add(label)
