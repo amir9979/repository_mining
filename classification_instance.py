@@ -100,7 +100,8 @@ class ClassificationInstance(object):
                         ci_scores = dict(ci.scores)
                         ci_scores.update({"type": e_type, "data_type": data_type})
                         scores.append(ci_scores)
-                    except:
+                    except Exception as e:
+                        print(e)
                         pass
             pd.DataFrame(scores).to_csv(os.path.join(dataset_dir, sub_dir + "_metrics.csv"), index=False, sep=';')
 

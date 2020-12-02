@@ -58,7 +58,7 @@ class Main():
         if rest_only:
             return
         self.extract_classes_datasets(aggregated_classes_datasets[:-1], aggregated_classes_datasets[-1]).predict()
-        self.extract_classes_datasets(classes_datasets[:-1], classes_datasets[-1], "classes_no_aggregate").predict()
+        # self.extract_classes_datasets(classes_datasets[:-1], classes_datasets[-1], "classes_no_aggregate").predict()
         self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1]).predict()
 
     def create_all_but_one_dataset(self, data_types):
@@ -73,7 +73,7 @@ class Main():
             all_but_d = list(detailed.keys())
             all_but_d.remove(d)
             alls[d] = reduce(set.__or__, list(map(detailed.get, all_but_d)), set())
-        for sub_dir, label in [("methods", "BuggedMethods"), ("classes_no_aggregate", "Bugged")]:
+        for sub_dir, label in [("methods", "BuggedMethods"), ("classes", "Bugged")]:
             scores = []
             training_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "training.csv"), sep=';')
             testing_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "testing.csv"), sep=';')
@@ -81,7 +81,7 @@ class Main():
             names = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "prediction.csv"), sep=';')['name'].to_list()
             for dir_name, columns in (('one', ones), ('all', alls)):
                 for d in columns:
-                    cols = columns[d].intersection(dataset_cols)
+                    cols = set(filter(lambda dc: any(map(lambda c: dc in c, columns[d])), dataset_cols))
                     cols.add(label)
                     cols = list(cols)
                     train = training_df[cols]
@@ -92,8 +92,8 @@ class Main():
                         ci_scores = dict(ci.scores)
                         ci_scores.update({"type": dir_name, "data_type": d})
                         scores.append(ci_scores)
-                    except:
-                        pass
+                    except Exception as e:
+                        print(e)
             pd.DataFrame(scores).to_csv(self.get_dataset_path(sub_dir + "_metrics.csv", False), index=False, sep=';')
 
     def get_data_dirs(self):
