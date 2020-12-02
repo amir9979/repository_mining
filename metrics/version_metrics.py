@@ -552,7 +552,7 @@ class Jasome(Extractor):
 
 class ProcessExtractor(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("ProcessExtractor", project, version, [DataType.ProcessFilesDataType], repo)
+        super().__init__("ProcessExtractor", project, version, [DataType.ProcessFilesDataType, DataType.IssuesFilesDataType], repo)
 
     def _set_data(self):
         self.data = CompositeData()

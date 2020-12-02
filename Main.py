@@ -82,6 +82,8 @@ class Main():
             for dir_name, columns in (('one', ones), ('all', alls)):
                 for d in columns:
                     cols = set(filter(lambda dc: any(map(lambda c: dc in c, columns[d])), dataset_cols))
+                    if len(cols) == 0:
+                        continue
                     cols.add(label)
                     cols = list(cols)
                     train = training_df[cols]
