@@ -21,8 +21,10 @@ class ClassificationInstance(object):
         self.prediction_path = os.path.join(dataset_dir, prediction_path)
         self.metrics_path = os.path.join(dataset_dir, metrics_path)
         self.scores = None
+        self.importance = None
 
         self.training_y = self.training.pop(label).values
+        self.features_list = self.training.columns.to_list()
         self.training_X = self.training.values
         self.testing_y = None
         if label in self.testing.columns:
@@ -36,6 +38,7 @@ class ClassificationInstance(object):
         classes = list(map(lambda x: str(x) + "_probability", classifier.classes_.tolist()))
         predictions_proba = list(zip(*classifier.predict_proba(self.testing_X)))
         predictions = list(classifier.predict(self.testing_X))
+        self.importance = dict(zip(self.features_list, classifier.feature_importances_.tolist()))
         if self.names:
             names = self.names
         else:
@@ -61,6 +64,8 @@ class ClassificationInstance(object):
         self.scores['f1_score'] = metrics.f1_score(y_true, y_pred)
         self.scores['roc_auc_score'] = metrics.roc_auc_score(y_true, y_prob)
         self.scores['pr_auc_score'] = pr_auc_score(y_true, y_prob)
+        if self.importance:
+            self.scores['importance'] = self.importance
         if self.save_all:
             with open(self.metrics_path, "w") as f:
                 json.dump(self.scores, f)
