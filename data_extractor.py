@@ -44,7 +44,7 @@ class DataExtractor(object):
         self.selected_config = 0
 
     def checkout_version(self, version):
-        self.git_repo.git.checkout(version, force=True)
+        self.git_repo.git.checkout(version.replace('\\', '/'), force=True)
 
     def checkout_master(self):
         self.git_repo.git.checkout(self.head_commit, force=True)
