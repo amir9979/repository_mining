@@ -142,7 +142,8 @@ class BinSelectVersion(AbstractSelectVersions):
                     configuration = {'start': start, 'step': step, 'versions': tuple(selected_versions)}
                     if len(configuration['versions']) > 1:
                         self.selected_versions.append(configuration)
-        return sorted(list(set(map(lambda x: x['versions'], self.selected_versions))), key=lambda v: sum(map(version_names.index, v)), reverse=True)[self.selected_config]
+        self.selected_versions = sorted(self.selected_versions, key=lambda v: sum(map(version_names.index, v['versions'])), reverse=True)
+        return self.selected_versions[self.selected_config]['versions']
 
     def _store_versions(self, repo):
         config = Config().config
@@ -161,7 +162,7 @@ class BinSelectVersion(AbstractSelectVersions):
             Config.assert_dir_exists(dir_path)
             path = os.path.join(dir_path, str(name) + ".csv")
             df.to_csv(path, index=False, sep=';')
-            if len(configuration['versions']) > 3:
+            if len(configuration['versions']) >= 3:
                 json_short_data.append({"ind": ind, "name": name, "versions": configuration['versions'], "configuration": configuration})
                 ind = ind + 1
         dir_path = os.path.join(repository_data, selected_versions)
