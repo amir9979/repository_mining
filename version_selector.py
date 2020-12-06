@@ -108,24 +108,24 @@ class AbstractSelectVersions(ABC):
 
 
 class BinSelectVersion(AbstractSelectVersions):
-    def __init__(self, repo, tags, versions, version_num, version_type, strict, start=[5, 10, 20, 30, 40], stop=[100], step=[10, 20], selected_config=0):
+    def __init__(self, repo, tags, versions, version_num, version_type, strict, start=(1, 5, 10, 20, 30, 40), step=(5, 10, 20), selected_config=0):
         super().__init__(repo, tags, versions, version_num, version_type, strict)
         self.start = start
-        self.stop = stop
         self.step = step
         self.selected_config = selected_config
         self.selected_versions = list()
 
     def _select_versions(self, repo, versions_by_type, tags):
-        for start, stop, step in product(self.start, self.stop, self.step):
-            bins = list(map(lambda x: list(), range(start, stop, step)))
+        version_names = list(map(lambda x: x.version._name, tags))
+        for start, step in product(self.start, self.step):
+            bins = list(map(lambda x: list(), range(start, 100, step)))
             for tag in tags:
                 bugged_files = len(list(filter(lambda x: "java" in x, tag.bugged_files)))
                 java_files = len(list(filter(lambda x: "java" in x, tag.version_files)))
                 if bugged_files * java_files == 0:
                     continue
                 bugged_ratio = 100.0 * bugged_files / java_files
-                if bugged_ratio < start or bugged_ratio > stop:
+                if bugged_ratio < start:
                     continue
                 bins[int((bugged_ratio - start) / step)].append(tag.version._name)
             for ind, bin_ in enumerate(bins):
@@ -134,13 +134,15 @@ class BinSelectVersion(AbstractSelectVersions):
                 selected_versions = list(bin_)
                 if self.strict:
                     for i in range(len(selected_versions) - self.version_num):
-                        selected_versions = selected_versions[i: i + self.version_num + 1]
-                        configuration = {'start': start, 'step': step, 'stop': stop, 'versions': selected_versions}
-                        self.selected_versions.append(configuration)
+                        versions = selected_versions[i: i + self.version_num]
+                        configuration = {'start': start, 'step': step, 'versions': versions}
+                        if len(configuration['versions']) > 1:
+                            self.selected_versions.append(configuration)
                 else:
-                    configuration = {'start': start, 'step': step, 'stop': stop, 'versions': selected_versions}
-                    self.selected_versions.append(configuration)
-        return list(map(lambda x: x['versions'], self.selected_versions))[self.selected_config]
+                    configuration = {'start': start, 'step': step, 'versions': selected_versions}
+                    if len(configuration['versions']) > 1:
+                        self.selected_versions.append(configuration)
+        return sorted(map(lambda x: x['versions'], self.selected_versions), key=lambda v: sum(map(version_names.index, v)), reverse=True)[self.selected_config]
 
     def _store_versions(self, repo):
         config = Config().config
@@ -150,9 +152,9 @@ class BinSelectVersion(AbstractSelectVersions):
         ind = 0
         for configuration in self.selected_versions:
             values = list(product([configuration['start']], [configuration['step']],
-                                  [configuration['stop']], configuration['versions']))
+                                  configuration['versions']))
             name = Config.get_short_name(configuration['versions'])
-            columns = ["start", "step", "stop", "version"]
+            columns = ["start", "step", "version"]
             df = pd.DataFrame(values, dtype=str, columns=columns)
             dir_path = os.path.join(repository_data, selected_versions, repo.github_name)
             dir_path = Config.get_work_dir_path(dir_path)

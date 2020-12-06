@@ -7,7 +7,7 @@ import sklearn.metrics as metrics
 
 class ClassificationInstance(object):
     def __init__(self, training, testing, names=None, dataset_dir=None, training_path="training.csv", testing_path="testing.csv",
-                 training_describe_path="training_describe.csv", testing_describe_path="testing_describe.csv", prediction_path="prediction.csv", label='Bugged', save_all=True, metrics_path='metrics.json'):
+                 training_describe_path="training_describe.csv", testing_describe_path="testing_describe.csv", prediction_path="prediction.csv", label='Bugged', save_all=True, metrics_path='metrics.json', importance_path='importance.json'):
         self.training = training
         self.testing = testing
         self.save_all = save_all
@@ -20,6 +20,7 @@ class ClassificationInstance(object):
             self.testing.describe(include = 'all').to_csv(os.path.join(dataset_dir, testing_describe_path), sep=';')
         self.prediction_path = os.path.join(dataset_dir, prediction_path)
         self.metrics_path = os.path.join(dataset_dir, metrics_path)
+        self.importance_path = os.path.join(dataset_dir, importance_path)
         self.scores = None
         self.importance = None
 
@@ -39,6 +40,9 @@ class ClassificationInstance(object):
         predictions_proba = list(zip(*classifier.predict_proba(self.testing_X)))
         predictions = list(classifier.predict(self.testing_X))
         self.importance = dict(zip(self.features_list, classifier.feature_importances_.tolist()))
+        if self.save_all:
+            with open(self.importance_path, "w") as f:
+                json.dump(self.importance, f)
         if self.names:
             names = self.names
         else:
@@ -64,8 +68,6 @@ class ClassificationInstance(object):
         self.scores['f1_score'] = metrics.f1_score(y_true, y_pred)
         self.scores['roc_auc_score'] = metrics.roc_auc_score(y_true, y_prob)
         self.scores['pr_auc_score'] = pr_auc_score(y_true, y_prob)
-        if self.importance:
-            self.scores['importance'] = self.importance
         if self.save_all:
             with open(self.metrics_path, "w") as f:
                 json.dump(self.scores, f)
