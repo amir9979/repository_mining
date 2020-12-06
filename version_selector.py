@@ -134,15 +134,15 @@ class BinSelectVersion(AbstractSelectVersions):
                 selected_versions = list(bin_)
                 if self.strict:
                     for i in range(len(selected_versions) - self.version_num):
-                        versions = selected_versions[i: i + self.version_num]
+                        versions = tuple(selected_versions[i: i + self.version_num])
                         configuration = {'start': start, 'step': step, 'versions': versions}
                         if len(configuration['versions']) > 1:
                             self.selected_versions.append(configuration)
                 else:
-                    configuration = {'start': start, 'step': step, 'versions': selected_versions}
+                    configuration = {'start': start, 'step': step, 'versions': tuple(selected_versions)}
                     if len(configuration['versions']) > 1:
                         self.selected_versions.append(configuration)
-        return sorted(map(lambda x: x['versions'], self.selected_versions), key=lambda v: sum(map(version_names.index, v)), reverse=True)[self.selected_config]
+        return sorted(list(set(map(lambda x: x['versions'], self.selected_versions))), key=lambda v: sum(map(version_names.index, v)), reverse=True)[self.selected_config]
 
     def _store_versions(self, repo):
         config = Config().config
