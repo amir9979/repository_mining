@@ -7,6 +7,8 @@ from datetime import datetime
 import pandas as pd
 import math
 import git
+from functools import reduce
+from collections import Counter
 
 from config import Config
 from data_extractor import DataExtractor
@@ -19,7 +21,7 @@ from metrics.version_metrics_data import (
     JasomeFilesData, JasomeMethodsData, ProcessData, IssuesData)
 from projects import Project
 from repo import Repo
-from .commented_code_detector import metrics_for_project
+from .commented_code_detector import metrics_for_project, Halstead, CommentFilter
 from metrics.rsc.designite_smells import (
     design_smells_list,
     implementation_smells_list,
@@ -587,16 +589,54 @@ class ProcessExtractor(Extractor):
         for file_name, d in df.groupby('file_name', as_index=False):
             if file_name.endswith('.java'):
                 data[file_name] = self._extract_process_features(d)
-                issues_data[file_name] = self._extract_issues_features(d, issues_df, dummies_dict)
+                issues_data[file_name] = self._extract_issues_features(d, issues_df, dummies_dict, self._get_blame_data(file_name))
         # extract the following features:
         self.data.add(ProcessData(self.project, self.version, data=data)).add(IssuesData(self.project, self.version, data=issues_data))
+
+    def _get_blame_data(self, file_name):
+        repo = git.Repo(self.local_path)
+        blame = repo.blame('HEAD', file_name)
+        blame = reduce(list.__add__, map(lambda x: list(map(lambda y: (x[0], y), x[1])), blame), [])
+        commits, source_code = list(zip(*blame))
+        lines = CommentFilter().filterComments(source_code)[0]
+        values = []
+        for c, l in zip(commits, lines):
+            d = {"commit_id": c.hexsha}
+            d.update(l.getValuesVector())
+            values.append(d)
+        return pd.DataFrame(values)
+
 
     def _get_blame_for_file(self, file_name):
         ans = {}
         repo = git.Repo(self.local_path)
         blame = repo.blame('HEAD', file_name)
         ans['blobs'] = len(blame)
-        blame = list(map(lambda x: list(map(lambda y: (x[0], y), x[1])), blame))
+        blame = reduce(list.__add__, map(lambda x: list(map(lambda y: (x[0], y), x[1])), blame), [])
+        commits, source_code = list(zip(*blame))
+        ans['blame_commits'] = len(set(commits))
+        c = dict(Counter(list(map(lambda x: x.hexsha, commits))))
+        list(map(lambda x: c.update({x: c[x] / ans['blame_commits']}), c.keys()))
+        for k, v in pd.DataFrame(c.values(), columns=['col']).describe().to_dict()['col'].items():
+            ans['blame_' + k] = v
+
+        lines = CommentFilter().filterComments(source_code)[0]
+        commits_lines = list(filter(lambda x: x[1], zip(commits, lines)))
+        filtered_commits, _ = set(zip(*commits_lines))
+        c = dict(Counter(list(map(lambda x: x.hexsha, filtered_commits))))
+        ans['blame_filtered_commits'] = len(set(zip(*commits_lines)))
+        list(map(lambda x: c.update({x: c[x] / ans['blame_filtered_commits']}), c.keys()))
+        for k, v in pd.DataFrame(c.values(), columns=['col']).describe().to_dict()['col'].items():
+            ans['blame_filtered_' + k] = v
+        values = []
+        for c in set(filtered_commits):
+            l = list(map(lambda l: l[1], filter(lambda l: l[0] == c, commits_lines)))
+            h = Halstead(l).getValuesVector()
+            values.append(h)
+        for col, d in pd.DataFrame(values).describe().to_dict().items():
+            for k, v in d.items():
+                ans['blame_halstead_' + col + "_" + k] = v
+        return ans
 
     def _get_features(self, d, initial=''):
         ans = {initial + "_count": d.shape[0]}
@@ -618,17 +658,25 @@ class ProcessExtractor(Extractor):
         ans.update(self._get_features(df.drop('issue_id', axis=1), "all_process"))
         return ans
 
-    def _extract_issues_features(self, df, issues_df, dummies_dict):
+    def _extract_issues_features(self, df, issues_df, dummies_dict, blame):
         ans = {}
+        blame_merge = df[['commit_id', 'issue_id']].merge(blame, on=['commit_id'], how='‘right').merge(issues_df, on=['issue_id'],
+                                                                                        how='inner')
+        blame_merge = blame_merge.drop(['commit_id', 'issue_id'], axis=1)
+        ans.update(self._get_features(blame_merge, "blame_merge"))
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
-        issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
-        merged = df.merge(issues_df, on=['issue_id'], how='inner')
-        merged = merged.drop(['key', 'issue_id'], axis=1)
         ans.update(self._get_features(df[df['issue_id'] != '0'].drop('issue_id', axis=1), "fixes"))
         ans.update(self._get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
+
+        issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
+        # merged = df.merge(blame, on=['commit_id'], how='inner')
+        merged = df.merge(issues_df, on=['issue_id'], how='inner')
+        merged = merged.drop(['key', 'issue_id'], axis=1)
         for dummies_list in dummies_dict:
             # percent
             for d in dummies_list:
-                ans.update(self._get_features(df[df[d] == 1].drop(['issue_id', d], axis=1), d))
+                ans.update(self._get_features(merged[merged[d] == 1].drop(['issue_id', d], axis=1), d))
+                ans.update(self._get_features(blame_merge[blame_merge[d] == 1], d))
+
         ans.update(self._get_features(merged, 'issues'))
         return ans

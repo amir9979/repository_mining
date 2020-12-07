@@ -191,6 +191,48 @@ class HalsteadSourceLine:
         self.operands.add(nonPureShortestPrefix)
         return lexem[nonPureShortestPrefixLen:]
 
+    def getDistinctOperatorsCnt(self):
+        return len(self.operators)
+
+    def getDistinctOperandsCnt(self):
+        return len(self.operands)
+
+    def getTotalOperatorsCnt(self):
+        return self.operatorsCnt
+
+    def getTotalOparandsCnt(self):
+        return self.operandsCnt
+
+    def getLength(self):
+        return self.getTotalOperatorsCnt() + self.getTotalOparandsCnt()
+
+    def getVocabulary(self):
+        return self.getDistinctOperatorsCnt() + self.getDistinctOperandsCnt()
+
+    def getVolume(self):
+        return self.getLength() * math.log(unzero(self.getVocabulary()), 2)
+
+    def getDifficulty(self):
+        return (self.getDistinctOperatorsCnt() / 2 *
+                self.getTotalOparandsCnt() / unzero(
+                    self.getDistinctOperandsCnt()))
+
+    def getEffort(self):
+        return self.getDifficulty() * self.getVolume()
+
+    def getValuesVector(self):
+        return {
+            "getTotalOperatorsCnt" : self.getTotalOperatorsCnt(),
+            "getDistinctOperatorsCnt": self.getDistinctOperatorsCnt(),
+            "getTotalOparandsCnt": self.getTotalOparandsCnt(),
+            "getDistinctOperandsCnt": self.getDistinctOperandsCnt(),
+            "getLength": self.getLength(),
+            "getVocabulary" : self.getVocabulary(),
+            "getVolume": self.getVolume(),
+            "getDifficulty": self.getDifficulty(),
+            "getEffort": self.getEffort()
+        }
+
 
 class Halstead:
     def __init__(self, sourcelines):
