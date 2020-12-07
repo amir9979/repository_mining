@@ -602,7 +602,8 @@ class ProcessExtractor(Extractor):
         values = []
         for c, l in zip(commits, lines):
             d = {"commit_id": c.hexsha}
-            d.update(l.getValuesVector())
+            for k, v in l.getValuesVector():
+                d['blame_' + k] = v
             values.append(d)
         return pd.DataFrame(values)
 
