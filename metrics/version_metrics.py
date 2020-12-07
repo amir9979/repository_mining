@@ -6,6 +6,7 @@ from xml.etree import ElementTree
 from datetime import datetime
 import pandas as pd
 import math
+import git
 
 from config import Config
 from data_extractor import DataExtractor
@@ -567,10 +568,12 @@ class ProcessExtractor(Extractor):
         issues_df = pd.read_csv(issues_path, sep=';')
         issues_df = issues_df.drop(['creator', 'lastViewed', 'environment', 'summary', 'components', 'workratio', 'timeoriginalestimate', 'reporter', 'assignee', 'status', 'timespent', 'issuelinks', 'created', 'fixVersions', 'aggregatetimespent', 'labels', 'timeestimate', 'aggregatetimeestimate', 'versions', 'resolutiondate', 'duedate', 'aggregatetimeoriginalestimate', 'description', 'updated', 'project', 'subtasks'], axis=1)
         to_dummies = ['priority', 'resolution', 'issuetype']
+        dummies_dict = {}
         for d in to_dummies:
-            issues_df = pd.concat([issues_df, pd.get_dummies(issues_df[d], prefix=d)], axis=1)
+            dummies = pd.get_dummies(issues_df[d], prefix=d)
+            dummies_dict[d] = dummies.columns.tolist()
+            issues_df = pd.concat([issues_df, dummies], axis=1)
             issues_df.drop([d], axis=1, inplace=True)
-        print(self.version)
         version_date = df[df['version_name'] == self.version]['version_date'].to_list()[0]
         version_date = datetime.strptime(version_date, '%Y-%m-%d %H:%M:%S')
         # get file list from committed_files
@@ -584,9 +587,16 @@ class ProcessExtractor(Extractor):
         for file_name, d in df.groupby('file_name', as_index=False):
             if file_name.endswith('.java'):
                 data[file_name] = self._extract_process_features(d)
-                issues_data[file_name] = self._extract_issues_features(d, issues_df)
+                issues_data[file_name] = self._extract_issues_features(d, issues_df, dummies_dict)
         # extract the following features:
         self.data.add(ProcessData(self.project, self.version, data=data)).add(IssuesData(self.project, self.version, data=issues_data))
+
+    def _get_blame_for_file(self, file_name):
+        ans = {}
+        repo = git.Repo(self.local_path)
+        blame = repo.blame('HEAD', file_name)
+        ans['blobs'] = len(blame)
+        blame = list(map(lambda x: list(map(lambda y: (x[0], y), x[1])), blame))
 
     def _get_features(self, d, initial=''):
         ans = {initial + "_count": d.shape[0]}
@@ -606,13 +616,19 @@ class ProcessExtractor(Extractor):
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
         ans = {}
         ans.update(self._get_features(df.drop('issue_id', axis=1), "all_process"))
-        ans.update(self._get_features(df[df['issue_id'] != '0'].drop('issue_id', axis=1), "fixes"))
-        ans.update(self._get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
         return ans
 
-    def _extract_issues_features(self, df, issues_df):
+    def _extract_issues_features(self, df, issues_df, dummies_dict):
+        ans = {}
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
         issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
         merged = df.merge(issues_df, on=['issue_id'], how='inner')
         merged = merged.drop(['key', 'issue_id'], axis=1)
-        return self._get_features(merged, 'issues')
+        ans.update(self._get_features(df[df['issue_id'] != '0'].drop('issue_id', axis=1), "fixes"))
+        ans.update(self._get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
+        for dummies_list in dummies_dict:
+            # percent
+            for d in dummies_list:
+                ans.update(self._get_features(df[df[d] == 1].drop(['issue_id', d], axis=1), d))
+        ans.update(self._get_features(merged, 'issues'))
+        return ans

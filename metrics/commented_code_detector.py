@@ -142,30 +142,33 @@ class Comment:
         return "Comment from lines %d-%d:\n%s" %(self.getFirstLineNumber(),
             self.getLastLineNumber(), self.getContent())
 
-            
-            
-class Halstead:
-    def __init__(self, source):
+
+class HalsteadCommentLine:
+    def __init__(self, line, line_number):
+        self.line = line
+        self.line_number = line_number
+
+
+class HalsteadSourceLine:
+    def __init__(self, line, line_number):
+        self.line = line
+        self.line_number = line_number
         self.operandsCnt = 0
         self.operatorsCnt = 0
         self.operands = set()
         self.operators = set()
-        
-        for line in source:
-            self._analyzeLine(line)
 
-            
-    def _analyzeLine(self, line):
-        for lexem in line.split():
+        self.analyze()
+
+    def analyze(self):
+        for lexem in self.line.split():
             self._analyzeLexem(lexem)
 
-        
     def _analyzeLexem(self, lexem):
         reduct = lexem
         while reduct:
             reduct = self._reduceLexem(reduct)
-          
-          
+
     def _reduceLexem(self, lexem):
         nonPureShortestPrefixLen = len(lexem)
         for operator in PURE_OPERATORS:
@@ -175,7 +178,7 @@ class Halstead:
                 return lexem[len(operator):]
             if operator in lexem:
                 nonPureShortestPrefixLen = min(
-                    nonPureShortestPrefixLen, 
+                    nonPureShortestPrefixLen,
                     lexem.find(operator)
                 )
         nonPureShortestPrefix = lexem[:nonPureShortestPrefixLen]
@@ -187,46 +190,50 @@ class Halstead:
         self.operandsCnt += 1
         self.operands.add(nonPureShortestPrefix)
         return lexem[nonPureShortestPrefixLen:]
-    
+
+
+class Halstead:
+    def __init__(self, sourcelines):
+        self.operandsCnt = 0
+        self.operatorsCnt = 0
+        self.operands = set()
+        self.operators = set()
+        
+        for line in sourcelines:
+            self.operandsCnt += line.operandsCnt
+            self.operatorsCnt += line.operatorsCnt
+            self.operands = self.operands.union(line.operands)
+            self.operators = self.operators.union(line.operators)
     
     def getDistinctOperatorsCnt(self):
         return len(self.operators)
-    
-    
+
     def getDistinctOperandsCnt(self):
         return len(self.operands)
-    
     
     def getTotalOperatorsCnt(self):
         return self.operatorsCnt
     
-    
     def getTotalOparandsCnt(self):
         return self.operandsCnt
-    
     
     def getLength(self):
         return self.getTotalOperatorsCnt() + self.getTotalOparandsCnt()
     
-    
     def getVocabulary(self):
         return self.getDistinctOperatorsCnt() + self.getDistinctOperandsCnt()
-
         
     def getVolume(self):
         return self.getLength() * math.log(unzero(self.getVocabulary()), 2)
-    
     
     def getDifficulty(self):
         return (self.getDistinctOperatorsCnt() / 2 * 
             self.getTotalOparandsCnt() / unzero(
                 self.getDistinctOperandsCnt()))
-    
-    
+
     def getEffort(self):
         return self.getDifficulty() * self.getVolume()
-    
-    
+
     def getValuesVector(self):
         return {
             "getTotalOperatorsCnt" : self.getTotalOperatorsCnt(),
@@ -239,8 +246,7 @@ class Halstead:
             "getDifficulty": self.getDifficulty(),
             "getEffort": self.getEffort()
         }
-    
-    
+
     @staticmethod
     def printStatistics(valuesVectors, headers=None):
         names = ["Operators count:", "Distinct operators:", "Operands count:",
@@ -274,10 +280,11 @@ class CommentFilter:
         self.lineNumber = 0
     
         for line in source:
-            self.currentLine = []        
-            while line:
-                line = self.reduceLine(line)
-            self.regularLines.append(" ".join(self.currentLine))
+            self.currentLine = []
+            _line = str(line)
+            while _line:
+                _line = self.reduceLine(_line)
+            self.regularLines.append(HalsteadSourceLine(" ".join(self.currentLine), self.lineNumber))
             self.lineNumber += 1
             if not self.currentComment.isEmpty():
                 self.currentComment.newLine()
@@ -488,4 +495,4 @@ def main():
         analyzeComment(comment, regularLines, args)
 
 if __name__ == "__main__":
-    main()
+    metrics_for_project(r"C:\Temp\commons-beanutils")
