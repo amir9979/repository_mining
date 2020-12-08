@@ -590,7 +590,7 @@ class ProcessExtractor(Extractor):
         extractor = DataExtractor(self.project)
         path = extractor.get_bugged_files_path(self.version, True)
         files = pd.read_csv(path, sep=';')['file_name'].to_list()
-        df = df.apply(lambda r: r['file_name'].endswith('.java') and r['file_name'] in files, axis=1)
+        df = df[df.apply(lambda r: r['file_name'].endswith('.java') and r['file_name'] in files, axis=1)]
 
         for file_name, d in df.groupby('file_name', as_index=False):
             data[file_name] = self._extract_process_features(d)
