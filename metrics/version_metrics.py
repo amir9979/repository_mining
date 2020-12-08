@@ -676,7 +676,7 @@ class ProcessExtractor(Extractor):
         for dummy in dummies_dict:
             # percent
             for d in dummies_dict[dummy]:
-                ans.update(self._get_features(merged[merged[d] == 1].drop(['issue_id', d], axis=1), d))
+                ans.update(self._get_features(merged[merged[d] == 1].drop(d, axis=1), d))
                 ans.update(self._get_features(blame_merge[blame_merge[d] == 1], d))
 
         ans.update(self._get_features(merged, 'issues'))
