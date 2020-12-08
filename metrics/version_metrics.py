@@ -662,18 +662,14 @@ class ProcessExtractor(Extractor):
     def _extract_issues_features(self, df, issues_df, dummies_dict, blame):
         ans = {}
         d = df[['commit_id', 'issue_id']]
-        print(d.columns.to_list())
+        issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
         blame_merge = d.merge(blame, on=['commit_id'], how='right')
-        print(blame_merge.columns.to_list())
         blame_merge.merge(issues_df, on=['issue_id'], how='inner')
-        print(blame_merge.columns.to_list())
         blame_merge = blame_merge.drop(['commit_id', 'issue_id'], axis=1)
         ans.update(self._get_features(blame_merge, "blame_merge"))
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
         ans.update(self._get_features(df[df['issue_id'] != '0'].drop('issue_id', axis=1), "fixes"))
         ans.update(self._get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
-
-        issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
         # merged = df.merge(blame, on=['commit_id'], how='inner')
         merged = df.merge(issues_df, on=['issue_id'], how='inner')
         merged = merged.drop(['key', 'issue_id'], axis=1)
