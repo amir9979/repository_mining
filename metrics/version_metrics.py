@@ -595,7 +595,7 @@ class ProcessExtractor(Extractor):
 
     def _get_blame_data(self, file_name):
         repo = git.Repo(self.local_path)
-        blame = repo.blame('HEAD', file_name)
+        blame = repo.blame(self.version, file_name)
         blame = reduce(list.__add__, map(lambda x: list(map(lambda y: (x[0], y), x[1])), blame), [])
         commits, source_code = list(zip(*blame))
         lines = CommentFilter().filterComments(source_code)[0]
