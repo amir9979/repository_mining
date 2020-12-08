@@ -607,11 +607,10 @@ class ProcessExtractor(Extractor):
             values.append(d)
         return pd.DataFrame(values)
 
-
     def _get_blame_for_file(self, file_name):
         ans = {}
         repo = git.Repo(self.local_path)
-        blame = repo.blame('HEAD', file_name)
+        blame = repo.blame(self.version, file_name)
         ans['blobs'] = len(blame)
         blame = reduce(list.__add__, map(lambda x: list(map(lambda y: (x[0], y), x[1])), blame), [])
         commits, source_code = list(zip(*blame))
