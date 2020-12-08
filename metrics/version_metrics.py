@@ -661,8 +661,12 @@ class ProcessExtractor(Extractor):
 
     def _extract_issues_features(self, df, issues_df, dummies_dict, blame):
         ans = {}
-        blame_merge = df[['commit_id', 'issue_id']].merge(blame, on=['commit_id'], how='right')
+        d = df[['commit_id', 'issue_id']]
+        print(d.columns.to_list())
+        blame_merge = d.merge(blame, on=['commit_id'], how='right')
+        print(blame_merge.columns.to_list())
         blame_merge.merge(issues_df, on=['issue_id'], how='inner')
+        print(blame_merge.columns.to_list())
         blame_merge = blame_merge.drop(['commit_id', 'issue_id'], axis=1)
         ans.update(self._get_features(blame_merge, "blame_merge"))
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
