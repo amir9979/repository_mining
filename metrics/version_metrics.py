@@ -590,13 +590,9 @@ class ProcessExtractor(Extractor):
         extractor = DataExtractor(self.project)
         path = extractor.get_bugged_files_path(self.version, True)
         files = pd.read_csv(path, sep=';')['file_name'].to_list()
+        df = df.apply(lambda r: r['file_name'].endswith('.java') and r['file_name'] in files, axis=1)
 
         for file_name, d in df.groupby('file_name', as_index=False):
-            if not file_name.endswith('.java'):
-                continue
-            if file_name not in files:
-                print(f" {file_name} not found at {self.version}")
-                continue
             data[file_name] = self._extract_process_features(d)
             issues_data[file_name] = self._extract_issues_features(d, issues_df, dummies_dict, self._get_blame_data(file_name))
         # extract the following features:
