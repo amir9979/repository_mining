@@ -654,7 +654,7 @@ class ProcessExtractor(Extractor):
         for col in des:
             for k, v in des[col].to_dict().items():
                 if v and not math.isnan(v):
-                    ans["_".join([initial, col, k.replace('-', '_').replace(' ', '_').replace("'", '')])] = v
+                    ans["_".join([initial, col.replace('-', '_').replace(' ', '_').replace("'", ''), k.replace('-', '_').replace(' ', '_').replace("'", '')])] = v
         return ans
 
     def _extract_process_features(self, df):
