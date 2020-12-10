@@ -19,12 +19,12 @@ def find_repo_and_jira(key, repos, jira_projects):
         yield "{1} = Project({0}, {1}, {2})".format(g.repository.as_dict()['name'], j.key, g.repository.as_dict()['description'].encode('utf-8'))
 
 # @cached("apache_repos_data")
-def get_apache_repos_data():
-    gh = github3.login('DebuggerIssuesReport', password='DebuggerIssuesReport1') # DebuggerIssuesReport@mail.com
-    repos = list(gh.search_repositories('user:apache language:Java'))
-    github_repos = list(map(lambda repo: repo.as_dict()['name'].strip().lower(), repos))
-    conn = jira.JIRA(r"http://issues.apache.org/jira")
+def get_repos_data(user='apache', jira_url=r"http://issues.apache.org/jira"):
+    gh = github3.login(token=os.environ['GITHUB_TOKEN']) # DebuggerIssuesReport@mail.com
+    repos = list(gh.search_repositories('org:{0} language:Java'.format(user)))
+    conn = jira.JIRA(jira_url)
     jira_projects = conn.projects()
+    github_repos = list(map(lambda repo: repo.as_dict()['name'].strip().lower(), repos))
     jira_keys = list(map(lambda p: p.key.strip().lower(), jira_projects))
     jira_names = list(map(lambda p: "-".join(p.name.strip().lower().split()), jira_projects))
     jira_elements = list(set(jira_names + jira_keys))
@@ -32,9 +32,8 @@ def get_apache_repos_data():
     for key in jira_and_github:
         for repo in find_repo_and_jira(key, repos, jira_projects):
             if repo:
-                print repo
-    return
+                print(repo)
 
 
 if __name__ == "__main__":
-    get_apache_repos_data()
+    get_repos_data('spring-projects', r"http://jira.spring.io")
