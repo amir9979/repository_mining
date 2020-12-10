@@ -645,7 +645,7 @@ class ProcessExtractor(Extractor):
 
     def _get_features(self, d, initial=''):
         def clean(s):
-            return "".join(list(filter(lambda c: c.isalpha(),s)
+            return "".join(list(filter(lambda c: c.isalpha(),s)))
         ans = {initial + "_count": d.shape[0]}
         des = d.describe()
         des = des.drop(['25%', '50%', '75%'])
