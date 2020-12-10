@@ -644,6 +644,8 @@ class ProcessExtractor(Extractor):
         return ans
 
     def _get_features(self, d, initial=''):
+        def clean(s):
+            return s.replace('-', '_').replace(' ', '_').replace("'", '').replace("'", '')
         ans = {initial + "_count": d.shape[0]}
         des = d.describe()
         des = des.drop(['25%', '50%', '75%'])
@@ -654,7 +656,7 @@ class ProcessExtractor(Extractor):
         for col in des:
             for k, v in des[col].to_dict().items():
                 if v and not math.isnan(v):
-                    ans["_".join([initial, col.replace('-', '_').replace(' ', '_').replace("'", ''), k.replace('-', '_').replace(' ', '_').replace("'", '')])] = v
+                    ans["_".join([initial, clean(col), clean(k)])] = v
         return ans
 
     def _extract_process_features(self, df):
