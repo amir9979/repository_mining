@@ -560,6 +560,9 @@ class ProcessExtractor(Extractor):
     def _set_data(self):
         self.data = CompositeData()
 
+    def clean(self, s):
+        return "".join(list(filter(lambda c: c.isalpha(), s)))
+
     def _extract(self):
         # get version_date from apache_versions
         config = Config().config
@@ -573,6 +576,7 @@ class ProcessExtractor(Extractor):
         dummies_dict = {}
         for d in to_dummies:
             dummies = pd.get_dummies(issues_df[d], prefix=d)
+            dummies = dummies.rename(columns={c: self.clean(c) for c in dummies.columns.to_list()})
             dummies_dict[d] = dummies.columns.tolist()
             issues_df = pd.concat([issues_df, dummies], axis=1)
             issues_df.drop([d], axis=1, inplace=True)
@@ -644,8 +648,6 @@ class ProcessExtractor(Extractor):
         return ans
 
     def _get_features(self, d, initial=''):
-        def clean(s):
-            return "".join(list(filter(lambda c: c.isalpha(),s)))
         ans = {initial + "_count": d.shape[0]}
         des = d.describe()
         des = des.drop(['25%', '50%', '75%'])
@@ -656,7 +658,7 @@ class ProcessExtractor(Extractor):
         for col in des:
             for k, v in des[col].to_dict().items():
                 if v and not math.isnan(v):
-                    ans["_".join([initial, clean(col), clean(k)])] = v
+                    ans["_".join([self.clean(initial), self.clean(col), self.clean(k)])] = v
         return ans
 
     def _extract_process_features(self, df):
