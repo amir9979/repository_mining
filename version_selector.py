@@ -145,7 +145,7 @@ class BinSelectVersion(AbstractSelectVersions):
         self.selected_versions = sorted(self.selected_versions, key=lambda v: sum(map(version_names.index, v['versions'])), reverse=True)
         if len(self.selected_versions) <= self.selected_config:
             print("no versions found")
-            exit(1)
+            exit(0)
         return self.selected_versions[self.selected_config]['versions']
 
     def _store_versions(self, repo):
