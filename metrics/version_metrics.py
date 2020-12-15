@@ -317,7 +317,7 @@ class Designite(Extractor):
     def _process_keys(self,df, keys_columns):
         df = df.drop(r"Project Name", axis=1)
         df = df.dropna()
-        df["id"] = df.apply(lambda x: self.file_analyser.get_file_path_by_designite(*map(lambda y: x[y], keys_columns)), axis=1)
+        df["id"] = df.apply(lambda x: self.file_analyser.get_file_path_by_designite(*list(map(lambda y: x[y], keys_columns))), axis=1)
         for i in keys_columns:
             df = df.drop(i, axis=1)
         return df
@@ -677,7 +677,6 @@ class ProcessExtractor(Extractor):
         df = df.drop(['file_name', 'is_java', 'commit_id', 'commit_date', 'commit_url', 'bug_url'], axis=1)
         ans.update(self._get_features(df[df['issue_id'] != '0'].drop('issue_id', axis=1), "fixes"))
         ans.update(self._get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
-        # merged = df.merge(blame, on=['commit_id'], how='inner')
         merged = df.merge(issues_df, on=['issue_id'], how='inner')
         merged = merged.drop(['key', 'issue_id'], axis=1)
         # for dummy in dummies_dict:
