@@ -1210,7 +1210,7 @@ class DataNameEnum(Enum):
                                             "blamemerge_issuetypeTest_max")
     blamemerge_issuetypeTest_min = DataName("blamemerge_issuetypeTest_min", DataType.IssuesFilesDataType,
                                             "blamemerge_issuetypeTest_min")
-    
+
     @staticmethod
     def get_data_names_by_type(data_types: List[DataType]):
         ans = []

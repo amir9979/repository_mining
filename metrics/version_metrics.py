@@ -162,7 +162,7 @@ class Checkstyle(Extractor):
         files = {}
         tmp = {}
         keys = set()
-        with open(out_path_to_xml) as file:
+        with open(out_path_to_xml, "r", encoding="utf-8") as file:
             root = ElementTree.parse(file).getroot()
             for file_element in root:
                 try:
@@ -569,17 +569,8 @@ class ProcessExtractor(Extractor):
         repository_data = config["CACHING"]["RepositoryData"]
         path = os.path.join(repository_data, config['DATA_EXTRACTION']["Versions"], self.project.github(), self.project.jira() + ".csv")
         df = pd.read_csv(path, sep=';')
-        issues_path = os.path.join(repository_data, config['DATA_EXTRACTION']["Issues"], self.project.github(), self.project.jira() + ".csv")
+        issues_path = os.path.join(repository_data, config['DATA_EXTRACTION']["Issues"], self.project.github(), self.project.jira() + "_dummies.csv")
         issues_df = pd.read_csv(issues_path, sep=';')
-        issues_df = issues_df.drop(['creator', 'lastViewed', 'environment', 'summary', 'components', 'workratio', 'timeoriginalestimate', 'reporter', 'assignee', 'status', 'timespent', 'issuelinks', 'created', 'fixVersions', 'aggregatetimespent', 'labels', 'timeestimate', 'aggregatetimeestimate', 'versions', 'resolutiondate', 'duedate', 'aggregatetimeoriginalestimate', 'description', 'updated', 'project', 'subtasks'], axis=1)
-        to_dummies = ['priority', 'resolution', 'issuetype']
-        dummies_dict = {}
-        for d in to_dummies:
-            dummies = pd.get_dummies(issues_df[d], prefix=d)
-            dummies = dummies.rename(columns={c: self.clean(c) for c in dummies.columns.to_list()})
-            dummies_dict[d] = dummies.columns.tolist()
-            issues_df = pd.concat([issues_df, dummies], axis=1)
-            issues_df.drop([d], axis=1, inplace=True)
         version_date = df[df['version_name'] == self.version]['version_date'].to_list()[0]
         version_date = datetime.strptime(version_date, '%Y-%m-%d %H:%M:%S')
         # get file list from committed_files
@@ -598,13 +589,22 @@ class ProcessExtractor(Extractor):
 
         for file_name, d in df.groupby('file_name', as_index=False):
             data[file_name] = self._extract_process_features(d)
-            issues_data[file_name] = self._extract_issues_features(d, issues_df, dummies_dict, self._get_blame_data(file_name))
+            issues_data[file_name] = self._extract_issues_features(d, issues_df, self._get_blame_data(file_name))
         # extract the following features:
         self.data.add(ProcessData(self.project, self.version, data=data)).add(IssuesData(self.project, self.version, data=issues_data))
 
     def _get_blame_data(self, file_name):
         repo = git.Repo(self.local_path)
-        blame = repo.blame(self.version, file_name)
+        version_names = list(map(lambda x: x.name, repo.tags))
+        version = self.version
+        if version not in version_names:
+            if '\\' in version:
+                if version.replace('\\', '/') in version_names:
+                    version = version.replace('\\', '/')
+            if '/' in version:
+                if version.replace('/', '\\') in version_names:
+                    version = version.replace('/', '\\')
+        blame = repo.blame(version, file_name)
         blame = reduce(list.__add__, map(lambda x: list(map(lambda y: (x[0], y), x[1])), blame), [])
         commits, source_code = list(zip(*blame))
         lines = CommentFilter().filterComments(source_code)[0]
@@ -667,10 +667,9 @@ class ProcessExtractor(Extractor):
         ans.update(self._get_features(df.drop('issue_id', axis=1), "all_process"))
         return ans
 
-    def _extract_issues_features(self, df, issues_df, dummies_dict, blame):
+    def _extract_issues_features(self, df, issues_df, blame):
         ans = {}
         d = df[['commit_id', 'issue_id']]
-        issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
         blame_merge = d.merge(blame, on=['commit_id'], how='right')
         blame_merge = blame_merge.merge(issues_df, on=['issue_id'], how='inner')
         blame_merge = blame_merge.drop(['commit_id', 'issue_id'], axis=1)

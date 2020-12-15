@@ -97,10 +97,30 @@ class DataExtractor(object):
             self._store_methods(tags)
 
     def _store_issues(self):
+        def clean(s):
+            return "".join(list(filter(lambda c: c.isalpha(), s)))
+
         df = pd.DataFrame(list(map(lambda x: x.fields, self.jira_issues)), columns=self.jira_issues[0].fields.keys())
         commited_files_dir = self._get_caching_path("Issues")
         path = os.path.join(commited_files_dir, self.jira_project_name + ".csv")
         df.to_csv(path, index=False, sep=';')
+        issues_df = df.drop(
+            ['creator', 'lastViewed', 'environment', 'summary', 'components', 'workratio', 'timeoriginalestimate',
+             'reporter', 'assignee', 'status', 'timespent', 'issuelinks', 'created', 'fixVersions',
+             'aggregatetimespent', 'labels', 'timeestimate', 'aggregatetimeestimate', 'versions', 'resolutiondate',
+             'duedate', 'aggregatetimeoriginalestimate', 'description', 'updated', 'project', 'subtasks'], axis=1)
+        to_dummies = ['priority', 'resolution', 'issuetype']
+        dummies_dict = {}
+        for d in to_dummies:
+            dummies = pd.get_dummies(issues_df[d], prefix=d)
+            dummies = dummies.rename(columns={c: clean(c) for c in dummies.columns.to_list()})
+            dummies_dict[d] = dummies.columns.tolist()
+            issues_df = pd.concat([issues_df, dummies], axis=1)
+            issues_df.drop([d], axis=1, inplace=True)
+
+        dummies_path = os.path.join(commited_files_dir, self.jira_project_name + "_dummies.csv")
+        issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
+        issues_df.to_csv(dummies_path, index=False, sep=';')
 
     def _store_commited_files(self):
         columns = ["file_name", "insertions", "deletions", "changes", 'is_java', "commit_id", "issue_id", "commit_date", "commit_url", "bug_url"]

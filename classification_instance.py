@@ -118,3 +118,5 @@ def pr_auc_score(y_true, y_score):
     return metrics.auc(recall, precision)
 
 
+if __name__ == "__main__":
+    ClassificationInstance.all_but_one_evaluation(r"C:\Users\User\Downloads\dataset\commons-lang")
