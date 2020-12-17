@@ -42,10 +42,10 @@ class ClassificationInstance(object):
         classes = list(map(lambda x: str(x) + "_probability", classifier.classes_.tolist()))
         predictions_proba = list(zip(*classifier.predict_proba(self.testing_X)))
         predictions = list(classifier.predict(self.testing_X))
-        self.importance = dict(zip(self.features_list, classifier.feature_importances_.tolist()))
-        if self.save_all:
-            with open(self.importance_path, "w") as f:
-                json.dump(self.importance, f)
+        # self.importance = dict(zip(self.features_list, classifier.feature_importances_.tolist()))
+        # if self.save_all:
+        #     with open(self.importance_path, "w") as f:
+        #         json.dump(self.importance, f)
         if self.names:
             names = self.names
         else:
