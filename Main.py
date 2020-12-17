@@ -299,6 +299,7 @@ class Main():
             self.extract_metrics(args.rest, args.only_rest, data_types)
             self.create_all_but_one_dataset(data_types)
 
+
 if __name__ == "__main__":
     m = Main()
     m.main()
