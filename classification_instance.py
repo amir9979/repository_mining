@@ -1,4 +1,6 @@
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.gaussian_process.kernels import RBF
 import pandas as pd
 import json
 import os
@@ -34,7 +36,8 @@ class ClassificationInstance(object):
         self.names = names
 
     def predict(self):
-        classifier = RandomForestClassifier(n_estimators=1000, random_state=42)
+        # classifier = RandomForestClassifier(n_estimators=1000, random_state=42)
+        classifier = GaussianProcessClassifier(kernel=RBF(), max_iter_predict=20, n_restarts_optimizer=0, warm_start=True)
         model = classifier.fit(self.training_X, self.training_y)
         classes = list(map(lambda x: str(x) + "_probability", classifier.classes_.tolist()))
         predictions_proba = list(zip(*classifier.predict_proba(self.testing_X)))
