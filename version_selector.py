@@ -36,7 +36,7 @@ class Version():
 
 
 class AbstractSelectVersions(ABC):
-    def __init__(self, repo, tags, versions, version_num, version_type, strict=False):
+    def __init__(self, repo, tags, versions, version_num, version_type, strict=True):
         self.repo = repo
         self.tags = tags
         self.versions = versions
@@ -116,19 +116,15 @@ class BinSelectVersion(AbstractSelectVersions):
         self.selected_versions = list()
 
     def _select_versions(self, repo, versions_by_type, tags):
-        version_names = list(map(lambda x: x.version._name, tags))
+        relevant_tags = list(filter(lambda t: t.bugged_ratio, tags))
+        version_names = list(map(lambda x: x.version._name, relevant_tags))
         for start, step in product(self.start, self.step):
             bins = list(map(lambda x: list(), range(start, 100, step)))
-            for tag in tags:
-                bugged_files = len(list(filter(lambda x: "java" in x, tag.bugged_files)))
-                java_files = len(list(filter(lambda x: "java" in x, tag.version_files)))
-                if bugged_files * java_files == 0:
+            for tag in relevant_tags:
+                if 100.0 * tag.bugged_ratio < start:
                     continue
-                bugged_ratio = 100.0 * bugged_files / java_files
-                if bugged_ratio < start:
-                    continue
-                bins[int((bugged_ratio - start) / step)].append(tag.version._name)
-            for ind, bin_ in enumerate(bins):
+                bins[int((100.0 * tag.bugged_ratio - start) / step)].append(tag.version._name)
+            for bin_ in bins:
                 if len(bin_) < self.version_num:
                     continue
                 selected_versions = list(bin_)
