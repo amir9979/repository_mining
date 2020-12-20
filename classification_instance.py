@@ -34,6 +34,20 @@ class ClassificationInstance(object):
             self.testing_y = self.testing.pop(label).values
         self.testing_X = self.testing.values
         self.names = names
+        self.fix_and_warn()
+
+    def fix_and_warn(self):
+        test_ = set(self.testing_X.columns)
+        train_ = set(self.training_X.columns)
+        not_in_test = train_ - test_
+        not_in_train = test_ - train_
+        if not_in_test:
+            print(f"WARN: {not_in_test} columns are not in test")
+        if not_in_train:
+            print(f"WARN: {not_in_train} columns are not in train")
+        all_cols = list(train_.intersection(test_))
+        self.testing_X = self.testing_X[[all_cols]]
+        self.training_X = self.training_X[[all_cols]]
 
     def predict(self):
         classifier = RandomForestClassifier(n_estimators=1000, random_state=42)
