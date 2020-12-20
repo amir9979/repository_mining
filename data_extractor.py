@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from functools import reduce
+from pathlib import Path
 
 import git
 import json
@@ -41,7 +42,26 @@ class DataExtractor(object):
         self.versions = None
         self.bugged_files_between_versions = None
         self.selected_versions = None
-        self.selected_config = 0
+        self.selected_config = self.read_selected_config()
+
+    def set_selected_config(self, val):
+        self.selected_config = val
+        out_dir = Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'],
+                         Config().config['DATA_EXTRACTION']['SelectedVersionsInd']))
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
+        with open(os.path.join(out_dir, self.github_name), "w") as f:
+            json.dump({"selected_config": self.selected_config}, f)
+
+    def read_selected_config(self):
+        out_dir = Config.get_work_dir_path(
+            os.path.join(Config().config['CACHING']['RepositoryData'],
+                         Config().config['DATA_EXTRACTION']['SelectedVersionsInd']))
+        path = os.path.join(out_dir, self.github_name)
+        if not os.path.exists(path):
+            return 0
+        with open(path) as f:
+            return int(json.loads(f.read())["selected_config"])
 
     def checkout_version(self, version):
         self.git_repo.git.checkout(version.replace('\\', '/'), force=True)
@@ -296,7 +316,7 @@ class DataExtractor(object):
         return dict(map(lambda x: (repo.commit(x), comms[x]), filter(lambda x: comms[x], comms)))
 
     def choose_versions(self, repo=None, version_num=5, configurations=False,
-                        algorithm="bin", version_type=VersionType.Untyped, strict=True, selected_config=0):
+                        algorithm="bin", version_type=VersionType.Untyped, strict=True):
         # if self.get_selected_versions() is not None:
         #     return
         tags = self.bugged_files_between_versions
@@ -307,7 +327,7 @@ class DataExtractor(object):
             selector = ConfigurationSelectVersion(repo, tags, self.versions, version_num, version_type)
         else:
             if algorithm == "bin":
-                selector = BinSelectVersion(repo, tags, self.versions, version_num, version_type, strict=strict, selected_config=selected_config)
+                selector = BinSelectVersion(repo, tags, self.versions, version_num, version_type, strict=strict, selected_config=self.selected_config)
             elif algorithm == "quadratic":
                 selector = QuadraticSelectVersion(repo, tags, self.versions, version_num, version_type, strict=strict)
             else:
