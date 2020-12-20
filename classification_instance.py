@@ -13,7 +13,6 @@ class ClassificationInstance(object):
         self.training = training
         self.testing = testing
         self.save_all = save_all
-
         if self.save_all:
             self.training.to_csv(os.path.join(dataset_dir, training_path), index=False, sep=';')
             self.testing.to_csv(os.path.join(dataset_dir, testing_path), index=False, sep=';')
@@ -25,7 +24,7 @@ class ClassificationInstance(object):
         self.importance_path = os.path.join(dataset_dir, importance_path)
         self.scores = None
         self.importance = None
-
+        self.fix_and_warn()
         self.training_y = self.training.pop(label).values
         self.features_list = self.training.columns.to_list()
         self.training_X = self.training.values
@@ -34,11 +33,10 @@ class ClassificationInstance(object):
             self.testing_y = self.testing.pop(label).values
         self.testing_X = self.testing.values
         self.names = names
-        self.fix_and_warn()
 
     def fix_and_warn(self):
-        test_ = set(self.testing_X.columns)
-        train_ = set(self.training_X.columns)
+        test_ = set(self.testing.columns)
+        train_ = set(self.training.columns)
         not_in_test = train_ - test_
         not_in_train = test_ - train_
         if not_in_test:
@@ -46,8 +44,8 @@ class ClassificationInstance(object):
         if not_in_train:
             print(f"WARN: {not_in_train} columns are not in train")
         all_cols = list(train_.intersection(test_))
-        self.testing_X = self.testing_X[[all_cols]]
-        self.training_X = self.training_X[[all_cols]]
+        self.training = self.training[[all_cols]]
+        self.testing = self.testing[[all_cols]]
 
     def predict(self):
         classifier = RandomForestClassifier(n_estimators=1000, random_state=42)
