@@ -166,5 +166,7 @@ class ProjectName(Enum):
     #     return self.path()
 
 if __name__ == "__main__":
-    ans = list(map(lambda x: "gh issue create -t {} -b skip".format(x.name), ProjectName))
-    pass
+    ans = []
+    for i in [-1, -2, -3, -4, -5, -6, -7]:
+        ans.extend(list(map(lambda x: 'gh issue create -t {0} -b "--select_verions {1}"'.format(x.name, i), ProjectName)))
+    print("\n".join(ans))
