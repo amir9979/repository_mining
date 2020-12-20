@@ -118,6 +118,7 @@ class BinSelectVersion(AbstractSelectVersions):
     def _select_versions(self, repo, versions_by_type, tags):
         relevant_tags = list(filter(lambda t: t.bugged_ratio, tags))
         version_names = list(map(lambda x: x.version._name, relevant_tags))
+        only_version = []
         for start, step in product(self.start, self.step):
             bins = list(map(lambda x: list(), range(start, 100, step)))
             for tag in relevant_tags:
@@ -132,12 +133,14 @@ class BinSelectVersion(AbstractSelectVersions):
                     for i in range(len(selected_versions) - self.version_num):
                         versions = tuple(selected_versions[i: i + self.version_num])
                         configuration = {'start': start, 'step': step, 'versions': versions}
-                        if len(configuration['versions']) > 1:
+                        if len(configuration['versions']) > 1 and configuration['versions'] not in only_version:
                             self.selected_versions.append(configuration)
+                            only_version.append(configuration['versions'])
                 else:
                     configuration = {'start': start, 'step': step, 'versions': tuple(selected_versions)}
-                    if len(configuration['versions']) > 1:
+                    if len(configuration['versions']) > 1 and configuration['versions'] not in only_version:
                         self.selected_versions.append(configuration)
+                        only_version.append(configuration['versions'])
         self.selected_versions = sorted(self.selected_versions, key=lambda v: sum(map(version_names.index, v['versions'])), reverse=True)
         if len(self.selected_versions) <= self.selected_config:
             print("no versions found")
