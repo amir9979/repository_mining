@@ -167,6 +167,6 @@ class ProjectName(Enum):
 
 if __name__ == "__main__":
     ans = []
-    for i in [-1, -2, -3, -4, -5, -6, -7]:
+    for i in range(8):
         ans.extend(list(map(lambda x: 'gh issue create -t {0} -b "--select_verions {1}"'.format(x.name, i), ProjectName)))
     print("\n".join(ans))
