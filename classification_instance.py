@@ -36,16 +36,16 @@ class ClassificationInstance(object):
         self.names = names
 
     def predict(self):
-        # classifier = RandomForestClassifier(n_estimators=1000, random_state=42)
-        classifier = GaussianProcessClassifier(kernel=RBF(), max_iter_predict=20, n_restarts_optimizer=0, warm_start=True)
+        classifier = RandomForestClassifier(n_estimators=1000, random_state=42)
+        # classifier = GaussianProcessClassifier(kernel=RBF(), max_iter_predict=20, n_restarts_optimizer=0, warm_start=True)
         model = classifier.fit(self.training_X, self.training_y)
         classes = list(map(lambda x: str(x) + "_probability", classifier.classes_.tolist()))
         predictions_proba = list(zip(*classifier.predict_proba(self.testing_X)))
         predictions = list(classifier.predict(self.testing_X))
-        # self.importance = dict(zip(self.features_list, classifier.feature_importances_.tolist()))
-        # if self.save_all:
-        #     with open(self.importance_path, "w") as f:
-        #         json.dump(self.importance, f)
+        self.importance = dict(zip(self.features_list, classifier.feature_importances_.tolist()))
+        if self.save_all:
+            with open(self.importance_path, "w") as f:
+                json.dump(self.importance, f)
         if self.names:
             names = self.names
         else:
