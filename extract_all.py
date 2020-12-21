@@ -15,7 +15,7 @@ def extract_all(repo_path):
     m.set_version_selection(version_num=3, algorithm='bin',
                                version_type=VersionType["Untyped"], strict=False,
                             selected_config=0)
-    m.extract()
+    m.extract(False)
 
 
 if __name__ == '__main__':

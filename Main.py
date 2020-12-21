@@ -26,8 +26,8 @@ class Main():
     def list_projects(self):
         print("\n".join(list(map(lambda e: "{0}: {1}".format(e.name, e.value.description()), ProjectName))))
 
-    def extract(self):
-        self.extractor.extract(True)
+    def extract(self, selected_versions=True):
+        self.extractor.extract(selected_versions)
 
     def set_project(self, github, jira):
         self.project = Project(github.lower(), jira.upper())
