@@ -18,7 +18,7 @@ from metrics.version_metrics_data import (
     CompositeData, HalsteadData, CKData, SourceMonitorFilesData, SourceMonitorData, DesigniteDesignSmellsData,
     DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData,
     DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData, BuggedMethodData, MoodData,
-    JasomeFilesData, JasomeMethodsData, ProcessData, IssuesData)
+    JasomeFilesData, JasomeMethodsData, ProcessData, IssuesData, JasomeMoodData, JasomeCKData, JasomeLKData)
 from projects import Project
 from repo import Repo
 from .commented_code_detector import metrics_for_project, Halstead, CommentFilter
@@ -502,7 +502,9 @@ class Halstead(Extractor):
 
 class Jasome(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("Jasome", project, version, [DataType.JasomeFilesDataType, DataType.JasomeMethodsDataType], repo)
+        super().__init__("Jasome", project, version, [DataType.JasomeFilesDataType,DataType.JasomeCKDataType,
+                                                      DataType.JasomeLKDataType,DataType.JasomeMoodDataType,
+                                                      DataType.JasomeMethodsDataType], repo)
         self.out_path_to_xml = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Jasome'])))
 
@@ -514,6 +516,9 @@ class Jasome(Extractor):
         classes_metrics, methods_metrics = self._process_metrics()
         self.data \
             .add(JasomeFilesData(self.project, self.version, data=classes_metrics)) \
+            .add(JasomeCKData(self.project, self.version, data=classes_metrics)) \
+            .add(JasomeLKData(self.project, self.version, data=classes_metrics)) \
+            .add(JasomeMoodData(self.project, self.version, data=classes_metrics)) \
             .add(JasomeMethodsData(self.project, self.version, data=methods_metrics))
 
     @staticmethod
