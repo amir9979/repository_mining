@@ -20,20 +20,21 @@ from repo import Repo
 class DataExtractor(object):
 
     def __init__(self, project, jira_url=None, github_user_name=None):
-        self.git_path = project.path()
-        self.github_name = project.github()
+        self.project = project
+        self.github_name = self.project.github_name
         if jira_url:
             self.jira_url = jira_url
+        elif hasattr(self.project, 'jira_url'):
+            self.jira_url = self.project.jira_url
         else:
             self.jira_url = Config().config['REPO']['JiraURL']
         if github_user_name:
             self.github_user_name = github_user_name
         else:
-            self.github_user_name = "apache"
-        self.jira_project_name = project.jira()
-        self.repo = Repo(self.jira_project_name, self.github_name, local_path=self.git_path,
-                         github_user_name=self.github_user_name)
-        self.git_repo = git.Repo(self.git_path)
+            self.github_user_name = project.github_user
+        self.jira_project_name = project.jira_name
+        self.repo = Repo(self.project)
+        self.git_repo = git.Repo(self.project.path)
         self.head_commit = self.git_repo.head.commit.hexsha
         # self.git_repo.git.checkout(self.head_commit, force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
@@ -122,7 +123,7 @@ class DataExtractor(object):
 
         df = pd.DataFrame(list(map(lambda x: x.fields, self.jira_issues)), columns=self.jira_issues[0].fields.keys())
         commited_files_dir = self._get_caching_path("Issues")
-        path = os.path.join(commited_files_dir, self.jira_project_name + ".csv")
+        path = os.path.join(commited_files_dir, self.github_name + ".csv")
         df.to_csv(path, index=False, sep=';')
         issues_df = df.drop(
             ['creator', 'lastViewed', 'environment', 'summary', 'components', 'workratio', 'timeoriginalestimate',
@@ -138,7 +139,7 @@ class DataExtractor(object):
             issues_df = pd.concat([issues_df, dummies], axis=1)
             issues_df.drop([d], axis=1, inplace=True)
 
-        dummies_path = os.path.join(commited_files_dir, self.jira_project_name + "_dummies.csv")
+        dummies_path = os.path.join(commited_files_dir, self.github_name + "_dummies.csv")
         issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
         issues_df.to_csv(dummies_path, index=False, sep=';')
 
@@ -153,7 +154,7 @@ class DataExtractor(object):
         commited_files = reduce(list.__add__, commited_files, [])
         df = pd.DataFrame(commited_files, columns=columns)
         commited_files_dir = self._get_caching_path("CommittedFiles")
-        path = os.path.join(commited_files_dir, self.jira_project_name + ".csv")
+        path = os.path.join(commited_files_dir, self.github_name + ".csv")
         df.to_csv(path, index=False, sep=';')
 
     def _store_commits(self):
@@ -161,7 +162,7 @@ class DataExtractor(object):
         commits = list(map(lambda c: [c._commit_id, c.is_java_commit, c._issue_id, c._commit_formatted_date, self.get_commit_url(c._commit_id), c.get_issue_url()], self.commits))
         df = pd.DataFrame(commits, columns=columns)
         commits_dir = self._get_caching_path("Commits")
-        path = os.path.join(commits_dir, self.jira_project_name + ".csv")
+        path = os.path.join(commits_dir, self.github_name + ".csv")
         df.to_csv(path, index=False, sep=';')
 
     def _store_versions(self, tags, selected=False):
@@ -181,13 +182,13 @@ class DataExtractor(object):
                        "version_type": AbstractSelectVersions.define_version_type(tag.version).version_type.name}
             df = df.append(version, ignore_index=True)
         if selected:
-            versions_dir = os.path.join(self._get_caching_path("SelectedVersions"), self.jira_project_name)
+            versions_dir = os.path.join(self._get_caching_path("SelectedVersions"), self.github_name)
             Config.assert_dir_exists(versions_dir)
             path = os.path.join(versions_dir, Config.get_short_name(self.get_selected_versions()) + ".csv")
         else:
             versions_dir = self._get_caching_path("Versions")
             Config.assert_dir_exists(versions_dir)
-            path = os.path.join(versions_dir, self.jira_project_name + ".csv")
+            path = os.path.join(versions_dir, self.github_name + ".csv")
         df.to_csv(path, index=False, sep=';')
 
     def get_commit_url(self, commit_sha):
@@ -195,9 +196,9 @@ class DataExtractor(object):
 
     def _store_versions_infos(self, tags, selected=False):
         if selected:
-            versions_infos_dir = os.path.join(self._get_caching_path("SelectedVersionsInfos"), self.jira_project_name, Config.get_short_name(self.get_selected_versions()))
+            versions_infos_dir = os.path.join(self._get_caching_path("SelectedVersionsInfos"), self.github_name, Config.get_short_name(self.get_selected_versions()))
         else:
-            versions_infos_dir = os.path.join(self._get_caching_path("VersionsInfos"), self.jira_project_name)
+            versions_infos_dir = os.path.join(self._get_caching_path("VersionsInfos"), self.github_name)
         Config.assert_dir_exists(versions_infos_dir)
         for tag in tags:
             df = pd.DataFrame(tag.commits_shas, columns=["commit_id", "is_buggy"])
@@ -206,7 +207,7 @@ class DataExtractor(object):
             df.to_csv(path, index=False, sep=';')
 
     def _store_methods(self, tags):
-        methods_dir = os.path.join(self._get_caching_path("SelectedMethods"), self.jira_project_name,
+        methods_dir = os.path.join(self._get_caching_path("SelectedMethods"), self.github_name,
                                  Config.get_short_name(self.get_selected_versions()))
         Config.assert_dir_exists(methods_dir)
         for tag in tags:
@@ -226,9 +227,9 @@ class DataExtractor(object):
 
     def _store_files(self, tags, selected=False):
         if selected:
-            files_dir = os.path.join(self._get_caching_path("SelectedFiles"), self.jira_project_name, Config.get_short_name(self.get_selected_versions()))
+            files_dir = os.path.join(self._get_caching_path("SelectedFiles"), self.github_name, Config.get_short_name(self.get_selected_versions()))
         else:
-            files_dir = os.path.join(self._get_caching_path("Files"), self.jira_project_name)
+            files_dir = os.path.join(self._get_caching_path("Files"), self.github_name)
         Config.assert_dir_exists(files_dir)
         for tag in tags:
             files = {file_name: False for file_name in tag.version_files}
@@ -364,15 +365,15 @@ class DataExtractor(object):
     def get_bugged_files_path(self, version, selected_versions=False):
         if selected_versions:
             cache_path = self._get_caching_path("SelectedFiles")
-            path = os.path.join(cache_path, self.jira_project_name, Config.get_short_name(self.get_selected_versions()), version.replace(os.path.sep, "_") + '.csv')
+            path = os.path.join(cache_path, self.github_name, Config.get_short_name(self.get_selected_versions()), version.replace(os.path.sep, "_") + '.csv')
         else:
             cache_path = self._get_caching_path("Files")
-            path = os.path.join(cache_path, self.jira_project_name, version.replace(os.path.sep, "_") + '.csv')
+            path = os.path.join(cache_path, self.github_name, version.replace(os.path.sep, "_") + '.csv')
         return path
 
     def get_bugged_methods_path(self, version):
         cache_path = self._get_caching_path("SelectedMethods")
-        path = os.path.join(cache_path, self.jira_project_name, Config.get_short_name(self.get_selected_versions()), version.replace(os.path.sep, "_") + '.csv')
+        path = os.path.join(cache_path, self.github_name, Config.get_short_name(self.get_selected_versions()), version.replace(os.path.sep, "_") + '.csv')
         return path
 
 

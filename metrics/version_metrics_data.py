@@ -33,7 +33,7 @@ class Data(ABC):
         metrics_dirname = config['VERSION_METRICS']['MetricsDir']
         metrics_dir = os.path.join(repository_data, metrics_dirname)
         metrics_dir_path = Config().get_work_dir_path(metrics_dir)
-        version_dir_path = os.path.join(metrics_dir_path, project.github(), version)
+        version_dir_path = os.path.join(metrics_dir_path, project.github_name, version)
         Path(version_dir_path).mkdir(parents=True, exist_ok=True)
         path = os.path.join(version_dir_path, data_type + ".csv")
         return path

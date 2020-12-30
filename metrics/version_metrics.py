@@ -36,14 +36,14 @@ class Extractor(ABC):
     def __init__(self, extractor_name, project: Project, version, data_types: List[DataType], repo=None):
         self.extractor_name = extractor_name
         self.project = project
-        self.project_name = project.github()
+        self.project_name = project.github_name
         self.version = version
         self.data_types = data_types
         self.config = Config().config
         self.runner = self._get_runner(self.config, extractor_name)
         if repo is None:
-            repo = Repo(project.jira(), project.github(), project.path(), version)
-        self.local_path = os.path.realpath(repo.local_path)
+            repo = Repo(project, version)
+        self.local_path = os.path.realpath(repo.project.path)
         self.file_analyser = JavaParserFileAnalyser(self.local_path, self.project_name, self.version)
         self.data: Data = None
 
@@ -572,15 +572,15 @@ class ProcessExtractor(Extractor):
         # get version_date from apache_versions
         config = Config().config
         repository_data = config["CACHING"]["RepositoryData"]
-        path = os.path.join(repository_data, config['DATA_EXTRACTION']["Versions"], self.project.github(), self.project.jira() + ".csv")
+        path = os.path.join(repository_data, config['DATA_EXTRACTION']["Versions"], self.project.github_name, self.project.github_name + ".csv")
         df = pd.read_csv(path, sep=';')
         version_date = df[df['version_name'] == self.version]['version_date'].to_list()[0]
         version_date = datetime.strptime(version_date, '%Y-%m-%d %H:%M:%S')
         # get file list from committed_files
-        path = os.path.join(repository_data, config['DATA_EXTRACTION']["CommittedFiles"], self.project.github(), self.project.jira() + ".csv")
+        path = os.path.join(repository_data, config['DATA_EXTRACTION']["CommittedFiles"], self.project.github_name, self.project.github_name + ".csv")
         df = pd.read_csv(path, sep=';')
-        issues_path = os.path.join(repository_data, config['DATA_EXTRACTION']["Issues"], self.project.github(),
-                                   self.project.jira() + "_dummies.csv")
+        issues_path = os.path.join(repository_data, config['DATA_EXTRACTION']["Issues"], self.project.github_name,
+                                   self.project.github_name + "_dummies.csv")
         issues_df = pd.read_csv(issues_path, sep=';')
         issues_df = df[['commit_id', 'issue_id']].merge(issues_df, on=['issue_id'], how='right')
         # filter commits after version date

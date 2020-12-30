@@ -2,6 +2,7 @@ import jira
 from caching import cached
 import time
 import os
+import bugzilla
 from datetime import datetime
 
 
@@ -53,9 +54,25 @@ def get_jira_issues(project_name, url="http://issues.apache.org/jira", bunch=100
             time.sleep(sleep_time)
     return list(map(lambda issue: Issue(issue, url), all_issues))
 
+@cached("bugzilla_issues")
+def get_bugzilla_issues(product=None, url="bz.apache.org/bugzilla/xmlrpc.cgi"):
+    bzapi = bugzilla.Bugzilla(url)
+    bugs = []
+    if product is None:
+        products = bzapi.getproducts()
+    else:
+        products = [product]
+    for p in products:
+        for component in bzapi.getcomponents(p):
+            bugs.extend(bzapi.query(bzapi.build_query(product=p, component=component)))
+    return bugs
 
-if __name__ == "__main__":
-    import sys
-    from projects import ProjectName
-    p = ProjectName[sys.argv[1]]
-    get_jira_issues(p.value.jira())
+@cached("issues")
+def get_issues_for_project(project):
+    jira_issues = []
+    bz_issues = []
+    for jira_name in project.jira_names:
+        jira_issues.extend(get_jira_issues(jira_name, project.jira_url))
+    for bz_name in project.bz_names:
+        bz_issues.extend(get_bugzilla_issues(bz_name, project.bz_url))
+    return jira_issues + bz_issues

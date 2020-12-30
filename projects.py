@@ -4,24 +4,24 @@ from enum import Enum
 from config import Config
 
 
+class Project2():
+    def __init__(self, github_name, description, github_user, jira_names, bz_names, jira_url, bz_url):
+        self.github_name = github_name
+        self.github_user = github_user
+        self.jira_names = jira_names
+        self.bz_names = bz_names
+        self.description = description
+        self.jira_url = jira_url
+        self.bz_url = bz_url
+        self.path = os.path.join(Config().config['REPO']['RepoDir'], self.github_name)
+
+
 class Project():
     def __init__(self, github_name, jira_name, description=''):
-        self._github_name = github_name
-        self._jira_name = jira_name
-        self._description = description
-        self._path = os.path.join(Config().config['REPO']['RepoDir'], self._github_name)
-
-    def github(self):
-        return self._github_name
-
-    def jira(self):
-        return self._jira_name
-
-    def description(self):
-        return self._description
-
-    def path(self):
-        return self._path
+        self.github_name = github_name
+        self.jira_name = jira_name
+        self.description = description
+        self.path = os.path.join(Config().config['REPO']['RepoDir'], self.github_name)
 
 
 class ProjectName(Enum):

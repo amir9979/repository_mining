@@ -7,7 +7,7 @@ import sys
 def extract_all(repo_path):
     m = Main()
     for proj in ProjectName:
-        if proj.value.github().lower() in repo_path.lower():
+        if proj.value.github_name.lower() in repo_path.lower():
             m.set_project_enum(proj.name)
             break
     m.choose_versions(version_num=3, algorithm='bin',

@@ -2,62 +2,66 @@ import jira
 import bugzilla
 import github3
 import os
-import csv
-import sys
-from collections import Counter
-from itertools import product
-# from data_extractor import DataExtractor
-# from caching import cached
-# from repo import Repo
-
-REPO_DIR = r"C:\Temp\apache_repos"
 
 
-def find_repo_and_jira(key, repos, jira_projects):
+def get_jira_names(j):
+    key = j.key.strip().lower()
+    name = j.name.lower().replace('apache','').strip()
+    connected_name = "-".join(j.name.strip().lower().split())
+    elem = connected_name if '-' not in connected_name else "-".join(connected_name.split('-')[1:])
+    return tuple(list(set([key, name, connected_name, elem])))
+
+
+def get_bz_names(b):
+    name = b['name'].lower().replace(' - now in jira', '').replace('apache ', '')
+    base_name = name.replace('-', ' ').split()[0]
+    return tuple(list(set([name, base_name])))
+
+
+def get_github_names(g):
+    name = g.as_dict()['name'].strip().lower()
+    elem = name if '-' not in name else "-".join(name.split('-')[1:])
+    return tuple(list(set([name, elem])))
+
+
+def match_as_project(g, j, bz, github_user, jira_url, bz_url):
     def get_description(g):
-        d = g.repository.as_dict().get('description')
+        d = g.repository.as_dict().get('description').encode('utf-8')
         if d:
             return d
         return ''
-    jira_project = set(filter(lambda p: key in [p.key.strip().lower(), "-".join(p.name.strip().lower().split())], jira_projects))
-    github = set(filter(lambda repo: key in repo.as_dict()['name'].strip().lower(), repos))
-    for g, j in product(github, jira_project):
-        yield "{1} = Project({0}, {1}, {2})".format(g.repository.as_dict()['name'], j.key, get_description(g).encode('utf-8'))
+    g_name = g.repository.as_dict()['name']
+    g_desc = get_description(g)
+    jira_keys = str(list(map(lambda x: x.key, j)))
+    bz_keys = str(list(map(lambda x: x['name'], bz)))
+    return f"{g_name} = Project('{g_name}', '{github_user}', {g_desc}, {jira_keys}, {bz_keys}, '{jira_url}', '{bz_url}')"
+
 
 # @cached("apache_repos_data")
-def get_repos_data(user='apache', jira_url=r"http://issues.apache.org/jira"):
+def get_repos_data(user='apache', jira_url=r"http://issues.apache.org/jira", bz_url=r"bz.apache.org/bugzilla/xmlrpc.cgi"):
     gh = github3.login(token=os.environ['GITHUB_TOKEN']) # DebuggerIssuesReport@mail.com
     repos = list(gh.search_repositories('org:{0} language:Java'.format(user)))
-    conn = jira.JIRA(jira_url)
-    jira_projects = conn.projects()
-    github_repos = list(map(lambda repo: repo.as_dict()['name'].strip().lower(), repos))
-    _repos = list(map(lambda x: x if '-' not in x else "-".join(x.split('-')[1:]), github_repos))
-    jira_keys = list(map(lambda p: p.key.strip().lower(), jira_projects))
-    jira_names = list(map(lambda p: "-".join(p.name.strip().lower().split()), jira_projects))
-    jira_elements = list(set(jira_names + jira_keys))
-    _elements = list(map(lambda x: x if '-' not in x else "-".join(x.split('-')[1:]), jira_elements))
-    jira_elements = list(set(_elements + jira_elements))
-    jira_and_github = list(map(lambda x: x[0], filter(lambda x: x[1] > 1, Counter(list(set(github_repos + _repos)) + jira_elements).most_common())))
-    for key in jira_and_github:
-        for repo in find_repo_and_jira(key, repos, jira_projects):
-            if repo:
-                print(repo)
+    bzapi = bugzilla.Bugzilla(bz_url)
+    bz_products = dict(map(lambda bz: (get_bz_names(bz), bz), bzapi.getproducts()))
+    jira_projects = dict(map(lambda j: (get_jira_names(j), j), jira.JIRA(jira_url).projects()))
 
-
-def bugzilla_data(product=None, url="bz.apache.org/bugzilla/xmlrpc.cgi"):
-    bzapi = bugzilla.Bugzilla(url)
-    bugs = []
-    if product is None:
-        product = bzapi.getproducts()
-    else:
-        product = [product]
-    for p in product:
-        for component in bzapi.getcomponents(p):
-            bugs.extend(bzapi.query(bzapi.build_query(product=p, component=component)))
-    return bugs
+    for r in repos:
+        bz_matches = []
+        j_matches = []
+        for g_name in get_github_names(r):
+            for bz in bz_products:
+                if g_name in bz:
+                    bz_matches.append(bz_products[bz])
+                    continue
+            for j in jira_projects:
+                if g_name in j:
+                    j_matches.append(jira_projects[j])
+                    continue
+        if j_matches or bz_matches:
+            print(match_as_project(r, j_matches, bz_matches, user, jira_url, bz_url))
 
 
 if __name__ == "__main__":
+    get_repos_data()
     # get_repos_data('spring-projects', r"http://jira.spring.io")
-    bugs = bugzilla_data(product='Ant')
     pass

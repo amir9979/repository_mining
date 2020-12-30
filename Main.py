@@ -24,7 +24,7 @@ class Main():
         self.github_user_name = None
 
     def list_projects(self):
-        print("\n".join(list(map(lambda e: "{0}: {1}".format(e.name, e.value.description()), ProjectName))))
+        print("\n".join(list(map(lambda e: "{0}: {1}".format(e.name, e.value.description), ProjectName))))
 
     def extract(self, selected_versions=True):
         self.extractor.extract(selected_versions)
@@ -101,14 +101,14 @@ class Main():
     def get_data_dirs(self):
         classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'],
                                                              Config().config['VERSION_METRICS']['ClassesData'],
-                                                             self.project.github()))
+                                                             self.project.github_name))
         method_data = Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['MethodData'],
-                         self.project.github()))
+                         self.project.github_name))
         intermediate_dir = Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'],
                          Config().config['VERSION_METRICS']['Intermediate'],
-                         self.project.github()))
+                         self.project.github_name))
         classes_intermediate_dir = os.path.join(intermediate_dir, "classes")
         methods_intermediate_dir = os.path.join(intermediate_dir, "methods")
         Path(classes_intermediate_dir).mkdir(parents=True, exist_ok=True)
@@ -224,7 +224,7 @@ class Main():
     def get_dataset_path(self, name, is_dir=True):
         dataset_dir = Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['VERSION_METRICS']['Dataset'],
-                         self.project.github()))
+                         self.project.github_name))
         path = os.path.join(dataset_dir, name)
         if is_dir:
             Path(path).mkdir(parents=True, exist_ok=True)
