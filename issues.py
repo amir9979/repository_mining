@@ -2,6 +2,7 @@ import jira
 from caching import cached
 import time
 import os
+from datetime import datetime
 
 
 class Issue(object):
@@ -27,6 +28,9 @@ class Issue(object):
                 self.fields[k] = "@@@".join(lst)
         for k in self.fields:
             self.fields[k] = ' '.join(self.fields[k].split())
+
+    def get_creation_time(self):
+        return datetime.strptime(self.fields['created'], "%Y-%m-%dT%H:%M:%S.%f%z")
 
 
 @cached("apache_jira")

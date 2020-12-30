@@ -1,4 +1,5 @@
 import jira
+import bugzilla
 import github3
 import os
 import csv
@@ -43,5 +44,20 @@ def get_repos_data(user='apache', jira_url=r"http://issues.apache.org/jira"):
                 print(repo)
 
 
+def bugzilla_data(product=None, url="bz.apache.org/bugzilla/xmlrpc.cgi"):
+    bzapi = bugzilla.Bugzilla(url)
+    bugs = []
+    if product is None:
+        product = bzapi.getproducts()
+    else:
+        product = [product]
+    for p in product:
+        for component in bzapi.getcomponents(p):
+            bugs.extend(bzapi.query(bzapi.build_query(product=p, component=component)))
+    return bugs
+
+
 if __name__ == "__main__":
-    get_repos_data('spring-projects', r"http://jira.spring.io")
+    # get_repos_data('spring-projects', r"http://jira.spring.io")
+    bugs = bugzilla_data(product='Ant')
+    pass

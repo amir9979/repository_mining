@@ -296,7 +296,7 @@ class DataExtractor(object):
                 commit_text = DataExtractor._clean_commit_message(git_commit.summary)
             except:
                 continue
-            bug_id = get_bug_num_from_comit_text(commit_text, issues.keys())
+            bug_id = get_bug_num_from_comit_text(commit_text, dict(filter(lambda x: x[1].get_creation_time() >= git_commit.committed_datetime, issues.items())))
             commits.append(
                 Commit.init_commit_by_git_commit(git_commit, bug_id, issues.get(bug_id), java_commits[git_commit]))
         return commits
