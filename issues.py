@@ -130,4 +130,4 @@ if __name__ == "__main__":
     import sys
     from projects import ProjectName
     p = ProjectName[sys.argv[1]]
-    get_issues_for_project(p)
+    get_issues_for_project(p.value)
