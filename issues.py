@@ -27,7 +27,7 @@ class JiraIssue(Issue):
         super().__init__(issue.key.strip().split('-')[1], issue.fields.issuetype.name.lower(), issue.fields.priority.name.lower(), issue.fields.resolution.name.lower(), base_url, datetime.strptime(issue.fields.created, "%Y-%m-%dT%H:%M:%S.%f%z"))
         self.fields = {}
         for k, v in dict(issue.fields.__dict__).items():
-            if k.startswith("customfield_") or k.startswith("__") :
+            if k.startswith("customfield_") or k.startswith("__"):
                 continue
             if type(v) in [str, type(None), type(0), type(0.1)]:
                 self.fields[k] = str(v)
