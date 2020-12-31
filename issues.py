@@ -24,7 +24,7 @@ class Issue(object):
 
 class JiraIssue(Issue):
     def __init__(self, issue, base_url):
-        super().__init__(issue.key.strip().split('-')[1], issue.fields.issuetype.name.lower(), issue.fields.priority.name.lower(), issue.fields.resolution.name.lower(), base_url, datetime.strptime(issue.fields.created, "%Y-%m-%dT%H:%M:%S.%f%z"))
+        super().__init__(issue.key.strip().split('-')[1], issue.fields.issuetype.name.lower(), JiraIssue.get_name_or_default(issue.fields.priority, 'minor'), JiraIssue.get_name_or_default(issue.fields.resolution, 'resolved'), base_url, datetime.strptime(issue.fields.created, "%Y-%m-%dT%H:%M:%S.%f%z"))
         self.fields = {}
         for k, v in dict(issue.fields.__dict__).items():
             if k.startswith("customfield_") or k.startswith("__"):
@@ -44,6 +44,11 @@ class JiraIssue(Issue):
         for k in self.fields:
             self.fields[k] = ' '.join(self.fields[k].split())
 
+    @staticmethod
+    def get_name_or_default(val, default):
+        if val:
+            return val.name.lower()
+        return default
 
 class BZIssue(Issue):
     PRIORITY_DICT = {'P1': 'trivial', 'P2': 'minor', 'P3': 'major', 'P4': 'critical', 'P5': 'blocker'}
@@ -98,15 +103,15 @@ def get_bugzilla_issues(product=None, url="bz.apache.org/bugzilla/xmlrpc.cgi"):
             bugs.extend(bzapi.query(bzapi.build_query(product=p, component=component)))
     return list(map(lambda issue: BZIssue(issue), bugs))
 
+
 @cached("issues")
 def get_issues_for_project(project):
+    if hasattr(project, 'jira_name'):
+        return get_jira_issues(project.jira_name)
     jira_issues = []
     bz_issues = []
     for jira_name in project.jira_names:
         jira_issues.extend(get_jira_issues(jira_name, project.jira_url))
     for bz_name in project.bz_names:
         bz_issues.extend(get_bugzilla_issues(bz_name, project.bz_url))
-    return jira_issues, bz_issues
-
-if __name__ == '__main__':
-    get_bugzilla_issues('Ant')
+    return jira_issues + bz_issues

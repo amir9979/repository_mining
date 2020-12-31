@@ -45,6 +45,9 @@ class ProjectName(Enum):
     Kylin = Project("kylin", "KYLIN")
     Hive = Project("hive", "HIVE")
     CommonsValidator = Project("commons-validator", "VALIDATOR")
+    commonsvalidator = Project2('commons-validator', 'apache', 'Apache Commons Validator',
+                                  ['VALIDATOR', 'VALIDATOR'], [], 'http://issues.apache.org/jira',
+                                  'bz.apache.org/bugzilla/xmlrpc.cgi')
     Surefire = Project("maven-surefire", "SUREFIRE")
     Syncope = Project("syncope", "SYNCOPE")
     CommonsMath = Project("commons-math", "MATH")

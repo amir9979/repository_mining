@@ -10,7 +10,7 @@ import pandas as pd
 from commit import Commit, CommittedFile
 from config import Config
 from fixing_issues import VersionInfo
-from issues import get_jira_issues
+from issues import get_issues_for_project
 from version_selector import ConfigurationSelectVersion, BinSelectVersion, QuadraticSelectVersion, VersionType, AbstractSelectVersions
 from versions import Version
 from caching import cached
@@ -19,28 +19,15 @@ from repo import Repo
 
 class DataExtractor(object):
 
-    def __init__(self, project, jira_url=None, github_user_name=None):
+    def __init__(self, project):
         self.project = project
         self.github_name = self.project.github_name
-        if jira_url:
-            self.jira_url = jira_url
-        elif hasattr(self.project, 'jira_url'):
-            self.jira_url = self.project.jira_url
-        else:
-            self.jira_url = Config().config['REPO']['JiraURL']
-        if github_user_name:
-            self.github_user_name = github_user_name
-        elif hasattr(self.project, "github_user"):
-            self.github_user_name = project.github_user
-        else:
-            self.github_user_name = 'apache'
-        self.jira_project_name = project.jira_name
         self.repo = Repo(self.project)
         self.git_repo = git.Repo(self.project.path)
         self.head_commit = self.git_repo.head.commit.hexsha
         # self.git_repo.git.checkout(self.head_commit, force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
-        self.jira_issues = None
+        self.issues = None
         self.commits = None
         self.versions = None
         self.bugged_files_between_versions = None
@@ -74,7 +61,7 @@ class DataExtractor(object):
 
     @staticmethod
     def _get_repo_commits(repo, jira_issues):
-        issues = dict(map(lambda x: (x.key.strip().split("-")[1], x), jira_issues))
+        issues = dict(map(lambda x: (x.issue_id, x), jira_issues))
         commits = DataExtractor._commits_and_issues(repo, issues)
         return commits
 
@@ -97,8 +84,9 @@ class DataExtractor(object):
         return sorted(tags, key=lambda x: x.version._commit._commit_date)
 
     def init_jira_commits(self):
-        self.jira_issues = get_jira_issues(self.jira_project_name, self.jira_url)
-        self.commits = self._get_repo_commits(self.git_repo, self.jira_issues)
+        # self.issues = get_jira_issues(self.project.jira_name, self.jira_url)
+        self.issues = get_issues_for_project(self.project)
+        self.commits = self._get_repo_commits(self.git_repo, self.issues)
         self.versions = self._get_repo_versions(self.git_repo)
         print("number of commits: ", len(self.commits))
         print("number of tags: ", len(self.versions))
@@ -123,11 +111,12 @@ class DataExtractor(object):
         def clean(s):
             return "".join(list(filter(lambda c: c.isalpha(), s)))
 
-        df = pd.DataFrame(list(map(lambda x: x.fields, self.jira_issues)), columns=self.jira_issues[0].fields.keys())
+        # TO DO: fix it to save to jira and bz
+        df = pd.DataFrame(list(map(lambda x: x.fields, self.issues)), columns=self.issues[0].fields.keys())
         commited_files_dir = self._get_caching_path("Issues")
         path = os.path.join(commited_files_dir, self.github_name + ".csv")
         df.to_csv(path, index=False, sep=';')
-        issues_df = pd.DataFrame(list(map(lambda x: x.to_features_dict(), self.jira_issues)))
+        issues_df = pd.DataFrame(list(map(lambda x: x.to_features_dict(), self.issues)))
         to_dummies = ['priority', 'resolution', 'type']
         dummies_dict = {}
         for d in to_dummies:

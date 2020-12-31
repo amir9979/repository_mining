@@ -38,7 +38,7 @@ class Main():
         self.set_extractor()
 
     def set_extractor(self):
-        self.extractor = DataExtractor(self.project, self.jira_url, self.github_user_name)
+        self.extractor = DataExtractor(self.project)
 
     def extract_metrics(self, rest_versions, rest_only, data_types):
         classes_datasets = []

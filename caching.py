@@ -28,7 +28,10 @@ def cached(cache_name, cache_dir=REPOSITORY_CACHING_DIR):
 
     def decorator(fn):  # define a decorator for a function "fn"
         def wrapped(key='KEY', *args, **kwargs):   # define a wrapper that will finally call "fn" with all arguments
-            gzip_cachefile = cache_dir.joinpath(key + ".gzip")
+            key_ = key
+            if type(key) != type(''):
+                key_ = key.github_name
+            gzip_cachefile = cache_dir.joinpath(key_ + ".gzip")
             assert_dir_exists(gzip_cachefile.parent)
             if gzip_cachefile.exists():
                 try:

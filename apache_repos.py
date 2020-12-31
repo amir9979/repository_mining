@@ -26,15 +26,16 @@ def get_github_names(g):
 
 def match_as_project(g, j, bz, github_user, jira_url, bz_url):
     def get_description(g):
-        d = g.repository.as_dict().get('description').encode('utf-8')
+        d = g.repository.as_dict().get('description').encode('utf-8').decode("utf-8")
         if d:
             return d
         return ''
     g_name = g.repository.as_dict()['name']
+    name = g_name.replace('-', '')
     g_desc = get_description(g)
     jira_keys = str(list(map(lambda x: x.key, j)))
     bz_keys = str(list(map(lambda x: x['name'], bz)))
-    return f"{g_name} = Project('{g_name}', '{github_user}', {g_desc}, {jira_keys}, {bz_keys}, '{jira_url}', '{bz_url}')"
+    return f"{name} = Project('{g_name}', '{github_user}', {g_desc}, {jira_keys}, {bz_keys}, '{jira_url}', '{bz_url}')"
 
 
 # @cached("apache_repos_data")
