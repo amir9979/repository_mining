@@ -94,13 +94,22 @@ def get_jira_issues(project_name, url="http://issues.apache.org/jira", bunch=100
 def get_bugzilla_issues(product=None, url="bz.apache.org/bugzilla/xmlrpc.cgi"):
     bzapi = bugzilla.Bugzilla(url)
     bugs = []
+    sleep_time = 30
     if product is None:
         products = bzapi.getproducts()
     else:
         products = [product]
     for p in products:
         for component in bzapi.getcomponents(p):
-            bugs.extend(bzapi.query(bzapi.build_query(product=p, component=component)))
+            bugs_ = []
+            try:
+                bugs_ = bzapi.query(bzapi.build_query(product=p, component=component))
+            except Exception as e:
+                sleep_time = sleep_time * 2
+                if sleep_time >= 480:
+                    raise e
+                time.sleep(sleep_time)
+            bugs.extend(bugs_)
     return list(map(lambda issue: BZIssue(issue), bugs))
 
 
@@ -115,3 +124,10 @@ def get_issues_for_project(project):
     for bz_name in project.bz_names:
         bz_issues.extend(get_bugzilla_issues(bz_name, project.bz_url))
     return jira_issues + bz_issues
+
+
+if __name__ == "__main__":
+    import sys
+    from projects import ProjectName
+    p = ProjectName[sys.argv[1]]
+    get_issues_for_project(p)
