@@ -127,12 +127,8 @@ class DataExtractor(object):
         commited_files_dir = self._get_caching_path("Issues")
         path = os.path.join(commited_files_dir, self.github_name + ".csv")
         df.to_csv(path, index=False, sep=';')
-        issues_df = df.drop(
-            ['creator', 'lastViewed', 'environment', 'summary', 'components', 'workratio', 'timeoriginalestimate',
-             'reporter', 'assignee', 'status', 'timespent', 'issuelinks', 'created', 'fixVersions',
-             'aggregatetimespent', 'labels', 'timeestimate', 'aggregatetimeestimate', 'versions', 'resolutiondate',
-             'duedate', 'aggregatetimeoriginalestimate', 'description', 'updated', 'project', 'subtasks'], axis=1)
-        to_dummies = ['priority', 'resolution', 'issuetype']
+        issues_df = pd.DataFrame(list(map(lambda x: x.to_features_dict(), self.jira_issues)))
+        to_dummies = ['priority', 'resolution', 'type']
         dummies_dict = {}
         for d in to_dummies:
             dummies = pd.get_dummies(issues_df[d], prefix=d)
@@ -142,7 +138,6 @@ class DataExtractor(object):
             issues_df.drop([d], axis=1, inplace=True)
 
         dummies_path = os.path.join(commited_files_dir, self.github_name + "_dummies.csv")
-        issues_df['issue_id'] = issues_df['key'].apply(lambda k: int(k.split('-')[1]))
         issues_df.to_csv(dummies_path, index=False, sep=';')
 
     def _store_commited_files(self):
@@ -299,7 +294,7 @@ class DataExtractor(object):
                 commit_text = DataExtractor._clean_commit_message(git_commit.summary)
             except:
                 continue
-            bug_id = get_bug_num_from_comit_text(commit_text, dict(filter(lambda x: x[1].get_creation_time() <= git_commit.committed_datetime, issues.items())))
+            bug_id = get_bug_num_from_comit_text(commit_text, dict(filter(lambda x: x[1].creation_time <= git_commit.committed_datetime, issues.items())))
             commits.append(
                 Commit.init_commit_by_git_commit(git_commit, bug_id, issues.get(bug_id), java_commits[git_commit]))
         return commits

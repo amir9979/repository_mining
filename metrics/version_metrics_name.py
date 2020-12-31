@@ -576,93 +576,93 @@ class DataNameEnum(Enum):
                                                  "blame_merge_resolutionWontFix_min")
     blame_merge_resolutionWontFix_max = DataName("blame_merge_resolutionWontFix_max", DataType.IssuesFilesDataType,
                                                  "blame_merge_resolutionWontFix_max")
-    blame_merge_issuetypeBug_count = DataName("blame_merge_issuetypeBug_count", DataType.IssuesFilesDataType,
-                                              "blame_merge_issuetypeBug_count")
-    blame_merge_issuetypeBug_mean = DataName("blame_merge_issuetypeBug_mean", DataType.IssuesFilesDataType,
-                                             "blame_merge_issuetypeBug_mean")
-    blame_merge_issuetypeBug_std = DataName("blame_merge_issuetypeBug_std", DataType.IssuesFilesDataType,
-                                            "blame_merge_issuetypeBug_std")
-    blame_merge_issuetypeBug_min = DataName("blame_merge_issuetypeBug_min", DataType.IssuesFilesDataType,
-                                            "blame_merge_issuetypeBug_min")
-    blame_merge_issuetypeBug_max = DataName("blame_merge_issuetypeBug_max", DataType.IssuesFilesDataType,
-                                            "blame_merge_issuetypeBug_max")
-    blame_merge_issuetypeImprovement_count = DataName("blame_merge_issuetypeImprovement_count",
+    blame_merge_typeBug_count = DataName("blame_merge_typeBug_count", DataType.IssuesFilesDataType,
+                                              "blame_merge_typeBug_count")
+    blame_merge_typeBug_mean = DataName("blame_merge_typeBug_mean", DataType.IssuesFilesDataType,
+                                             "blame_merge_typeBug_mean")
+    blame_merge_typeBug_std = DataName("blame_merge_typeBug_std", DataType.IssuesFilesDataType,
+                                            "blame_merge_typeBug_std")
+    blame_merge_typeBug_min = DataName("blame_merge_typeBug_min", DataType.IssuesFilesDataType,
+                                            "blame_merge_typeBug_min")
+    blame_merge_typeBug_max = DataName("blame_merge_typeBug_max", DataType.IssuesFilesDataType,
+                                            "blame_merge_typeBug_max")
+    blame_merge_typeImprovement_count = DataName("blame_merge_typeImprovement_count",
                                                       DataType.IssuesFilesDataType,
-                                                      "blame_merge_issuetypeImprovement_count")
-    blame_merge_issuetypeImprovement_mean = DataName("blame_merge_issuetypeImprovement_mean",
+                                                      "blame_merge_typeImprovement_count")
+    blame_merge_typeImprovement_mean = DataName("blame_merge_typeImprovement_mean",
                                                      DataType.IssuesFilesDataType,
-                                                     "blame_merge_issuetypeImprovement_mean")
-    blame_merge_issuetypeImprovement_std = DataName("blame_merge_issuetypeImprovement_std",
+                                                     "blame_merge_typeImprovement_mean")
+    blame_merge_typeImprovement_std = DataName("blame_merge_typeImprovement_std",
                                                     DataType.IssuesFilesDataType,
-                                                    "blame_merge_issuetypeImprovement_std")
-    blame_merge_issuetypeImprovement_min = DataName("blame_merge_issuetypeImprovement_min",
+                                                    "blame_merge_typeImprovement_std")
+    blame_merge_typeImprovement_min = DataName("blame_merge_typeImprovement_min",
                                                     DataType.IssuesFilesDataType,
-                                                    "blame_merge_issuetypeImprovement_min")
-    blame_merge_issuetypeImprovement_max = DataName("blame_merge_issuetypeImprovement_max",
+                                                    "blame_merge_typeImprovement_min")
+    blame_merge_typeImprovement_max = DataName("blame_merge_typeImprovement_max",
                                                     DataType.IssuesFilesDataType,
-                                                    "blame_merge_issuetypeImprovement_max")
-    blame_merge_issuetypeNewFeature_count = DataName("blame_merge_issuetypeNewFeature_count",
+                                                    "blame_merge_typeImprovement_max")
+    blame_merge_typeNewFeature_count = DataName("blame_merge_typeNewFeature_count",
                                                      DataType.IssuesFilesDataType,
-                                                     "blame_merge_issuetypeNewFeature_count")
-    blame_merge_issuetypeNewFeature_mean = DataName("blame_merge_issuetypeNewFeature_mean",
+                                                     "blame_merge_typeNewFeature_count")
+    blame_merge_typeNewFeature_mean = DataName("blame_merge_typeNewFeature_mean",
                                                     DataType.IssuesFilesDataType,
-                                                    "blame_merge_issuetypeNewFeature_mean")
-    blame_merge_issuetypeNewFeature_std = DataName("blame_merge_issuetypeNewFeature_std", DataType.IssuesFilesDataType,
-                                                   "blame_merge_issuetypeNewFeature_std")
-    blame_merge_issuetypeNewFeature_min = DataName("blame_merge_issuetypeNewFeature_min", DataType.IssuesFilesDataType,
-                                                   "blame_merge_issuetypeNewFeature_min")
-    blame_merge_issuetypeNewFeature_max = DataName("blame_merge_issuetypeNewFeature_max", DataType.IssuesFilesDataType,
-                                                   "blame_merge_issuetypeNewFeature_max")
-    blame_merge_issuetypeQuestion_count = DataName("blame_merge_issuetypeQuestion_count", DataType.IssuesFilesDataType,
-                                                   "blame_merge_issuetypeQuestion_count")
-    blame_merge_issuetypeQuestion_mean = DataName("blame_merge_issuetypeQuestion_mean", DataType.IssuesFilesDataType,
-                                                  "blame_merge_issuetypeQuestion_mean")
-    blame_merge_issuetypeQuestion_std = DataName("blame_merge_issuetypeQuestion_std", DataType.IssuesFilesDataType,
-                                                 "blame_merge_issuetypeQuestion_std")
-    blame_merge_issuetypeQuestion_min = DataName("blame_merge_issuetypeQuestion_min", DataType.IssuesFilesDataType,
-                                                 "blame_merge_issuetypeQuestion_min")
-    blame_merge_issuetypeQuestion_max = DataName("blame_merge_issuetypeQuestion_max", DataType.IssuesFilesDataType,
-                                                 "blame_merge_issuetypeQuestion_max")
-    blame_merge_issuetypeSubtask_count = DataName("blame_merge_issuetypeSubtask_count", DataType.IssuesFilesDataType,
-                                                  "blame_merge_issuetypeSubtask_count")
-    blame_merge_issuetypeSubtask_mean = DataName("blame_merge_issuetypeSubtask_mean", DataType.IssuesFilesDataType,
-                                                 "blame_merge_issuetypeSubtask_mean")
-    blame_merge_issuetypeSubtask_std = DataName("blame_merge_issuetypeSubtask_std", DataType.IssuesFilesDataType,
-                                                "blame_merge_issuetypeSubtask_std")
-    blame_merge_issuetypeSubtask_min = DataName("blame_merge_issuetypeSubtask_min", DataType.IssuesFilesDataType,
-                                                "blame_merge_issuetypeSubtask_min")
-    blame_merge_issuetypeSubtask_max = DataName("blame_merge_issuetypeSubtask_max", DataType.IssuesFilesDataType,
-                                                "blame_merge_issuetypeSubtask_max")
-    blame_merge_issuetypeTask_count = DataName("blame_merge_issuetypeTask_count", DataType.IssuesFilesDataType,
-                                               "blame_merge_issuetypeTask_count")
-    blame_merge_issuetypeTask_mean = DataName("blame_merge_issuetypeTask_mean", DataType.IssuesFilesDataType,
-                                              "blame_merge_issuetypeTask_mean")
-    blame_merge_issuetypeTask_std = DataName("blame_merge_issuetypeTask_std", DataType.IssuesFilesDataType,
-                                             "blame_merge_issuetypeTask_std")
-    blame_merge_issuetypeTask_min = DataName("blame_merge_issuetypeTask_min", DataType.IssuesFilesDataType,
-                                             "blame_merge_issuetypeTask_min")
-    blame_merge_issuetypeTask_max = DataName("blame_merge_issuetypeTask_max", DataType.IssuesFilesDataType,
-                                             "blame_merge_issuetypeTask_max")
-    blame_merge_issuetypeTest_count = DataName("blame_merge_issuetypeTest_count", DataType.IssuesFilesDataType,
-                                               "blame_merge_issuetypeTest_count")
-    blame_merge_issuetypeTest_mean = DataName("blame_merge_issuetypeTest_mean", DataType.IssuesFilesDataType,
-                                              "blame_merge_issuetypeTest_mean")
-    blame_merge_issuetypeTest_std = DataName("blame_merge_issuetypeTest_std", DataType.IssuesFilesDataType,
-                                             "blame_merge_issuetypeTest_std")
-    blame_merge_issuetypeTest_min = DataName("blame_merge_issuetypeTest_min", DataType.IssuesFilesDataType,
-                                             "blame_merge_issuetypeTest_min")
-    blame_merge_issuetypeTest_max = DataName("blame_merge_issuetypeTest_max", DataType.IssuesFilesDataType,
-                                             "blame_merge_issuetypeTest_max")
-    blame_merge_issuetypeWish_count = DataName("blame_merge_issuetypeWish_count", DataType.IssuesFilesDataType,
-                                               "blame_merge_issuetypeWish_count")
-    blame_merge_issuetypeWish_mean = DataName("blame_merge_issuetypeWish_mean", DataType.IssuesFilesDataType,
-                                              "blame_merge_issuetypeWish_mean")
-    blame_merge_issuetypeWish_std = DataName("blame_merge_issuetypeWish_std", DataType.IssuesFilesDataType,
-                                             "blame_merge_issuetypeWish_std")
-    blame_merge_issuetypeWish_min = DataName("blame_merge_issuetypeWish_min", DataType.IssuesFilesDataType,
-                                             "blame_merge_issuetypeWish_min")
-    blame_merge_issuetypeWish_max = DataName("blame_merge_issuetypeWish_max", DataType.IssuesFilesDataType,
-                                             "blame_merge_issuetypeWish_max")
+                                                    "blame_merge_typeNewFeature_mean")
+    blame_merge_typeNewFeature_std = DataName("blame_merge_typeNewFeature_std", DataType.IssuesFilesDataType,
+                                                   "blame_merge_typeNewFeature_std")
+    blame_merge_typeNewFeature_min = DataName("blame_merge_typeNewFeature_min", DataType.IssuesFilesDataType,
+                                                   "blame_merge_typeNewFeature_min")
+    blame_merge_typeNewFeature_max = DataName("blame_merge_typeNewFeature_max", DataType.IssuesFilesDataType,
+                                                   "blame_merge_typeNewFeature_max")
+    blame_merge_typeQuestion_count = DataName("blame_merge_typeQuestion_count", DataType.IssuesFilesDataType,
+                                                   "blame_merge_typeQuestion_count")
+    blame_merge_typeQuestion_mean = DataName("blame_merge_typeQuestion_mean", DataType.IssuesFilesDataType,
+                                                  "blame_merge_typeQuestion_mean")
+    blame_merge_typeQuestion_std = DataName("blame_merge_typeQuestion_std", DataType.IssuesFilesDataType,
+                                                 "blame_merge_typeQuestion_std")
+    blame_merge_typeQuestion_min = DataName("blame_merge_typeQuestion_min", DataType.IssuesFilesDataType,
+                                                 "blame_merge_typeQuestion_min")
+    blame_merge_typeQuestion_max = DataName("blame_merge_typeQuestion_max", DataType.IssuesFilesDataType,
+                                                 "blame_merge_typeQuestion_max")
+    blame_merge_typeSubtask_count = DataName("blame_merge_typeSubtask_count", DataType.IssuesFilesDataType,
+                                                  "blame_merge_typeSubtask_count")
+    blame_merge_typeSubtask_mean = DataName("blame_merge_typeSubtask_mean", DataType.IssuesFilesDataType,
+                                                 "blame_merge_typeSubtask_mean")
+    blame_merge_typeSubtask_std = DataName("blame_merge_typeSubtask_std", DataType.IssuesFilesDataType,
+                                                "blame_merge_typeSubtask_std")
+    blame_merge_typeSubtask_min = DataName("blame_merge_typeSubtask_min", DataType.IssuesFilesDataType,
+                                                "blame_merge_typeSubtask_min")
+    blame_merge_typeSubtask_max = DataName("blame_merge_typeSubtask_max", DataType.IssuesFilesDataType,
+                                                "blame_merge_typeSubtask_max")
+    blame_merge_typeTask_count = DataName("blame_merge_typeTask_count", DataType.IssuesFilesDataType,
+                                               "blame_merge_typeTask_count")
+    blame_merge_typeTask_mean = DataName("blame_merge_typeTask_mean", DataType.IssuesFilesDataType,
+                                              "blame_merge_typeTask_mean")
+    blame_merge_typeTask_std = DataName("blame_merge_typeTask_std", DataType.IssuesFilesDataType,
+                                             "blame_merge_typeTask_std")
+    blame_merge_typeTask_min = DataName("blame_merge_typeTask_min", DataType.IssuesFilesDataType,
+                                             "blame_merge_typeTask_min")
+    blame_merge_typeTask_max = DataName("blame_merge_typeTask_max", DataType.IssuesFilesDataType,
+                                             "blame_merge_typeTask_max")
+    blame_merge_typeTest_count = DataName("blame_merge_typeTest_count", DataType.IssuesFilesDataType,
+                                               "blame_merge_typeTest_count")
+    blame_merge_typeTest_mean = DataName("blame_merge_typeTest_mean", DataType.IssuesFilesDataType,
+                                              "blame_merge_typeTest_mean")
+    blame_merge_typeTest_std = DataName("blame_merge_typeTest_std", DataType.IssuesFilesDataType,
+                                             "blame_merge_typeTest_std")
+    blame_merge_typeTest_min = DataName("blame_merge_typeTest_min", DataType.IssuesFilesDataType,
+                                             "blame_merge_typeTest_min")
+    blame_merge_typeTest_max = DataName("blame_merge_typeTest_max", DataType.IssuesFilesDataType,
+                                             "blame_merge_typeTest_max")
+    blame_merge_typeWish_count = DataName("blame_merge_typeWish_count", DataType.IssuesFilesDataType,
+                                               "blame_merge_typeWish_count")
+    blame_merge_typeWish_mean = DataName("blame_merge_typeWish_mean", DataType.IssuesFilesDataType,
+                                              "blame_merge_typeWish_mean")
+    blame_merge_typeWish_std = DataName("blame_merge_typeWish_std", DataType.IssuesFilesDataType,
+                                             "blame_merge_typeWish_std")
+    blame_merge_typeWish_min = DataName("blame_merge_typeWish_min", DataType.IssuesFilesDataType,
+                                             "blame_merge_typeWish_min")
+    blame_merge_typeWish_max = DataName("blame_merge_typeWish_max", DataType.IssuesFilesDataType,
+                                             "blame_merge_typeWish_max")
     fixes_count = DataName("fixes_count", DataType.IssuesFilesDataType, "fixes_count")
     fixes_insertions_count = DataName("fixes_insertions_count", DataType.IssuesFilesDataType, "fixes_insertions_count")
     fixes_insertions_mean = DataName("fixes_insertions_mean", DataType.IssuesFilesDataType, "fixes_insertions_mean")
@@ -859,86 +859,86 @@ class DataNameEnum(Enum):
                                             "issues_resolutionWontFix_min")
     issues_resolutionWontFix_max = DataName("issues_resolutionWontFix_max", DataType.IssuesFilesDataType,
                                             "issues_resolutionWontFix_max")
-    issues_issuetypeBug_count = DataName("issues_issuetypeBug_count", DataType.IssuesFilesDataType,
-                                         "issues_issuetypeBug_count")
-    issues_issuetypeBug_mean = DataName("issues_issuetypeBug_mean", DataType.IssuesFilesDataType,
-                                        "issues_issuetypeBug_mean")
-    issues_issuetypeBug_std = DataName("issues_issuetypeBug_std", DataType.IssuesFilesDataType,
-                                       "issues_issuetypeBug_std")
-    issues_issuetypeBug_min = DataName("issues_issuetypeBug_min", DataType.IssuesFilesDataType,
-                                       "issues_issuetypeBug_min")
-    issues_issuetypeBug_max = DataName("issues_issuetypeBug_max", DataType.IssuesFilesDataType,
-                                       "issues_issuetypeBug_max")
-    issues_issuetypeImprovement_count = DataName("issues_issuetypeImprovement_count", DataType.IssuesFilesDataType,
-                                                 "issues_issuetypeImprovement_count")
-    issues_issuetypeImprovement_mean = DataName("issues_issuetypeImprovement_mean", DataType.IssuesFilesDataType,
-                                                "issues_issuetypeImprovement_mean")
-    issues_issuetypeImprovement_std = DataName("issues_issuetypeImprovement_std", DataType.IssuesFilesDataType,
-                                               "issues_issuetypeImprovement_std")
-    issues_issuetypeImprovement_min = DataName("issues_issuetypeImprovement_min", DataType.IssuesFilesDataType,
-                                               "issues_issuetypeImprovement_min")
-    issues_issuetypeImprovement_max = DataName("issues_issuetypeImprovement_max", DataType.IssuesFilesDataType,
-                                               "issues_issuetypeImprovement_max")
-    issues_issuetypeNewFeature_count = DataName("issues_issuetypeNewFeature_count", DataType.IssuesFilesDataType,
-                                                "issues_issuetypeNewFeature_count")
-    issues_issuetypeNewFeature_mean = DataName("issues_issuetypeNewFeature_mean", DataType.IssuesFilesDataType,
-                                               "issues_issuetypeNewFeature_mean")
-    issues_issuetypeNewFeature_std = DataName("issues_issuetypeNewFeature_std", DataType.IssuesFilesDataType,
-                                              "issues_issuetypeNewFeature_std")
-    issues_issuetypeNewFeature_min = DataName("issues_issuetypeNewFeature_min", DataType.IssuesFilesDataType,
-                                              "issues_issuetypeNewFeature_min")
-    issues_issuetypeNewFeature_max = DataName("issues_issuetypeNewFeature_max", DataType.IssuesFilesDataType,
-                                              "issues_issuetypeNewFeature_max")
-    issues_issuetypeQuestion_count = DataName("issues_issuetypeQuestion_count", DataType.IssuesFilesDataType,
-                                              "issues_issuetypeQuestion_count")
-    issues_issuetypeQuestion_mean = DataName("issues_issuetypeQuestion_mean", DataType.IssuesFilesDataType,
-                                             "issues_issuetypeQuestion_mean")
-    issues_issuetypeQuestion_std = DataName("issues_issuetypeQuestion_std", DataType.IssuesFilesDataType,
-                                            "issues_issuetypeQuestion_std")
-    issues_issuetypeQuestion_min = DataName("issues_issuetypeQuestion_min", DataType.IssuesFilesDataType,
-                                            "issues_issuetypeQuestion_min")
-    issues_issuetypeQuestion_max = DataName("issues_issuetypeQuestion_max", DataType.IssuesFilesDataType,
-                                            "issues_issuetypeQuestion_max")
-    issues_issuetypeSubtask_count = DataName("issues_issuetypeSubtask_count", DataType.IssuesFilesDataType,
-                                             "issues_issuetypeSubtask_count")
-    issues_issuetypeSubtask_mean = DataName("issues_issuetypeSubtask_mean", DataType.IssuesFilesDataType,
-                                            "issues_issuetypeSubtask_mean")
-    issues_issuetypeSubtask_std = DataName("issues_issuetypeSubtask_std", DataType.IssuesFilesDataType,
-                                           "issues_issuetypeSubtask_std")
-    issues_issuetypeSubtask_min = DataName("issues_issuetypeSubtask_min", DataType.IssuesFilesDataType,
-                                           "issues_issuetypeSubtask_min")
-    issues_issuetypeSubtask_max = DataName("issues_issuetypeSubtask_max", DataType.IssuesFilesDataType,
-                                           "issues_issuetypeSubtask_max")
-    issues_issuetypeTask_count = DataName("issues_issuetypeTask_count", DataType.IssuesFilesDataType,
-                                          "issues_issuetypeTask_count")
-    issues_issuetypeTask_mean = DataName("issues_issuetypeTask_mean", DataType.IssuesFilesDataType,
-                                         "issues_issuetypeTask_mean")
-    issues_issuetypeTask_std = DataName("issues_issuetypeTask_std", DataType.IssuesFilesDataType,
-                                        "issues_issuetypeTask_std")
-    issues_issuetypeTask_min = DataName("issues_issuetypeTask_min", DataType.IssuesFilesDataType,
-                                        "issues_issuetypeTask_min")
-    issues_issuetypeTask_max = DataName("issues_issuetypeTask_max", DataType.IssuesFilesDataType,
-                                        "issues_issuetypeTask_max")
-    issues_issuetypeTest_count = DataName("issues_issuetypeTest_count", DataType.IssuesFilesDataType,
-                                          "issues_issuetypeTest_count")
-    issues_issuetypeTest_mean = DataName("issues_issuetypeTest_mean", DataType.IssuesFilesDataType,
-                                         "issues_issuetypeTest_mean")
-    issues_issuetypeTest_std = DataName("issues_issuetypeTest_std", DataType.IssuesFilesDataType,
-                                        "issues_issuetypeTest_std")
-    issues_issuetypeTest_min = DataName("issues_issuetypeTest_min", DataType.IssuesFilesDataType,
-                                        "issues_issuetypeTest_min")
-    issues_issuetypeTest_max = DataName("issues_issuetypeTest_max", DataType.IssuesFilesDataType,
-                                        "issues_issuetypeTest_max")
-    issues_issuetypeWish_count = DataName("issues_issuetypeWish_count", DataType.IssuesFilesDataType,
-                                          "issues_issuetypeWish_count")
-    issues_issuetypeWish_mean = DataName("issues_issuetypeWish_mean", DataType.IssuesFilesDataType,
-                                         "issues_issuetypeWish_mean")
-    issues_issuetypeWish_std = DataName("issues_issuetypeWish_std", DataType.IssuesFilesDataType,
-                                        "issues_issuetypeWish_std")
-    issues_issuetypeWish_min = DataName("issues_issuetypeWish_min", DataType.IssuesFilesDataType,
-                                        "issues_issuetypeWish_min")
-    issues_issuetypeWish_max = DataName("issues_issuetypeWish_max", DataType.IssuesFilesDataType,
-                                        "issues_issuetypeWish_max")
+    issues_typeBug_count = DataName("issues_typeBug_count", DataType.IssuesFilesDataType,
+                                         "issues_typeBug_count")
+    issues_typeBug_mean = DataName("issues_typeBug_mean", DataType.IssuesFilesDataType,
+                                        "issues_typeBug_mean")
+    issues_typeBug_std = DataName("issues_typeBug_std", DataType.IssuesFilesDataType,
+                                       "issues_typeBug_std")
+    issues_typeBug_min = DataName("issues_typeBug_min", DataType.IssuesFilesDataType,
+                                       "issues_typeBug_min")
+    issues_typeBug_max = DataName("issues_typeBug_max", DataType.IssuesFilesDataType,
+                                       "issues_typeBug_max")
+    issues_typeImprovement_count = DataName("issues_typeImprovement_count", DataType.IssuesFilesDataType,
+                                                 "issues_typeImprovement_count")
+    issues_typeImprovement_mean = DataName("issues_typeImprovement_mean", DataType.IssuesFilesDataType,
+                                                "issues_typeImprovement_mean")
+    issues_typeImprovement_std = DataName("issues_typeImprovement_std", DataType.IssuesFilesDataType,
+                                               "issues_typeImprovement_std")
+    issues_typeImprovement_min = DataName("issues_typeImprovement_min", DataType.IssuesFilesDataType,
+                                               "issues_typeImprovement_min")
+    issues_typeImprovement_max = DataName("issues_typeImprovement_max", DataType.IssuesFilesDataType,
+                                               "issues_typeImprovement_max")
+    issues_typeNewFeature_count = DataName("issues_typeNewFeature_count", DataType.IssuesFilesDataType,
+                                                "issues_typeNewFeature_count")
+    issues_typeNewFeature_mean = DataName("issues_typeNewFeature_mean", DataType.IssuesFilesDataType,
+                                               "issues_typeNewFeature_mean")
+    issues_typeNewFeature_std = DataName("issues_typeNewFeature_std", DataType.IssuesFilesDataType,
+                                              "issues_typeNewFeature_std")
+    issues_typeNewFeature_min = DataName("issues_typeNewFeature_min", DataType.IssuesFilesDataType,
+                                              "issues_typeNewFeature_min")
+    issues_typeNewFeature_max = DataName("issues_typeNewFeature_max", DataType.IssuesFilesDataType,
+                                              "issues_typeNewFeature_max")
+    issues_typeQuestion_count = DataName("issues_typeQuestion_count", DataType.IssuesFilesDataType,
+                                              "issues_typeQuestion_count")
+    issues_typeQuestion_mean = DataName("issues_typeQuestion_mean", DataType.IssuesFilesDataType,
+                                             "issues_typeQuestion_mean")
+    issues_typeQuestion_std = DataName("issues_typeQuestion_std", DataType.IssuesFilesDataType,
+                                            "issues_typeQuestion_std")
+    issues_typeQuestion_min = DataName("issues_typeQuestion_min", DataType.IssuesFilesDataType,
+                                            "issues_typeQuestion_min")
+    issues_typeQuestion_max = DataName("issues_typeQuestion_max", DataType.IssuesFilesDataType,
+                                            "issues_typeQuestion_max")
+    issues_typeSubtask_count = DataName("issues_typeSubtask_count", DataType.IssuesFilesDataType,
+                                             "issues_typeSubtask_count")
+    issues_typeSubtask_mean = DataName("issues_typeSubtask_mean", DataType.IssuesFilesDataType,
+                                            "issues_typeSubtask_mean")
+    issues_typeSubtask_std = DataName("issues_typeSubtask_std", DataType.IssuesFilesDataType,
+                                           "issues_typeSubtask_std")
+    issues_typeSubtask_min = DataName("issues_typeSubtask_min", DataType.IssuesFilesDataType,
+                                           "issues_typeSubtask_min")
+    issues_typeSubtask_max = DataName("issues_typeSubtask_max", DataType.IssuesFilesDataType,
+                                           "issues_typeSubtask_max")
+    issues_typeTask_count = DataName("issues_typeTask_count", DataType.IssuesFilesDataType,
+                                          "issues_typeTask_count")
+    issues_typeTask_mean = DataName("issues_typeTask_mean", DataType.IssuesFilesDataType,
+                                         "issues_typeTask_mean")
+    issues_typeTask_std = DataName("issues_typeTask_std", DataType.IssuesFilesDataType,
+                                        "issues_typeTask_std")
+    issues_typeTask_min = DataName("issues_typeTask_min", DataType.IssuesFilesDataType,
+                                        "issues_typeTask_min")
+    issues_typeTask_max = DataName("issues_typeTask_max", DataType.IssuesFilesDataType,
+                                        "issues_typeTask_max")
+    issues_typeTest_count = DataName("issues_typeTest_count", DataType.IssuesFilesDataType,
+                                          "issues_typeTest_count")
+    issues_typeTest_mean = DataName("issues_typeTest_mean", DataType.IssuesFilesDataType,
+                                         "issues_typeTest_mean")
+    issues_typeTest_std = DataName("issues_typeTest_std", DataType.IssuesFilesDataType,
+                                        "issues_typeTest_std")
+    issues_typeTest_min = DataName("issues_typeTest_min", DataType.IssuesFilesDataType,
+                                        "issues_typeTest_min")
+    issues_typeTest_max = DataName("issues_typeTest_max", DataType.IssuesFilesDataType,
+                                        "issues_typeTest_max")
+    issues_typeWish_count = DataName("issues_typeWish_count", DataType.IssuesFilesDataType,
+                                          "issues_typeWish_count")
+    issues_typeWish_mean = DataName("issues_typeWish_mean", DataType.IssuesFilesDataType,
+                                         "issues_typeWish_mean")
+    issues_typeWish_std = DataName("issues_typeWish_std", DataType.IssuesFilesDataType,
+                                        "issues_typeWish_std")
+    issues_typeWish_min = DataName("issues_typeWish_min", DataType.IssuesFilesDataType,
+                                        "issues_typeWish_min")
+    issues_typeWish_max = DataName("issues_typeWish_max", DataType.IssuesFilesDataType,
+                                        "issues_typeWish_max")
     blamemerge_blamegetTotalOperatorsCnt_count = DataName("blamemerge_blamegetTotalOperatorsCnt_count",
                                                           DataType.IssuesFilesDataType,
                                                           "blamemerge_blamegetTotalOperatorsCnt_count")
@@ -1070,45 +1070,45 @@ class DataNameEnum(Enum):
                                                         "blamemerge_resolutionPendingClosed_count")
     blamemerge_resolutionWontFix_count = DataName("blamemerge_resolutionWontFix_count", DataType.IssuesFilesDataType,
                                                   "blamemerge_resolutionWontFix_count")
-    blamemerge_issuetypeBug_count = DataName("blamemerge_issuetypeBug_count", DataType.IssuesFilesDataType,
-                                             "blamemerge_issuetypeBug_count")
-    blamemerge_issuetypeImprovement_count = DataName("blamemerge_issuetypeImprovement_count",
+    blamemerge_typeBug_count = DataName("blamemerge_typeBug_count", DataType.IssuesFilesDataType,
+                                             "blamemerge_typeBug_count")
+    blamemerge_typeImprovement_count = DataName("blamemerge_typeImprovement_count",
                                                      DataType.IssuesFilesDataType,
-                                                     "blamemerge_issuetypeImprovement_count")
-    blamemerge_issuetypeNewFeature_count = DataName("blamemerge_issuetypeNewFeature_count",
+                                                     "blamemerge_typeImprovement_count")
+    blamemerge_typeNewFeature_count = DataName("blamemerge_typeNewFeature_count",
                                                     DataType.IssuesFilesDataType,
-                                                    "blamemerge_issuetypeNewFeature_count")
-    blamemerge_issuetypeNewFeature_mean = DataName("blamemerge_issuetypeNewFeature_mean", DataType.IssuesFilesDataType,
-                                                   "blamemerge_issuetypeNewFeature_mean")
-    blamemerge_issuetypeNewFeature_min = DataName("blamemerge_issuetypeNewFeature_min", DataType.IssuesFilesDataType,
-                                                  "blamemerge_issuetypeNewFeature_min")
-    blamemerge_issuetypeNewFeature_max = DataName("blamemerge_issuetypeNewFeature_max", DataType.IssuesFilesDataType,
-                                                  "blamemerge_issuetypeNewFeature_max")
-    blamemerge_issuetypeQuestion_count = DataName("blamemerge_issuetypeQuestion_count", DataType.IssuesFilesDataType,
-                                                  "blamemerge_issuetypeQuestion_count")
-    blamemerge_issuetypeSubtask_count = DataName("blamemerge_issuetypeSubtask_count", DataType.IssuesFilesDataType,
-                                                 "blamemerge_issuetypeSubtask_count")
-    blamemerge_issuetypeTask_count = DataName("blamemerge_issuetypeTask_count", DataType.IssuesFilesDataType,
-                                              "blamemerge_issuetypeTask_count")
-    blamemerge_issuetypeTest_count = DataName("blamemerge_issuetypeTest_count", DataType.IssuesFilesDataType,
-                                              "blamemerge_issuetypeTest_count")
-    blamemerge_issuetypeWish_count = DataName("blamemerge_issuetypeWish_count", DataType.IssuesFilesDataType,
-                                              "blamemerge_issuetypeWish_count")
-    blamemerge_issuetypeImprovement_mean = DataName("blamemerge_issuetypeImprovement_mean",
+                                                    "blamemerge_typeNewFeature_count")
+    blamemerge_typeNewFeature_mean = DataName("blamemerge_typeNewFeature_mean", DataType.IssuesFilesDataType,
+                                                   "blamemerge_typeNewFeature_mean")
+    blamemerge_typeNewFeature_min = DataName("blamemerge_typeNewFeature_min", DataType.IssuesFilesDataType,
+                                                  "blamemerge_typeNewFeature_min")
+    blamemerge_typeNewFeature_max = DataName("blamemerge_typeNewFeature_max", DataType.IssuesFilesDataType,
+                                                  "blamemerge_typeNewFeature_max")
+    blamemerge_typeQuestion_count = DataName("blamemerge_typeQuestion_count", DataType.IssuesFilesDataType,
+                                                  "blamemerge_typeQuestion_count")
+    blamemerge_typeSubtask_count = DataName("blamemerge_typeSubtask_count", DataType.IssuesFilesDataType,
+                                                 "blamemerge_typeSubtask_count")
+    blamemerge_typeTask_count = DataName("blamemerge_typeTask_count", DataType.IssuesFilesDataType,
+                                              "blamemerge_typeTask_count")
+    blamemerge_typeTest_count = DataName("blamemerge_typeTest_count", DataType.IssuesFilesDataType,
+                                              "blamemerge_typeTest_count")
+    blamemerge_typeWish_count = DataName("blamemerge_typeWish_count", DataType.IssuesFilesDataType,
+                                              "blamemerge_typeWish_count")
+    blamemerge_typeImprovement_mean = DataName("blamemerge_typeImprovement_mean",
                                                     DataType.IssuesFilesDataType,
-                                                    "blamemerge_issuetypeImprovement_mean")
-    blamemerge_issuetypeImprovement_std = DataName("blamemerge_issuetypeImprovement_std", DataType.IssuesFilesDataType,
-                                                   "blamemerge_issuetypeImprovement_std")
-    blamemerge_issuetypeImprovement_max = DataName("blamemerge_issuetypeImprovement_max", DataType.IssuesFilesDataType,
-                                                   "blamemerge_issuetypeImprovement_max")
-    blamemerge_issuetypeNewFeature_std = DataName("blamemerge_issuetypeNewFeature_std", DataType.IssuesFilesDataType,
-                                                  "blamemerge_issuetypeNewFeature_std")
-    blamemerge_issuetypeSubtask_mean = DataName("blamemerge_issuetypeSubtask_mean", DataType.IssuesFilesDataType,
-                                                "blamemerge_issuetypeSubtask_mean")
-    blamemerge_issuetypeSubtask_std = DataName("blamemerge_issuetypeSubtask_std", DataType.IssuesFilesDataType,
-                                               "blamemerge_issuetypeSubtask_std")
-    blamemerge_issuetypeSubtask_max = DataName("blamemerge_issuetypeSubtask_max", DataType.IssuesFilesDataType,
-                                               "blamemerge_issuetypeSubtask_max")
+                                                    "blamemerge_typeImprovement_mean")
+    blamemerge_typeImprovement_std = DataName("blamemerge_typeImprovement_std", DataType.IssuesFilesDataType,
+                                                   "blamemerge_typeImprovement_std")
+    blamemerge_typeImprovement_max = DataName("blamemerge_typeImprovement_max", DataType.IssuesFilesDataType,
+                                                   "blamemerge_typeImprovement_max")
+    blamemerge_typeNewFeature_std = DataName("blamemerge_typeNewFeature_std", DataType.IssuesFilesDataType,
+                                                  "blamemerge_typeNewFeature_std")
+    blamemerge_typeSubtask_mean = DataName("blamemerge_typeSubtask_mean", DataType.IssuesFilesDataType,
+                                                "blamemerge_typeSubtask_mean")
+    blamemerge_typeSubtask_std = DataName("blamemerge_typeSubtask_std", DataType.IssuesFilesDataType,
+                                               "blamemerge_typeSubtask_std")
+    blamemerge_typeSubtask_max = DataName("blamemerge_typeSubtask_max", DataType.IssuesFilesDataType,
+                                               "blamemerge_typeSubtask_max")
     blamemerge_blamegetTotalOperatorsCnt_min = DataName("blamemerge_blamegetTotalOperatorsCnt_min",
                                                         DataType.IssuesFilesDataType,
                                                         "blamemerge_blamegetTotalOperatorsCnt_min")
@@ -1131,22 +1131,22 @@ class DataNameEnum(Enum):
                                                  "blamemerge_blamegetDifficulty_min")
     blamemerge_blamegetEffort_min = DataName("blamemerge_blamegetEffort_min", DataType.IssuesFilesDataType,
                                              "blamemerge_blamegetEffort_min")
-    blamemerge_issuetypeBug_mean = DataName("blamemerge_issuetypeBug_mean", DataType.IssuesFilesDataType,
-                                            "blamemerge_issuetypeBug_mean")
-    blamemerge_issuetypeBug_min = DataName("blamemerge_issuetypeBug_min", DataType.IssuesFilesDataType,
-                                           "blamemerge_issuetypeBug_min")
-    blamemerge_issuetypeBug_max = DataName("blamemerge_issuetypeBug_max", DataType.IssuesFilesDataType,
-                                           "blamemerge_issuetypeBug_max")
+    blamemerge_typeBug_mean = DataName("blamemerge_typeBug_mean", DataType.IssuesFilesDataType,
+                                            "blamemerge_typeBug_mean")
+    blamemerge_typeBug_min = DataName("blamemerge_typeBug_min", DataType.IssuesFilesDataType,
+                                           "blamemerge_typeBug_min")
+    blamemerge_typeBug_max = DataName("blamemerge_typeBug_max", DataType.IssuesFilesDataType,
+                                           "blamemerge_typeBug_max")
     blamemerge_priorityMinor_mean = DataName("blamemerge_priorityMinor_mean", DataType.IssuesFilesDataType,
                                              "blamemerge_priorityMinor_mean")
     blamemerge_priorityMinor_min = DataName("blamemerge_priorityMinor_min", DataType.IssuesFilesDataType,
                                             "blamemerge_priorityMinor_min")
     blamemerge_priorityMinor_max = DataName("blamemerge_priorityMinor_max", DataType.IssuesFilesDataType,
                                             "blamemerge_priorityMinor_max")
-    blamemerge_issuetypeImprovement_min = DataName("blamemerge_issuetypeImprovement_min", DataType.IssuesFilesDataType,
-                                                   "blamemerge_issuetypeImprovement_min")
-    blamemerge_issuetypeBug_std = DataName("blamemerge_issuetypeBug_std", DataType.IssuesFilesDataType,
-                                           "blamemerge_issuetypeBug_std")
+    blamemerge_typeImprovement_min = DataName("blamemerge_typeImprovement_min", DataType.IssuesFilesDataType,
+                                                   "blamemerge_typeImprovement_min")
+    blamemerge_typeBug_std = DataName("blamemerge_typeBug_std", DataType.IssuesFilesDataType,
+                                           "blamemerge_typeBug_std")
     blamemerge_priorityMajor_std = DataName("blamemerge_priorityMajor_std", DataType.IssuesFilesDataType,
                                             "blamemerge_priorityMajor_std")
     blamemerge_priorityMinor_std = DataName("blamemerge_priorityMinor_std", DataType.IssuesFilesDataType,
@@ -1163,12 +1163,12 @@ class DataNameEnum(Enum):
                                                "blamemerge_priorityCritical_std")
     blamemerge_priorityCritical_max = DataName("blamemerge_priorityCritical_max", DataType.IssuesFilesDataType,
                                                "blamemerge_priorityCritical_max")
-    blamemerge_issuetypeTask_mean = DataName("blamemerge_issuetypeTask_mean", DataType.IssuesFilesDataType,
-                                             "blamemerge_issuetypeTask_mean")
-    blamemerge_issuetypeTask_std = DataName("blamemerge_issuetypeTask_std", DataType.IssuesFilesDataType,
-                                            "blamemerge_issuetypeTask_std")
-    blamemerge_issuetypeTask_max = DataName("blamemerge_issuetypeTask_max", DataType.IssuesFilesDataType,
-                                            "blamemerge_issuetypeTask_max")
+    blamemerge_typeTask_mean = DataName("blamemerge_typeTask_mean", DataType.IssuesFilesDataType,
+                                             "blamemerge_typeTask_mean")
+    blamemerge_typeTask_std = DataName("blamemerge_typeTask_std", DataType.IssuesFilesDataType,
+                                            "blamemerge_typeTask_std")
+    blamemerge_typeTask_max = DataName("blamemerge_typeTask_max", DataType.IssuesFilesDataType,
+                                            "blamemerge_typeTask_max")
     blamemerge_resolutionFixed_std = DataName("blamemerge_resolutionFixed_std", DataType.IssuesFilesDataType,
                                               "blamemerge_resolutionFixed_std")
     blamemerge_resolutionNone_mean = DataName("blamemerge_resolutionNone_mean", DataType.IssuesFilesDataType,
@@ -1177,8 +1177,8 @@ class DataNameEnum(Enum):
                                              "blamemerge_resolutionNone_std")
     blamemerge_resolutionNone_max = DataName("blamemerge_resolutionNone_max", DataType.IssuesFilesDataType,
                                              "blamemerge_resolutionNone_max")
-    blamemerge_issuetypeSubtask_min = DataName("blamemerge_issuetypeSubtask_min", DataType.IssuesFilesDataType,
-                                               "blamemerge_issuetypeSubtask_min")
+    blamemerge_typeSubtask_min = DataName("blamemerge_typeSubtask_min", DataType.IssuesFilesDataType,
+                                               "blamemerge_typeSubtask_min")
     blamemerge_resolutionNone_min = DataName("blamemerge_resolutionNone_min", DataType.IssuesFilesDataType,
                                              "blamemerge_resolutionNone_min")
     blamemerge_resolutionWontFix_mean = DataName("blamemerge_resolutionWontFix_mean", DataType.IssuesFilesDataType,
@@ -1193,8 +1193,8 @@ class DataNameEnum(Enum):
                                               "blamemerge_priorityTrivial_std")
     blamemerge_priorityTrivial_max = DataName("blamemerge_priorityTrivial_max", DataType.IssuesFilesDataType,
                                               "blamemerge_priorityTrivial_max")
-    blamemerge_issuetypeTask_min = DataName("blamemerge_issuetypeTask_min", DataType.IssuesFilesDataType,
-                                            "blamemerge_issuetypeTask_min")
+    blamemerge_typeTask_min = DataName("blamemerge_typeTask_min", DataType.IssuesFilesDataType,
+                                            "blamemerge_typeTask_min")
     blamemerge_resolutionCannotReproduce_mean = DataName("blamemerge_resolutionCannotReproduce_mean",
                                                          DataType.IssuesFilesDataType,
                                                          "blamemerge_resolutionCannotReproduce_mean")
@@ -1204,24 +1204,24 @@ class DataNameEnum(Enum):
     blamemerge_resolutionCannotReproduce_max = DataName("blamemerge_resolutionCannotReproduce_max",
                                                         DataType.IssuesFilesDataType,
                                                         "blamemerge_resolutionCannotReproduce_max")
-    blamemerge_issuetypeWish_mean = DataName("blamemerge_issuetypeWish_mean", DataType.IssuesFilesDataType,
-                                             "blamemerge_issuetypeWish_mean")
-    blamemerge_issuetypeWish_std = DataName("blamemerge_issuetypeWish_std", DataType.IssuesFilesDataType,
-                                            "blamemerge_issuetypeWish_std")
-    blamemerge_issuetypeWish_max = DataName("blamemerge_issuetypeWish_max", DataType.IssuesFilesDataType,
-                                            "blamemerge_issuetypeWish_max")
+    blamemerge_typeWish_mean = DataName("blamemerge_typeWish_mean", DataType.IssuesFilesDataType,
+                                             "blamemerge_typeWish_mean")
+    blamemerge_typeWish_std = DataName("blamemerge_typeWish_std", DataType.IssuesFilesDataType,
+                                            "blamemerge_typeWish_std")
+    blamemerge_typeWish_max = DataName("blamemerge_typeWish_max", DataType.IssuesFilesDataType,
+                                            "blamemerge_typeWish_max")
     blamemerge_priorityBlocker_min = DataName("blamemerge_priorityBlocker_min", DataType.IssuesFilesDataType,
                                               "blamemerge_priorityBlocker_min")
     blamemerge_priorityCritical_min = DataName("blamemerge_priorityCritical_min", DataType.IssuesFilesDataType,
                                                "blamemerge_priorityCritical_min")
-    blamemerge_issuetypeTest_mean = DataName("blamemerge_issuetypeTest_mean", DataType.IssuesFilesDataType,
-                                             "blamemerge_issuetypeTest_mean")
-    blamemerge_issuetypeTest_std = DataName("blamemerge_issuetypeTest_std", DataType.IssuesFilesDataType,
-                                            "blamemerge_issuetypeTest_std")
-    blamemerge_issuetypeTest_max = DataName("blamemerge_issuetypeTest_max", DataType.IssuesFilesDataType,
-                                            "blamemerge_issuetypeTest_max")
-    blamemerge_issuetypeTest_min = DataName("blamemerge_issuetypeTest_min", DataType.IssuesFilesDataType,
-                                            "blamemerge_issuetypeTest_min")
+    blamemerge_typeTest_mean = DataName("blamemerge_typeTest_mean", DataType.IssuesFilesDataType,
+                                             "blamemerge_typeTest_mean")
+    blamemerge_typeTest_std = DataName("blamemerge_typeTest_std", DataType.IssuesFilesDataType,
+                                            "blamemerge_typeTest_std")
+    blamemerge_typeTest_max = DataName("blamemerge_typeTest_max", DataType.IssuesFilesDataType,
+                                            "blamemerge_typeTest_max")
+    blamemerge_typeTest_min = DataName("blamemerge_typeTest_min", DataType.IssuesFilesDataType,
+                                            "blamemerge_typeTest_min")
 
     @staticmethod
     def get_data_names_by_type(data_types: List[DataType]):

@@ -685,7 +685,7 @@ class ProcessExtractor(Extractor):
         ans.update(self._get_features(df[df['issue_id'] != '0'].drop('issue_id', axis=1), "fixes"))
         ans.update(self._get_features(df[df['issue_id'] == '0'].drop('issue_id', axis=1), "non_fixes"))
         merged = df.merge(issues_df.drop(['commit_id'], axis=1), on=['issue_id'], how='inner')
-        merged = merged.drop(['key', 'issue_id'], axis=1)
+        merged = merged.drop(['issue_id'], axis=1)
         ans.update(self._get_features(merged, 'issues'))
 
         # for dummy in dummies_dict:
