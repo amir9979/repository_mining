@@ -30,8 +30,10 @@ class DataExtractor(object):
             self.jira_url = Config().config['REPO']['JiraURL']
         if github_user_name:
             self.github_user_name = github_user_name
-        else:
+        elif hasattr(self.project, "github_user"):
             self.github_user_name = project.github_user
+        else:
+            self.github_user_name = 'apache'
         self.jira_project_name = project.jira_name
         self.repo = Repo(self.project)
         self.git_repo = git.Repo(self.project.path)
