@@ -76,13 +76,16 @@ class ClassificationInstance(object):
 
     def evaluate_on_test(self, y_true, y_pred, classes, predicitons_proba):
         self.scores = {}
-        y_prob = dict(zip(classes, predicitons_proba))[True]
+        y_prob_true = dict(zip(classes, predicitons_proba))[True]
+        y_prob_false = dict(zip(classes, predicitons_proba))[False]
         self.scores['accuracy_score'] = metrics.accuracy_score(y_true, y_pred)
         self.scores['precision_score'] = metrics.precision_score(y_true, y_pred)
         self.scores['recall_score'] = metrics.recall_score(y_true, y_pred)
         self.scores['f1_score'] = metrics.f1_score(y_true, y_pred)
-        self.scores['roc_auc_score'] = metrics.roc_auc_score(y_true, y_prob)
-        self.scores['pr_auc_score'] = pr_auc_score(y_true, y_prob)
+        self.scores['roc_auc_score_True'] = metrics.roc_auc_score(y_true, y_prob_true)
+        self.scores['roc_auc_score_False'] = metrics.roc_auc_score(y_true, y_prob_false)
+        self.scores['pr_auc_score_True'] = pr_auc_score(y_true, y_prob_true)
+        self.scores['pr_auc_score_False'] = pr_auc_score(y_true, y_prob_false)
         if self.save_all:
             with open(self.metrics_path, "w") as f:
                 json.dump(self.scores, f)
