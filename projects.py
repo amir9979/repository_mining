@@ -839,9 +839,16 @@ class ProjectName(Enum):
     #                             ['ZETACOMP', 'EXLBR', 'SMXCOMP'], [], 'http://issues.apache.org/jira',
     #                             'bz.apache.org/bugzilla/xmlrpc.cgi')
 
+
+def get_good_projects():
+    GOOD = ['kafka', 'flink', 'hadoop', 'zookeeper', 'cassandra', 'storm', 'tomcat', 'zeppelin', 'jmeter', 'beam', 'lucenesolr', 'groovy', 'ignite', 'camel', 'hive', 'shiro', 'kylin', 'curator', 'nifi', 'maven', 'calcite', 'nutch', 'commonslang', 'flume', 'mahout', 'geode', 'activemq', 'avro', 'hudi', 'drill', 'ambari', 'pdfbox', 'tinkerpop', 'tika', 'bookkeeper', 'poi', 'logginglog4j2', 'iotdb', 'opennlp', 'phoenix', 'accumulo', 'systemds', 'metron', 'commonsio', 'atlas', 'log4j', 'ofbiz', 'jena', 'cxf', 'samza', 'activemqartemis', 'pig', 'oozie', 'isis', 'wicket', 'karaf', 'commonscollections', 'ranger', 'openmeetings', 'commonsmath', 'tomee', 'commonspool', 'minasshd', 'atticapexcore', 'jackrabbitoak', 'mavensurefire', 'helix', 'commonscodec', 'ant', 'archiva', 'commonsdbutils', 'commonsdbcp', 'cayenne', 'commonscsv', 'httpcomponentscore', 'commonscli', 'commonsbeanutils', 'commonstext', 'asterixdb', 'commonscompress', 'atticstratos', 'metamodel', 'commonsbcel', 'commonsnet', 'commonsvfs', 'atticapexmalhar', 'deltaspike', 'hama', 'tajo', 'syncope', 'xmlgraphicsbatik', 'commonsvalidator', 'xmlgraphicsfop', 'commonsconfiguration', 'knox', 'qpid', 'sentry', 'crunch', 'tiles', 'mavenarchetype', 'gora', 'falcon', 'roller', 'jclouds', 'mnemonic', 'openjpa', 'joshua', 'tapestry5', 'commonsjexl', 'commonsemail', 'httpasyncclient', 'mavencompilerplugin', 'airavata', 'jspwiki', 'mavenscm', 'streams', 'directorystudio', 'shindig', 'mavenshadeplugin', 'ftpserver', 'twill', 'mavendependencyplugin', 'juneau', 'myfaces', 'lens', 'hcatalog', 'oodt', 'qpidjms', 'openwebbeans', 'openwebbeansmeecrowave', 'mavenindexer', 'antivy', 'atticode', 'mavenassemblyplugin', 'mavenwagon', 'johnzon', 'xmlbeans', 'sanselan', 'jamesmime4j', 'mavenjavadocplugin', 'jackrabbitfilevault', 'mavencheckstyleplugin', 'cxfdosgi', 'phoenixtephra', 'mavenplugintools', 'empiredb', 'xerces2j', 'mavendeployplugin', 'portalspluto', 'mavendoxia', 'mavenpmdplugin', 'mavenwarplugin', 'cxffediz', 'mavensiteplugin', 'minaftpserver', 'atticrave', 'juddi', 'myfacestobago', 'mavenprojectinforeportsplugin', 'cxfxjcutils', 'mavensourceplugin', 'maveninvokerplugin', 'geronimoxbean', 'wswss4j', 'continuum', 'mavenremoteresourcesplugin', 'mavenearplugin', 'mavenpatchplugin', 'incubatorambari', 'mavenjxr', 'geronimodevtools', 'mavenchangesplugin', 'mavendoxiasitetools', 'mavenrarplugin', 'myfacestrinidad', 'creadurwhisker', 'archivasandbox', 'wsxmlschema', 'accumuloproxy', 'minaasyncweb', 'atticonami', 'geronimoyoko', 'mavendoapplugin', 'mavenjdeprscanplugin', 'incubatortwill', 'jamespostage', 'rampart', 'mavenacrplugin', 'mavenlinkcheckplugin']
+    return list(filter(lambda x: x.name in GOOD, ProjectName))
+
 if __name__ == "__main__":
     ans = []
     # for i in range(8):
-    ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), ProjectName)))
+    ans.extend(list(map(lambda x: '{0}'.format(x.name), ProjectName)))
+    # ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), ProjectName)))
     # print("\n".join(ans))
-    print(len(ans))
+    print(ans)
+    # print(len(ans))
