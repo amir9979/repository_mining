@@ -68,7 +68,7 @@ class JavaParserFileAnalyser(FileAnalyser):
     def get_closest_id(self, file_name, line=0):
         file_name = os.path.normpath(file_name).lower()
         relative_file_name = file_name.replace(os.path.join(os.path.normpath(self.local_path).lower(), ""), "")
-        cond = self.parser_df['File Path'].str.contains(relative_file_name , case=False, regex=False) 
+        cond = self.parser_df['File Path'].str.contains(relative_file_name , case=False, regex=False)
         df = self.parser_df.loc[cond]
         closest_df = df.iloc[(df["Method Beginning Line"] - line).abs().argsort()[:1]]
         if closest_df.empty:
