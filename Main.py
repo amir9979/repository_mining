@@ -111,10 +111,8 @@ class Main():
                          self.project.github_name))
         classes_intermediate_dir = os.path.join(intermediate_dir, "classes")
         methods_intermediate_dir = os.path.join(intermediate_dir, "methods")
-        Path(classes_intermediate_dir).mkdir(parents=True, exist_ok=True)
-        Path(methods_intermediate_dir).mkdir(parents=True, exist_ok=True)
-        Path(classes_data).mkdir(parents=True, exist_ok=True)
-        Path(method_data).mkdir(parents=True, exist_ok=True)
+        for p in [intermediate_dir, classes_intermediate_dir, methods_intermediate_dir, classes_data, method_data]:
+            Path(p).mkdir(parents=True, exist_ok=True)
         return classes_data, method_data, classes_intermediate_dir, methods_intermediate_dir, intermediate_dir
 
     def aggrate_methods_df(self, df):
@@ -184,15 +182,22 @@ class Main():
             aggregated_classes_df = aggregated_classes_df.merge(aggregated_methods_df, on=['File'], how='outer')
         return self.fillna(aggregated_classes_df)
 
+    def save_to_csv(self, df, path):
+        Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
+        df.to_csv(path, index=False, sep=';')
+
     def save_dfs(self, classes_df, methods_df, aggregated_classes_df, aggregated_methods_df, version):
         classes_data, method_data, classes_intermediate_dir, methods_intermediate_dir, intermediate_dir = self.get_data_dirs()
-        classes_df.to_csv(os.path.join(classes_intermediate_dir, version + ".csv"), index=False, sep=';')
-        aggregated_classes_df.to_csv(os.path.join(classes_intermediate_dir, version + "_aggregated_classes.csv"), index=False, sep=';')
-        methods_df.to_csv(os.path.join(methods_intermediate_dir, version + ".csv"), index=False, sep=';')
-        aggregated_methods_df.to_csv(os.path.join(intermediate_dir, version + "_aggregated_methods_df.csv"), index=False, sep=';')
-        classes_df.to_csv(os.path.join(classes_data, version + ".csv"), index=False, sep=';')
-        aggregated_classes_df.to_csv(os.path.join(classes_data, version + "_aggregated_classes_.csv"), index=False, sep=';')
-        methods_df.to_csv(os.path.join(method_data, version + ".csv"), index=False, sep=';')
+
+        self.save_to_csv(classes_df, os.path.join(classes_intermediate_dir, version + ".csv"))
+        self.save_to_csv(aggregated_classes_df, os.path.join(classes_intermediate_dir, version + "_aggregated_classes.csv"))
+
+        self.save_to_csv(methods_df, os.path.join(methods_intermediate_dir, version + ".csv"))
+        self.save_to_csv(aggregated_methods_df, os.path.join(intermediate_dir, version + "_aggregated_methods_df.csv"))
+
+        self.save_to_csv(classes_df, os.path.join(classes_data, version + ".csv"))
+        self.save_to_csv(aggregated_classes_df, os.path.join(classes_data, version + "_aggregated_classes_.csv"))
+        self.save_to_csv(methods_df, os.path.join(method_data, version + ".csv"))
 
     def get_extractors(self, data_types, extract_bugs, version):
         db = DataBuilder(self.project, version)
@@ -228,6 +233,8 @@ class Main():
         path = os.path.join(dataset_dir, name)
         if is_dir:
             Path(path).mkdir(parents=True, exist_ok=True)
+        else:
+            Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
         return path
 
     def extract_methods_datasets(self, training_datasets, testing_dataset):
