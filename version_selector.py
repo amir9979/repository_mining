@@ -120,7 +120,7 @@ class BinSelectVersion(AbstractSelectVersions):
         version_names = list(map(lambda x: x.version._name, relevant_tags))
         only_version = []
         for start, step in product(self.start, self.step):
-            bins = list(map(lambda x: list(), range(start, 100, step)))
+            bins = list(map(lambda x: list(), range(start, 101, step)))
             for tag in relevant_tags:
                 if 100.0 * tag.bugged_ratio < start:
                     continue
