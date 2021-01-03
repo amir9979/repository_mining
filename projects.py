@@ -421,6 +421,175 @@ class ProjectName(Enum):
     mavenwarplugin = Project('maven-war-plugin', 'apache', 'Apache Maven WAR Plugin', ['MWAR'], [],
                              'http://issues.apache.org/jira', 'bz.apache.org/bugzilla/xmlrpc.cgi')
 
+    # Eclipse issues
+    deeplearning4j = Project('deeplearning4j', 'eclipse',
+                             'Eclipse Deeplearning4j, ND4J, DataVec and more - deep learning & linear algebra for Java/Scala with GPUs + Spark',
+                             [], ['DeepLearning4J'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    che = Project('che', 'eclipse', 'The Kubernetes-Native IDE for Developer Teams', [], ['Che'], 'None',
+                  'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    openj9 = Project('openj9', 'eclipse',
+                     'Eclipse OpenJ9: A Java Virtual Machine for OpenJDK thats optimized for small footprint, fast start-up, and high throughput.   Builds on Eclipse OMR (https://github.com/eclipse/omr) and combines with the Extensions for OpenJDK for OpenJ9 repo.',
+                     [], ['openj9'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    eclipsecollections = Project('eclipse-collections', 'eclipse',
+                                 'Eclipse Collections is a collections framework for Java with optimized data structures and a rich, functional and fluent API.',
+                                 [], ['Collections'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    jgit = Project('jgit', 'eclipse', 'JGit project repository (jgit)', [], ['JGit'], 'None',
+                   'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    milo = Project('milo', 'eclipse', ' Eclipse Milo™ - an open source implementation of OPC UA (IEC 62541).', [],
+                   ['Milo'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    californium = Project('californium', 'eclipse', 'CoAP/DTLS Java Implementation ', [], ['Californium'], 'None',
+                          'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    buildship = Project('buildship', 'eclipse', 'The Eclipse Plug-ins for Gradle project.', [], ['Buildship'], 'None',
+                        'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    microprofile = Project('microprofile', 'eclipse',
+                           'Repository for important documentation - the index to the project / community', [],
+                           ['Microprofile'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    ceylon = Project('ceylon', 'eclipse', 'The Ceylon compiler, language module, and command line tools', [],
+                     ['Ceylon'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    kura = Project('kura', 'eclipse', 'Eclipse Kura™ project - http://eclipse.org/kura', [], ['Kura'], 'None',
+                   'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    lsp4j = Project('lsp4j', 'eclipse',
+                    'A Java implementation of the language server protocol intended to be consumed by tools and language servers implemented in Java.',
+                    [], ['Lsp4j'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    hawkbit = Project('hawkbit', 'eclipse', 'Eclipse hawkBit™', [], ['Hawkbit'], 'None',
+                      'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    ditto = Project('ditto', 'eclipse', 'Eclipse Ditto Project', [], ['Ditto'], 'None',
+                    'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    birt = Project('birt', 'eclipse', 'Eclipse BIRT™ The open source reporting and data visualization project. ', [],
+                   ['BIRT'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    vorto = Project('vorto', 'eclipse', 'Vorto Project', [], ['Vorto'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    kapua = Project('kapua', 'eclipse', '', [], ['Kapua'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    jnosql = Project('jnosql', 'eclipse',
+                     'Eclipse JNoSQL is a framework which has the goal to help Java developers to create Jakarta EE applications with NoSQL.',
+                     [], ['JNoSQL'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    egit = Project('egit', 'eclipse', 'Eclipse Git Team Provider (EGit) project repository (egit)', [], ['EGit'],
+                   'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    elk = Project('elk', 'eclipse', 'Eclipse Layout Kernel - Automatic layout for Java applications.', [], ['Elk'],
+                  'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    gef = Project('gef', 'eclipse', 'Eclipse GEF™', [], ['GEF'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    xtextxtend = Project('xtext-xtend', 'eclipse', 'xtext-xtend', [], ['Xtend'], 'None',
+                         'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    tycho = Project('tycho', 'eclipse', 'Tycho project repository (tycho)', [], ['Tycho'], 'None',
+                    'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    sw360 = Project('sw360', 'eclipse', 'SW360 project', [], ['SW360'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    texlipse = Project('texlipse', 'eclipse', 'Eclipse Texlipse', [], ['Texlipse'], 'None',
+                       'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    tahu = Project('tahu', 'eclipse',
+                   'Eclipse Tahu addresses the existence of legacy SCADA/DCS/ICS protocols and infrastructures and provides a much-needed definition of how best to apply MQTT into these existing industrial operational environments.',
+                   [], ['Tahu'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    jifa = Project('jifa', 'eclipse', '', [], ['Jifa'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    emf = Project('emf', 'eclipse', 'EMF project repository (emf)', [], ['EMF', 'EMF Services'], 'None',
+                  'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    eclemma = Project('eclemma', 'eclipse', ':waning_crescent_moon:　Java Code Coverage for Eclipse', [], ['Eclemma'],
+                      'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    nebula = Project('nebula', 'eclipse', 'Nebula Project', [], ['Nebula'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    rap = Project('rap', 'eclipse', 'Rich Ajax Platform project repository (rap)', [], ['RAP'], 'None',
+                  'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    acceleo = Project('acceleo', 'eclipse', 'Acceleo project repository (acceleo)', [], ['Acceleo'], 'None',
+                      'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    capella = Project('capella', 'eclipse', 'Open Source Solution for Model-Based Systems Engineering', [], ['Capella'],
+                      'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    reddeer = Project('reddeer', 'eclipse', 'RedDeer Project', [], ['Reddeer'], 'None',
+                      'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    ice = Project('ice', 'eclipse', 'Ice Project Main repo', [], ['Ice'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    Xpect = Project('Xpect', 'eclipse',
+                    'This repository has been rewritten to move to the Eclipse Foundation. Find the old history here: https://github.com/TypeFox/Xpect',
+                    [], ['xpect'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    swtbot = Project('swtbot', 'eclipse', 'SWTBot project repository (swtbot)', [], ['SWTBot'], 'None',
+                     'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    swtchart = Project('swtchart', 'eclipse', '', [], ['SwtChart'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    xsemantics = Project('xsemantics', 'eclipse',
+                         'Xsemantics is a DSL (implemented in Xtext itself) for writing type systems, reduction rules, interpreters (and in general relation rules) for languages implemented in Xtext. It then generates Java code that can be used in your language implemented in Xtext for scoping and validation (it can also generate a validator in Java).',
+                         [], ['xsemantics'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    antenna = Project('antenna', 'eclipse', 'SW360 Antenna project', [], ['Antenna'], 'None',
+                      'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    thym = Project('thym', 'eclipse', 'Thym Project', [], ['Thym'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    xtend = Project('xtend', 'eclipse', 'Xtend project repository (xtend)', [], ['Xtend'], 'None',
+                    'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    keti = Project('keti', 'eclipse', '', [], ['Keti'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    gmftooling = Project('gmf-tooling', 'eclipse',
+                         'Graphical Modeling Framework (GMF) Tooling project repository (gmf-tooling)', [],
+                         ['GMF-Tooling'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    ecf = Project('ecf', 'eclipse', 'Eclipse Communication Framework (ECF) project repository (ecf)', [], ['ECF'],
+                  'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    keyplejava = Project('keyple-java', 'eclipse', 'Keyple Java source', [], ['Java Server Faces'], 'None',
+                         'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    triquetrum = Project('triquetrum', 'eclipse', 'Triquetrum project', [], ['Triquetrum'], 'None',
+                         'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    dawnsci = Project('dawnsci', 'eclipse', 'Eclipse DAWNSci™ project', [], ['DAWNsci'], 'None',
+                      'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    geminiblueprint = Project('gemini.blueprint', 'eclipse', '', [], ['Gemini.Blueprint'], 'None',
+                               'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    sapphire = Project('sapphire', 'eclipse', 'Sapphire project repository (sapphire)', [], ['Sapphire'], 'None',
+                       'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    xtextweb = Project('xtext-web', 'eclipse', 'xtext-web', [], ['Web Tools'], 'None',
+                       'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    qvto = Project('qvto', 'eclipse', 'Model-to-Model Transformation (MMT) project repository (qvto)', [], ['QVTo'],
+                   'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    eavp = Project('eavp', 'eclipse', 'Eclipse advanced visualization project', [], ['Eavp'], 'None',
+                   'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    chemclipse = Project('chemclipse', 'eclipse', 'ChemClipse Project', [], ['Chemclipse'], 'None',
+                         'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    ecoretools = Project('ecoretools', 'eclipse', 'Ecore Tools project repository (ecoretools)', [], ['Ecoretools'],
+                         'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    rdf4jtools = Project('rdf4j-tools', 'eclipse', 'RDF4J Server and Console', [], ['Tools'], 'None',
+                         'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    libra = Project('libra', 'eclipse', 'Libra project repository (libra)', [], ['Libra'], 'None',
+                    'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    cft = Project('cft', 'eclipse', '', [], ['CFT'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    tcf = Project('tcf', 'eclipse', 'Target Communication Framework project repository (tcf)', [], ['TCF'], 'None',
+                  'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    uomo = Project('uomo', 'eclipse', 'Eclipse UOMo project repository (uomo)', [], ['UOMo'], 'None',
+                   'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    bpel = Project('bpel', 'eclipse', 'BPEL Designer project repository (bpel)', [], ['BPEL'], 'None',
+                   'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    osee = Project('osee', 'eclipse', 'Open System Engineering Environment project repository (osee)', [], ['OSEE'],
+                   'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    tiakijava = Project('tiaki-java', 'eclipse', 'Tiaki Java projects', [], ['Java Server Faces'], 'None',
+                        'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    eef = Project('eef', 'eclipse', 'Extended Editing Framework (EEF) project repository (eef)', [], ['EEF'], 'None',
+                  'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    windowbuilder = Project('windowbuilder', 'eclipse', 'Windowbuilder', [], ['WindowBuilder'], 'None',
+                            'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    mylyn = Project('mylyn', 'eclipse', 'Mylyn project repository (mylyn)', [],
+                    ['Mylyn', 'Mylyn Commons', 'Mylyn Docs Vex', 'Mylyn Versions', 'Mylyn Reviews', 'Mylyn Tasks',
+                     'Mylyn Context MFT', 'Mylyn Docs', 'Mylyn Context', 'Mylyn Builds', 'Mylyn Docs Intent',
+                     'Mylyn Reviews R4E', 'Mylyn Incubator'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    geminijpa = Project('gemini.jpa', 'eclipse', 'Gemini JPA project repository (gemini.jpa)', [], ['Gemini.JPA'],
+                         'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    riena = Project('riena', 'eclipse', 'Riena Project project repository (riena)', [], ['Riena'], 'None',
+                    'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    objectteams = Project('objectteams', 'eclipse', 'Object Teams project repository (objectteams)', [],
+                          ['Objectteams'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    skalli = Project('skalli', 'eclipse', 'Skalli project repository (skalli)', [], ['Skalli'], 'None',
+                     'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    gmfruntime = Project('gmf-runtime', 'eclipse', 'modeling.gmp.gmf-runtime project repository', [], ['GMF-Runtime'],
+                         'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    egitpde = Project('egit-pde', 'eclipse', 'Eclipse Git Team Provider (EGit) project repository (egit-pde)', [],
+                      ['PDE'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    kitalpha = Project('kitalpha', 'eclipse', '', [], ['Kitalpha'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    scanning = Project('scanning', 'eclipse',
+                       'Scanning is an open source project for moving scientific instruments and writing NeXus (http://www.nexusformat.org/) compliant files. It is designed to be control system neutral, EPICS, TANGO etc. may be used. See https://projects.eclipse.org/proposals/scanning and https://github.com/eclipse/scanning/blob/master/GETTINGSTARTED.pdf',
+                       [], ['Scanning'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    gef3d = Project('gef3d', 'eclipse', 'Graphical Editing Framework 3D project repository (gef3d)', [], ['GEF3D'],
+                    'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    virgokerneltools = Project('virgo.kernel-tools', 'eclipse',
+                                'Dynamic Enterprise Application Platform project repository (virgo.kernel-tools)', [],
+                                ['Tools'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    packager = Project('packager', 'eclipse', 'Eclipse Packager project', [], ['Packager'], 'None',
+                       'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    capellatools = Project('capella-tools', 'eclipse', '', [], ['Tools'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    gemininaming = Project('gemini.naming', 'eclipse', 'Gemini Naming project repository (gemini.naming)', [],
+                            ['Gemini.Naming'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    lyo = Project('lyo', 'eclipse', 'Lyo Project', [], ['Lyo'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    agileuml = Project('agileuml', 'eclipse', '', [], ['Agileuml'], 'None', 'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    rtp = Project('rtp', 'eclipse', 'Runtime Packaging project repository (rtp)', [], ['RTP'], 'None',
+                  'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    incubator = Project('incubator', 'eclipse', 'An eclipse.org repository named incubator', [], ['Incubator'], 'None',
+                        'bugs.eclipse.org/bugs/xmlrpc.cgi')
+    cdt = Project('cdt', 'eclipse-cdt', 'C/C++ Development Tooling (CDT) Eclipse plug-ins', [], ['CDT'], 'None',
+                  'bugs.eclipse.org/bugs/xmlrpc.cgi')
+
     # BAD PROJECTS - NOT ENOUGH ISSUES
     commonsfileupload = Project('commons-fileupload', 'apache', 'Mirror of Apache Commons FileUpload', ['FILEUPLOAD'],
                                 [], 'http://issues.apache.org/jira', 'bz.apache.org/bugzilla/xmlrpc.cgi')
