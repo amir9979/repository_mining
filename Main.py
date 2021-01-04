@@ -29,8 +29,8 @@ class Main():
     def extract(self, selected_versions=True):
         self.extractor.extract(selected_versions)
 
-    def set_project(self, github, jira):
-        self.project = Project(github.lower(), jira.upper())
+    def set_project(self, github_name, github_user, jira_name, jira_url):
+        self.project = Project(github_name, github_user, '', [jira_name], [], jira_url, '')
         self.set_extractor()
 
     def set_project_enum(self, name):
@@ -268,8 +268,8 @@ class Main():
         parser.add_argument('-p', '--projects', dest='projects', action='store_const', const=True, default=False,
                             help='list all aleready defined projects')
         parser.add_argument('-c', '--choose', dest='choose', action='store', help='choose a project to extract')
-        parser.add_argument('-g', '--github_repo_name', dest='github', action='store', help='the github repository name to the project to extract (lowercase)')
-        parser.add_argument('-j', '--jira_name', dest='jira', action='store', help='the jira name to the project to extract (uppercase)')
+        parser.add_argument('-g', '--github_repo_name', dest='github_repo', action='store', help='the github repository name to the project to extract (lowercase)')
+        parser.add_argument('-j', '--jira_product_name', dest='jira_product', action='store', help='the jira name to the project to extract (uppercase)')
         parser.add_argument('-u', '--github_user_name', dest='github_user_name', action='store', help='the github user name to the project to extract (lowercase)', default="apache")
         parser.add_argument('-jl', '--jira_url', dest='jira_url', action='store', help='the link to jira', default="http://issues.apache.org/jira")
         parser.add_argument('-l', '--list_select_verions', dest='list_selected', action='store', help='the algorithm to select the versions : [bin]', default='bin')
@@ -291,8 +291,8 @@ class Main():
             self.list_projects()
         if args.choose:
             self.set_project_enum(args.choose)
-        if args.github and args.jira:
-            self.set_project(args.github, args.jira)
+        if args.github_repo and args.jira_product:
+            self.set_project(args.github_repo, args.github_user_name, args.jira_product, args.jira_url)
         if args.list_selected:
             self.choose_versions(version_num=args.num_versions, algorithm=args.list_selected, version_type=VersionType[args.versions_type], strict=args.free_choose)
         # if args.select != -1:

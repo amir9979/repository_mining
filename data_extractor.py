@@ -263,8 +263,10 @@ class DataExtractor(object):
             return temp_s
 
         def get_bug_num_from_comit_text(commit_text, issues_ids):
-            text = replace("[]?#,:(){}", "", commit_text.lower())
+            text = replace("[]?#,:(){}'\"", "", commit_text.lower())
             text = replace("-_", " ", text)
+            text = replace("bug", " ", text)
+            text = replace("fix", " ", text)
             for word in text.split():
                 if word.isdigit():
                     if word in issues_ids:
