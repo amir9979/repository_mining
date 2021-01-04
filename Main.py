@@ -274,10 +274,10 @@ class Main():
         parser.add_argument('-jl', '--jira_url', dest='jira_url', action='store', help='the link to jira', default="http://issues.apache.org/jira")
         parser.add_argument('-l', '--list_select_verions', dest='list_selected', action='store', help='the algorithm to select the versions : [bin]', default='bin')
         parser.add_argument('-d', '--data_types_to_extract', dest='data_types', action='store', help='Json file of the data types to extract as features. Choose a sublist of '
-                                                                                                    '[checkstyle, designite_design, designite_implementation, '
-                                                                                                    'designite_type_organic, designite_method_organic, designite_type_metrics,'
-                                                                                                    'designite_method_metrics, source_monitor_files, source_monitor, ck, mood, halstead,'
-                                                                                                    'jasome_files, jasome_methods, process_files, issues_files]. You can use the files under externals\configurations', default=r"externals\configurations\default.json")
+                                                                                                     '[checkstyle, designite_design, designite_implementation, '
+                                                                                                     'designite_type_organic, designite_method_organic, designite_type_metrics,'
+                                                                                                     'designite_method_metrics, source_monitor_files, source_monitor, ck, mood, halstead,'
+                                                                                                     'jasome_files, jasome_methods, process_files, issues_files]. You can use the files under externals\configurations', default=r"externals\configurations\default.json")
         parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=-1, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=3, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
@@ -295,9 +295,13 @@ class Main():
             self.set_project(args.github_repo, args.github_user_name, args.jira_product, args.jira_url)
         if args.list_selected:
             self.choose_versions(version_num=args.num_versions, algorithm=args.list_selected, version_type=VersionType[args.versions_type], strict=args.free_choose)
-        if args.select != -1:
+        if args.select == -1:
             self.set_version_selection(version_num=args.num_versions, algorithm='bin',
-                                 version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
+                                       version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=0)
+            self.extract()
+        else:
+            self.set_version_selection(version_num=args.num_versions, algorithm='bin',
+                                       version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
             self.extract()
             data_types = None
             if os.path.exists(args.data_types):

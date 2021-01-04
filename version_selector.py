@@ -171,7 +171,9 @@ class BinSelectVersion(AbstractSelectVersions):
         out_path = os.path.join(Config.get_work_dir_path(dir_path), repo.project.github_name + ".json")
         with open(out_path, "w") as f:
             json.dump(json_short_data, f)
-        pd.DataFrame(json_short_data).to_csv(os.path.join(Config.get_work_dir_path(dir_path), repo.project.github_name + ".csv"), index=False, sep=';')
+        df_dict = list(json_short_data)
+        list(map(lambda x: x.pop('configuration'), df_dict))
+        pd.DataFrame(df_dict).to_csv(os.path.join(Config.get_work_dir_path(dir_path), repo.project.github_name + ".csv"), index=False, sep=';')
 
 
 
