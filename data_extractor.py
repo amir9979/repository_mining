@@ -31,8 +31,9 @@ class DataExtractor(object):
         self.commits = None
         self.versions = None
         self.bugged_files_between_versions = None
-        self.selected_versions = None
         self.selected_config = self.read_selected_config()
+        self.selected_versions = None
+        self.get_selected_versions()
 
     def set_selected_config(self, val):
         self.selected_config = val
@@ -42,6 +43,7 @@ class DataExtractor(object):
         Path(out_dir).mkdir(parents=True, exist_ok=True)
         with open(os.path.join(out_dir, self.github_name), "w") as f:
             json.dump({"selected_config": self.selected_config}, f)
+        self.get_selected_versions(force=True)
 
     def read_selected_config(self):
         out_dir = Config.get_work_dir_path(
@@ -306,8 +308,8 @@ class DataExtractor(object):
 
     def choose_versions(self, repo=None, version_num=5, configurations=False,
                         algorithm="bin", version_type=VersionType.Untyped, strict=True):
-        # if self.get_selected_versions() is not None:
-        #     return
+        if self.selected_versions is not None:
+            return
         tags = self.bugged_files_between_versions
         if repo is None:
             repo = self.repo
@@ -324,8 +326,8 @@ class DataExtractor(object):
 
         self.selected_versions = selector.select()
 
-    def get_selected_versions(self):
-        if self.selected_versions:
+    def get_selected_versions(self, force=False):
+        if self.selected_versions and not force:
             return self.selected_versions
         repo_data = Config().config['CACHING']['RepositoryData']
         selected = Config().config['DATA_EXTRACTION']['SelectedVersionsBin']
@@ -335,7 +337,7 @@ class DataExtractor(object):
             with open(in_path) as f:
                 self.selected_versions = list(filter(lambda c: str(c['ind']) == str(self.selected_config), json.loads(f.read())))[0]['versions']
             return self.selected_versions
-        assert None
+        return None
 
     def get_files_bugged(self, version):
         files_dir = self._get_caching_path("Files")

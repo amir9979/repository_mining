@@ -278,8 +278,8 @@ class Main():
                                                                                                     'designite_type_organic, designite_method_organic, designite_type_metrics,'
                                                                                                     'designite_method_metrics, source_monitor_files, source_monitor, ck, mood, halstead,'
                                                                                                     'jasome_files, jasome_methods, process_files, issues_files]. You can use the files under externals\configurations', default=r"externals\configurations\default.json")
-        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=0, type=int)
-        parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=5, type=int)
+        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=-1, type=int)
+        parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=3, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
         parser.add_argument('-f', '--free_choose', dest='free_choose', action='store_true', help='the versions type to select')
         parser.add_argument('-r', '--only_rest', dest='only_rest', action='store_true', help='extract only rest versions')
@@ -295,16 +295,16 @@ class Main():
             self.set_project(args.github_repo, args.github_user_name, args.jira_product, args.jira_url)
         if args.list_selected:
             self.choose_versions(version_num=args.num_versions, algorithm=args.list_selected, version_type=VersionType[args.versions_type], strict=args.free_choose)
-        # if args.select != -1:
-        self.set_version_selection(version_num=args.num_versions, algorithm='bin',
-                             version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
-        self.extract()
-        data_types = None
-        if os.path.exists(args.data_types):
-            with open(args.data_types) as f:
-                data_types = set(json.loads(f.read()))
-        self.extract_metrics(args.rest, args.only_rest, data_types)
-        self.create_all_but_one_dataset(data_types)
+        if args.select != -1:
+            self.set_version_selection(version_num=args.num_versions, algorithm='bin',
+                                 version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
+            self.extract()
+            data_types = None
+            if os.path.exists(args.data_types):
+                with open(args.data_types) as f:
+                    data_types = set(json.loads(f.read()))
+            self.extract_metrics(args.rest, args.only_rest, data_types)
+            self.create_all_but_one_dataset(data_types)
 
 
 if __name__ == "__main__":
