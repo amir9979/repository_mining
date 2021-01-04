@@ -67,6 +67,6 @@ def get_repos_data(user='apache', jira_url=r"http://issues.apache.org/jira", bz_
 
 
 if __name__ == "__main__":
-    get_repos_data('eclipse-cdt', None, "bugs.eclipse.org/bugs/xmlrpc.cgi")
+    # get_repos_data('eclipse-cdt', None, "bugs.eclipse.org/bugs/xmlrpc.cgi")
+    get_repos_data('spring-projects', "https://jira.spring.io", None)
     # get_repos_data('spring-projects', r"http://jira.spring.io")
-    pass

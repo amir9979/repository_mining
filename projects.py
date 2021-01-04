@@ -1015,6 +1015,112 @@ class ProjectName(Enum):
     incubatorbrooklyn = Project('incubator-brooklyn', 'apache', 'Mirror of Apache Brooklyn', ['BROOKLYN'], [],
                                 'http://issues.apache.org/jira', 'bz.apache.org/bugzilla/xmlrpc.cgi')
 
+    springframework = Project('spring-framework', 'spring-projects', 'Spring Framework', ['SPR'], [],
+                              'https://jira.spring.io', 'None')
+    springsecurity = Project('spring-security', 'spring-projects', 'Spring Security', ['SEC'], [],
+                             'https://jira.spring.io', 'None')
+    springsecurityoauth = Project('spring-security-oauth', 'spring-projects',
+                                  'Support for adding OAuth1(a) and OAuth2 features (consumer and provider) for Spring web applications.',
+                                  ['SECOAUTH'], [], 'https://jira.spring.io', 'None')
+    springdataelasticsearch = Project('spring-data-elasticsearch', 'spring-projects',
+                                      'Provide support to increase developer productivity in Java when using Elasticsearch. Uses familiar Spring concepts such as a template classes for core API usage and lightweight repository style data access.',
+                                      ['DATAES'], [], 'https://jira.spring.io', 'None')
+    springdatajpa = Project('spring-data-jpa', 'spring-projects',
+                            'Simplifies the development of creating a JPA-based data access layer. ', ['DATAJPA'], [],
+                            'https://jira.spring.io', 'None')
+    springintegrationsamples = Project('spring-integration-samples', 'spring-projects',
+                                       'You are looking for examples, code snippets, sample applications for Spring Integration? This is the place.',
+                                       ['INTSAMPLES'], [], 'https://jira.spring.io', 'None')
+    springbatch = Project('spring-batch', 'spring-projects',
+                          'Spring Batch is a framework for writing offline and batch applications using Spring and Java',
+                          ['BATCH'], [], 'https://jira.spring.io', 'None')
+    greenhouse = Project('greenhouse', 'spring-projects',
+                         'Reference web application for Spring technologies and social destination for Spring developers.',
+                         ['GREENHOUSE'], [], 'https://jira.spring.io', 'None')
+    springdataredis = Project('spring-data-redis', 'spring-projects',
+                              'Provides support to increase developer productivity in Java when using Redis, a key-value store. Uses familiar Spring concepts such as a template classes for core API usage and lightweight repository style data access.',
+                              ['DATAREDIS'], [], 'https://jira.spring.io', 'None')
+    springdatamongodb = Project('spring-data-mongodb', 'spring-projects',
+                                'Provide support to increase developer productivity in Java when using MongoDB. Uses familiar Spring concepts such as a template classes for core API usage and lightweight repository style data access.',
+                                ['DATAMONGO'], [], 'https://jira.spring.io', 'None')
+    springintegration = Project('spring-integration', 'spring-projects',
+                                'Spring Integration provides an extension of the Spring programming model to support the well-known Enterprise Integration Patterns (EIP)',
+                                ['INT'], [], 'https://jira.spring.io', 'None')
+    springdatarest = Project('spring-data-rest', 'spring-projects',
+                             'Simplifies building hypermedia-driven REST web services on top of Spring Data repositories',
+                             ['DATAREST'], [], 'https://jira.spring.io', 'None')
+    springandroid = Project('spring-android', 'spring-projects',
+                            'Support for Springs RestTemplate within native Android applications', ['ANDROID'], [],
+                            'https://jira.spring.io', 'None')
+    springroo = Project('spring-roo', 'spring-projects',
+                        'Spring Roo is a next-generation rapid application development tool for Java developers. It focuses on higher productivity, stock-standard Java APIs, high usability, avoiding engineering trade-offs and facilitating easy Roo removal.',
+                        ['ROO'], [], 'https://jira.spring.io', 'None')
+    springdataneo4j = Project('spring-data-neo4j', 'spring-projects',
+                              'Provide support to increase developer productivity in Java when using Neo4j. Uses familiar Spring concepts such as a template classes for core API usage and lightweight repository style data access.',
+                              ['DATAGRAPH'], [], 'https://jira.spring.io', 'None')
+    springamqp = Project('spring-amqp', 'spring-projects',
+                         'Spring AMQP - support for Spring programming model with AMQP, especially but not limited to RabbitMQ',
+                         ['AMQP'], [], 'https://jira.spring.io', 'None')
+    springsocial = Project('spring-social', 'spring-projects',
+                           'Allows you to connect your applications with SaaS providers such as Facebook and Twitter.',
+                           ['SPRNETSOCIAL', 'SOCIAL'], [], 'https://jira.spring.io', 'None')
+    springdatacommons = Project('spring-data-commons', 'spring-projects',
+                                'Spring Data Commons. Interfaces and code shared between the various datastore specific implementations.',
+                                ['DATACMNS'], [], 'https://jira.spring.io', 'None')
+    springxd = Project('spring-xd', 'spring-projects',
+                       'Spring XD makes it easy to solve common big data problems such as data ingestion and export, real-time analytics, and batch workflow orchestration',
+                       ['XD'], [], 'https://jira.spring.io', 'None')
+    springshell = Project('spring-shell', 'spring-projects', 'Spring based interactive shell', ['SHL'], [],
+                          'https://jira.spring.io', 'None')
+    restshell = Project('rest-shell', 'spring-projects',
+                        'Command-line shell for interacting with Spring HATEOAS-compliant REST resources', ['SHL'], [],
+                        'https://jira.spring.io', 'None')
+    springdatajdbc = Project('spring-data-jdbc', 'spring-projects', 'Spring Data JDBC', ['DATAJDBC'], [],
+                             'https://jira.spring.io', 'None')
+    springide = Project('spring-ide', 'spring-projects', 'Spring Development Environment for Eclipse', ['IDE'], [],
+                        'https://jira.spring.io', 'None')
+    springldap = Project('spring-ldap', 'spring-projects', 'Spring LDAP', ['LDAP'], [], 'https://jira.spring.io',
+                         'None')
+    springintegrationextensions = Project('spring-integration-extensions', 'spring-projects',
+                                          'The Spring Integration Extensions project provides extension components for Spring Integration',
+                                          ['INTEXT'], [], 'https://jira.spring.io', 'None')
+    springsocialfacebook = Project('spring-social-facebook', 'spring-projects',
+                                   'Facebook API binding and connect support.', ['SPRNETSOCIALFB', 'SOCIALFB'], [],
+                                   'https://jira.spring.io', 'None')
+    springdatacouchbase = Project('spring-data-couchbase', 'spring-projects', 'Spring Data Couchbase', ['DATACOUCH'],
+                                  [], 'https://jira.spring.io', 'None')
+    springmobile = Project('spring-mobile', 'spring-projects',
+                           'Extensions to Spring MVC for developing mobile web applications.', ['MOBILE'], [],
+                           'https://jira.spring.io', 'None')
+    grailsdatamapping = Project('grails-data-mapping', 'spring-projects', 'Grails Data Mapping Project', ['DATAMAP'],
+                                [], 'https://jira.spring.io', 'None')
+    springsocialtwitter = Project('spring-social-twitter', 'spring-projects',
+                                  'Twitter API binding and connect support.', ['SPRNETSOCIALTW', 'SOCIALTW'], [],
+                                  'https://jira.spring.io', 'None')
+    springdatagemfire = Project('spring-data-gemfire', 'spring-projects', 'Spring Data integration for Pivotal GemFire',
+                                ['SGF'], [], 'https://jira.spring.io', 'None')
+    springsocialgithub = Project('spring-social-github', 'spring-projects', 'Github API binding and connect support.',
+                                 ['SOCIALGH'], [], 'https://jira.spring.io', 'None')
+    springdatakeyvalue = Project('spring-data-keyvalue', 'spring-projects',
+                                 'Project to provide infrastructure to implement Spring Data repositories on top of key-value-based, in-memory data stores.',
+                                 ['DATAKV'], [], 'https://jira.spring.io', 'None')
+    springsociallinkedin = Project('spring-social-linkedin', 'spring-projects',
+                                   'LinkedIn API binding and connect support.', ['SPRNETSOCIALLI', 'SOCIALLI'], [],
+                                   'https://jira.spring.io', 'None')
+    greenhouseandroid = Project('greenhouse-android', 'spring-projects', 'Greenhouse native Android client',
+                                ['ANDROID'], [], 'https://jira.spring.io', 'None')
+    springdataldap = Project('spring-data-ldap', 'spring-projects', 'Repository abstraction for Spring LDAP',
+                             ['DATALDAP'], [], 'https://jira.spring.io', 'None')
+    springdatageode = Project('spring-data-geode', 'spring-projects', 'Spring Data support for Apache Geode',
+                              ['DATAGEODE'], [], 'https://jira.spring.io', 'None')
+    springmigrationanalyzer = Project('spring-migration-analyzer', 'spring-projects',
+                                      'Spring Migration Anaylzer is a command-line tool for analyzing Java EE applications. It produces a report describing the application and how to migrate it to Spring.',
+                                      ['SMA'], [], 'https://jira.spring.io', 'None')
+    grailside = Project('grails-ide', 'spring-projects', 'Grails Developer Tooling for Eclipse', ['IDE'], [],
+                        'https://jira.spring.io', 'None')
+    springsocialtripit = Project('spring-social-tripit', 'spring-projects', 'TripIt API binding and connect support.',
+                                 ['SOCIALTI'], [], 'https://jira.spring.io', 'None')
+
 
 def get_good_projects():
     GOOD = ['kafka', 'flink', 'hadoop', 'zookeeper', 'cassandra', 'storm', 'tomcat', 'zeppelin', 'jmeter', 'beam', 'lucenesolr', 'groovy', 'ignite', 'camel', 'hive', 'shiro', 'kylin', 'curator', 'nifi', 'maven', 'calcite', 'nutch', 'commonslang', 'flume', 'mahout', 'geode', 'activemq', 'avro', 'hudi', 'drill', 'ambari', 'pdfbox', 'tinkerpop', 'tika', 'bookkeeper', 'poi', 'logginglog4j2', 'iotdb', 'opennlp', 'phoenix', 'accumulo', 'systemds', 'metron', 'commonsio', 'atlas', 'log4j', 'ofbiz', 'jena', 'cxf', 'samza', 'activemqartemis', 'pig', 'oozie', 'isis', 'wicket', 'karaf', 'commonscollections', 'ranger', 'openmeetings', 'commonsmath', 'tomee', 'commonspool', 'minasshd', 'atticapexcore', 'jackrabbitoak', 'mavensurefire', 'helix', 'commonscodec', 'ant', 'archiva', 'commonsdbutils', 'commonsdbcp', 'cayenne', 'commonscsv', 'httpcomponentscore', 'commonscli', 'commonsbeanutils', 'commonstext', 'asterixdb', 'commonscompress', 'atticstratos', 'metamodel', 'commonsbcel', 'commonsnet', 'commonsvfs', 'atticapexmalhar', 'deltaspike', 'hama', 'tajo', 'syncope', 'xmlgraphicsbatik', 'commonsvalidator', 'xmlgraphicsfop', 'commonsconfiguration', 'knox', 'qpid', 'sentry', 'crunch', 'tiles', 'mavenarchetype', 'gora', 'falcon', 'roller', 'jclouds', 'mnemonic', 'openjpa', 'joshua', 'tapestry5', 'commonsjexl', 'commonsemail', 'httpasyncclient', 'mavencompilerplugin', 'airavata', 'jspwiki', 'mavenscm', 'streams', 'directorystudio', 'shindig', 'mavenshadeplugin', 'ftpserver', 'twill', 'mavendependencyplugin', 'juneau', 'myfaces', 'lens', 'hcatalog', 'oodt', 'qpidjms', 'openwebbeans', 'openwebbeansmeecrowave', 'mavenindexer', 'antivy', 'atticode', 'mavenassemblyplugin', 'mavenwagon', 'johnzon', 'xmlbeans', 'sanselan', 'jamesmime4j', 'mavenjavadocplugin', 'jackrabbitfilevault', 'mavencheckstyleplugin', 'cxfdosgi', 'phoenixtephra', 'mavenplugintools', 'empiredb', 'xerces2j', 'mavendeployplugin', 'portalspluto', 'mavendoxia', 'mavenpmdplugin', 'mavenwarplugin', 'cxffediz', 'mavensiteplugin', 'minaftpserver', 'atticrave', 'juddi', 'myfacestobago', 'mavenprojectinforeportsplugin', 'cxfxjcutils', 'mavensourceplugin', 'maveninvokerplugin', 'geronimoxbean', 'wswss4j', 'continuum', 'mavenremoteresourcesplugin', 'mavenearplugin', 'mavenpatchplugin', 'incubatorambari', 'mavenjxr', 'geronimodevtools', 'mavenchangesplugin', 'mavendoxiasitetools', 'mavenrarplugin', 'myfacestrinidad', 'creadurwhisker', 'archivasandbox', 'wsxmlschema', 'accumuloproxy', 'minaasyncweb', 'atticonami', 'geronimoyoko', 'mavendoapplugin', 'mavenjdeprscanplugin', 'incubatortwill', 'jamespostage', 'rampart', 'mavenacrplugin', 'mavenlinkcheckplugin']
@@ -1024,7 +1130,9 @@ def get_good_projects():
 if __name__ == "__main__":
     ans = []
     # for i in range(8):
-    ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), get_good_projects())))
+    # ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), get_good_projects())))
+    # ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), list(filter(lambda x: x.value.bz_names, ProjectName)))))
+    ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), list(filter(lambda x: x.value.github_user == 'spring-projects', ProjectName)))))
     print("\n".join(ans))
     # print(ans)
     # print(len(ans))
