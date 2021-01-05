@@ -215,3 +215,6 @@ venv.bak/
 pip-selfcheck.json
 
 # End of https://www.gitignore.io/api/virtualenv
+caching/
+apache_repos/
+repository_data/
