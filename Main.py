@@ -330,7 +330,8 @@ class Main():
                 with open(args.data_types) as f:
                     data_types = set(json.loads(f.read()))
             self.extract_metrics(rest, args.only_rest, data_types, predict_all)
-            self.create_all_but_one_dataset(data_types)
+            if predict_all:
+                self.create_all_but_one_dataset(data_types)
 
 
 if __name__ == "__main__":
