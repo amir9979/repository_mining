@@ -78,38 +78,49 @@ class Main():
         alls = {}
         ones = {}
         detailed = {}
+        for d in data_types:
+            detailed[d] = []
         for d in DataNameEnum:
-            if d.value.data_type.value in data_types:
-                detailed.setdefault(d.value.data_type.value, set()).add(d.value.name)
+            data_type = d.value.data_type.value
+            if data_type in data_types:
+                detailed[data_type].append(d.value.name)
         for d in detailed:
-            ones[d] = detailed[d]
-            all_but_d = list(detailed.keys())
-            all_but_d.remove(d)
-            alls[d] = reduce(set.__or__, list(map(detailed.get, all_but_d)), set())
+            ones[d] = set(detailed[d])
+            alls[d] = reduce(set.__or__, list(map(lambda x: set(detailed.get(x)), filter(lambda x: x != d, detailed.keys()))), set())
+
         for sub_dir, label in [("methods", "BuggedMethods"), ("classes", "Bugged")]:
             scores = []
-            training_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "training.csv"), sep=';')
-            testing_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "testing.csv"), sep=';')
-            dataset_cols = set(training_df.columns.to_list()).intersection(set(testing_df.columns.to_list()))
-            names = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "prediction.csv"), sep=';')['name'].to_list()
             for dir_name, columns in (('one', ones), ('all', alls)):
-                for d in columns:
-                    cols = set(filter(lambda dc: any(map(lambda c: c in dc, columns[d])), dataset_cols))
-                    if len(cols) == 0:
-                        continue
-                    cols.add(label)
-                    cols = list(cols)
-                    train = training_df[cols]
-                    test = testing_df[cols]
-                    ci = ClassificationInstance(train, test, names, self.get_dataset_path(os.path.join(dir_name, sub_dir, d)), label=label)
-                    try:
-                        ci.predict()
-                        ci_scores = dict(ci.scores)
-                        ci_scores.update({"type": dir_name, "data_type": d})
-                        scores.append(ci_scores)
-                    except Exception as e:
-                        print(e)
+                training_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "training.csv"), sep=';')
+                testing_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "testing.csv"), sep=';')
+                dataset_cols = set(training_df.columns.to_list()).intersection(set(testing_df.columns.to_list()))
+                names = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "prediction.csv"), sep=';')['name'].to_list()
+
+                ans = self.create_sub_data_set_by_columns(columns, dataset_cols, dir_name, label, names, sub_dir,
+                                                          testing_df, training_df)
+                if ans:
+                    scores.append(ans)
             pd.DataFrame(scores).to_csv(self.get_dataset_path(sub_dir + "_metrics.csv", False), index=False, sep=';')
+
+    def create_sub_data_set_by_columns(self, columns, dataset_cols, dir_name, label, names, sub_dir, testing_df,
+                                       training_df):
+        for d in columns:
+            cols = set(filter(lambda dc: any(map(lambda c: c in dc, columns[d])), dataset_cols))
+            if len(cols) == 0:
+                continue
+            cols.add(label)
+            cols = list(cols)
+            train = training_df[cols]
+            test = testing_df[cols]
+            ci = ClassificationInstance(train, test, names, self.get_dataset_path(os.path.join(dir_name, sub_dir, d)),
+                                        label=label)
+            try:
+                ci.predict()
+                ci_scores = dict(ci.scores)
+                ci_scores.update({"type": dir_name, "data_type": d})
+                return ci_scores
+            except Exception as e:
+                print(e)
 
     def get_data_dirs(self):
         classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'],

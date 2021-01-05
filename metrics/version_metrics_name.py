@@ -28,7 +28,7 @@ class DataType(Enum):
 
 class DataName:
     def __init__(self, name, data_type: DataType, column_name, description=""):
-        self.name = name
+        self.name = data_type + "_" + name
         self.data_type = data_type
         self.data_type_value = data_type.value
         self.column_name = column_name
@@ -200,15 +200,15 @@ class DataNameEnum(Enum):
     NumberOfInheritedMethods = DataName("NumberOfInheritedMethods", DataType.MoodDataType, "numberOfInheritedMethods")
     NumberOfPolymorphicMethods = DataName("NumberOfPolymorphicMethods", DataType.MoodDataType, "numberOfPolymorphicMethods")
 
-    TotalNumberOfOperators = DataName("TotalNumberOfOperators", DataType.HalsteadDataType, "getTotalOperatorsCnt")
-    NumberOfDistinctOperators = DataName("NumberOfDistinctOperators", DataType.HalsteadDataType, "getDistinctOperatorsCnt")
-    TotalNumberOfOperands = DataName("TotalNumberOfOperands", DataType.HalsteadDataType, "getTotalOparandsCnt")
-    NumberOfDistinctOperands = DataName("NumberOfDistinctOperands", DataType.HalsteadDataType, "getDistinctOperandsCnt")
-    Length = DataName("Length", DataType.HalsteadDataType, "getLength")
-    Vocabulary = DataName("Vocabulary", DataType.HalsteadDataType, "getVocabulary")
-    Volume = DataName("Volume", DataType.HalsteadDataType, "getVolume")
-    Difficulty = DataName("Difficulty", DataType.HalsteadDataType, "getDifficulty")
-    Effort = DataName("Effort", DataType.HalsteadDataType, "getEffort")
+    TotalNumberOfOperators = DataName("TotalNumberOfOperators", DataType.HalsteadDataType, "HalsteadTotalOperatorsCnt")
+    NumberOfDistinctOperators = DataName("NumberOfDistinctOperators", DataType.HalsteadDataType, "HalsteadDistinctOperatorsCnt")
+    TotalNumberOfOperands = DataName("TotalNumberOfOperands", DataType.HalsteadDataType, "HalsteadTotalOparandsCnt")
+    NumberOfDistinctOperands = DataName("NumberOfDistinctOperands", DataType.HalsteadDataType, "HalsteadDistinctOperandsCnt")
+    Length = DataName("Length", DataType.HalsteadDataType, "HalsteadLength")
+    Vocabulary = DataName("Vocabulary", DataType.HalsteadDataType, "HalsteadVocabulary")
+    Volume = DataName("Volume", DataType.HalsteadDataType, "HalsteadVolume")
+    Difficulty = DataName("Difficulty", DataType.HalsteadDataType, "HalsteadDifficulty")
+    Effort = DataName("Effort", DataType.HalsteadDataType, "HalsteadEffort")
 
     # jasome mood
     AHF = DataName("AHF", DataType.JasomeMoodDataType, "AHF", "Attribute Hiding Factor")

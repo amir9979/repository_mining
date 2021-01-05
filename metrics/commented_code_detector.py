@@ -278,15 +278,15 @@ class Halstead:
 
     def getValuesVector(self):
         return {
-            "getTotalOperatorsCnt" : self.getTotalOperatorsCnt(),
-            "getDistinctOperatorsCnt": self.getDistinctOperatorsCnt(),
-            "getTotalOparandsCnt": self.getTotalOparandsCnt(),
-            "getDistinctOperandsCnt": self.getDistinctOperandsCnt(),
-            "getLength": self.getLength(),
-            "getVocabulary" : self.getVocabulary(),
-            "getVolume": self.getVolume(),
-            "getDifficulty": self.getDifficulty(),
-            "getEffort": self.getEffort()
+            "HalsteadTotalOperatorsCnt" : self.getTotalOperatorsCnt(),
+            "HalsteadDistinctOperatorsCnt": self.getDistinctOperatorsCnt(),
+            "HalsteadTotalOparandsCnt": self.getTotalOparandsCnt(),
+            "HalsteadDistinctOperandsCnt": self.getDistinctOperandsCnt(),
+            "HalsteadLength": self.getLength(),
+            "HalsteadVocabulary" : self.getVocabulary(),
+            "HalsteadVolume": self.getVolume(),
+            "HalsteadDifficulty": self.getDifficulty(),
+            "HalsteadEffort": self.getEffort()
         }
 
     @staticmethod
