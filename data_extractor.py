@@ -173,14 +173,25 @@ class DataExtractor(object):
             versions_dir = os.path.join(self._get_caching_path("SelectedVersions"), self.github_name)
             Config.assert_dir_exists(versions_dir)
             path = os.path.join(versions_dir, Config.get_short_name(self.get_selected_versions()) + ".csv")
+            df.to_csv(path, index=False, sep=';')
         else:
+            versions_dir = self._get_caching_path("AllVersions")
+            Config.assert_dir_exists(versions_dir)
+            path = os.path.join(versions_dir, self.github_name + ".csv")
+            df.to_csv(path, index=False, sep=';')
             versions_dir = self._get_caching_path("Versions")
             Config.assert_dir_exists(versions_dir)
             path = os.path.join(versions_dir, self.github_name + ".csv")
-        df.to_csv(path, index=False, sep=';')
+            df[df['version_type'].apply(lambda x: x.lower() in ['minor', 'major'])].to_csv(path, index=False, sep=';')
 
     def get_commit_url(self, commit_sha):
         return os.path.normpath(os.path.join(self.git_url, commit_sha))
+
+    def get_versions_by_type(self, v_types=(VersionType.Minor, VersionType.Major)):
+        versions = []
+        for v_type in v_types:
+            versions.extend(AbstractSelectVersions.get_versions_by_type(v_type, self.versions))
+        return versions
 
     def _store_versions_infos(self, tags, selected=False):
         if selected:

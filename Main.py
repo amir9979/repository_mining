@@ -323,7 +323,7 @@ class Main():
             predict_all = True
             if args.all_rest:
                 predict_all = False
-                rest = list(map(lambda v: v._name, self.extractor.versions))
+                rest = list(map(lambda v: v._name, self.extractor.get_versions_by_type()))
             self.extract()
             data_types = None
             if os.path.exists(args.data_types):

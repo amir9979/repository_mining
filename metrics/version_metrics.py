@@ -572,7 +572,7 @@ class ProcessExtractor(Extractor):
         # get version_date from apache_versions
         config = Config().config
         repository_data = config["CACHING"]["RepositoryData"]
-        path = os.path.join(repository_data, config['DATA_EXTRACTION']["Versions"], self.project.github_name, self.project.github_name + ".csv")
+        path = os.path.join(repository_data, config['DATA_EXTRACTION']["AllVersions"], self.project.github_name, self.project.github_name + ".csv")
         df = pd.read_csv(path, sep=';')
         version_date = df[df['version_name'] == self.version]['version_date'].to_list()[0]
         version_date = datetime.strptime(version_date, '%Y-%m-%d %H:%M:%S')

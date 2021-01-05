@@ -7,6 +7,7 @@ import pandas as pd
 from config import Config
 from enum import Enum
 
+
 class VersionType(Enum):
     Major = 1
     Minor = 2
@@ -86,16 +87,19 @@ class AbstractSelectVersions(ABC):
         return Version(version, VersionType.Untyped)
 
     def _get_versions_by_type(self, versions):
-        if self.type == VersionType.Untyped:
-            self.versions_by_type = versions
-            return
+        self.versions_by_type = AbstractSelectVersions.get_versions_by_type(self.type, versions)
+
+    @staticmethod
+    def get_versions_by_type(v_type, versions):
+        if v_type == VersionType.Untyped:
+            return versions
         typed_versions = list(map(AbstractSelectVersions.define_version_type, versions))
-        if self.type == VersionType.Major:
-            self.versions_by_type = list(map(lambda x: x.version, filter(Version.is_major, typed_versions)))
-        elif self.type == VersionType.Minor:
-            self.versions_by_type = list(map(lambda x: x.version, filter(Version.is_minor, typed_versions)))
-        elif self.type == VersionType.Micro:
-            self.versions_by_type = list(map(lambda x: x.version, filter(Version.is_micro, typed_versions)))
+        if v_type == VersionType.Major:
+            return list(map(lambda x: x.version, filter(Version.is_major, typed_versions)))
+        elif v_type == VersionType.Minor:
+            return list(map(lambda x: x.version, filter(Version.is_minor, typed_versions)))
+        elif v_type == VersionType.Micro:
+            return list(map(lambda x: x.version, filter(Version.is_micro, typed_versions)))
 
 
     @abstractmethod
