@@ -44,13 +44,16 @@ class Main():
         classes_datasets = []
         aggregated_classes_datasets = []
         methods_datasets = []
+        selected_versions = self.extractor.get_selected_versions()[:-1]
         if not rest_only:
-            for version in self.extractor.get_selected_versions()[:-1]:
+            for version in selected_versions:
                 classes_df, methods_df, aggregated_classes_df = self.extract_features_to_version(version, True, data_types)
                 classes_datasets.append(classes_df)
                 methods_datasets.append(methods_df)
                 aggregated_classes_datasets.append(aggregated_classes_df)
         for version in rest_versions:
+            if version in selected_versions:
+                continue
             try:
                 self.extract_features_to_version(version, False, data_types)
             except:
@@ -277,12 +280,13 @@ class Main():
                                                                                                      '[checkstyle, designite_design, designite_implementation, '
                                                                                                      'designite_type_organic, designite_method_organic, designite_type_metrics,'
                                                                                                      'designite_method_metrics, source_monitor_files, source_monitor, ck, mood, halstead,'
-                                                                                                     'jasome_files, jasome_methods, process_files, issues_files]. You can use the files under externals\configurations', default=r"externals\configurations\default.json")
-        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=-1, type=int)
+                                                                                                     'jasome_files, jasome_methods, process_files, issues_files]. You can use the files under externals\configurations', default=r"externals\configurations\all.json")
+        parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=0, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=3, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
         parser.add_argument('-f', '--free_choose', dest='free_choose', action='store_true', help='the versions type to select')
         parser.add_argument('-r', '--only_rest', dest='only_rest', action='store_true', help='extract only rest versions')
+        parser.add_argument('-a', '--all_rest', dest='all_rest', action='store_true', help='extract for all versions in the projects')
         parser.add_argument('rest', nargs=argparse.REMAINDER)
         args = parser.parse_args()
         self.github_user_name = args.github_user_name
@@ -302,12 +306,15 @@ class Main():
         else:
             self.set_version_selection(version_num=args.num_versions, algorithm='bin',
                                        version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
+            rest = args.rest
+            if args.all_rest:
+                rest = list(map(lambda v: v._name, self.extractor.versions))
             self.extract()
             data_types = None
             if os.path.exists(args.data_types):
                 with open(args.data_types) as f:
                     data_types = set(json.loads(f.read()))
-            self.extract_metrics(args.rest, args.only_rest, data_types)
+            self.extract_metrics(rest, args.only_rest, data_types)
             self.create_all_but_one_dataset(data_types)
 
 
