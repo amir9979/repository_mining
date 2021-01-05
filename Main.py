@@ -163,8 +163,11 @@ class Main():
         db, extractors_to_run = self.get_extractors(data_types, extract_bugs, version)
         for extractor in extractors_to_run:
             start = time.time()
-            extractor.extract()
-            print(time.time() - start, extractor.__class__.__name__)
+            try:
+                extractor.extract()
+                print(time.time() - start, extractor.__class__.__name__)
+            except:
+                print(r"extractor {0} failed".format(extractor.__class__.__name__))
         classes_df, methods_df = db.build()
         aggregated_methods_df = self.aggrate_methods_df(methods_df)
         methods_df = self.fillna(methods_df)
