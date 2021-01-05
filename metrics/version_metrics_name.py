@@ -28,7 +28,7 @@ class DataType(Enum):
 
 class DataName:
     def __init__(self, name, data_type: DataType, column_name, description=""):
-        self.name = data_type + "_" + name
+        self.name = data_type.value + "_" + name
         self.data_type = data_type
         self.data_type_value = data_type.value
         self.column_name = column_name
