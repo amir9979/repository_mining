@@ -40,7 +40,7 @@ class Main():
     def set_extractor(self):
         self.extractor = DataExtractor(self.project)
 
-    def extract_metrics(self, rest_versions, rest_only, data_types):
+    def extract_metrics(self, rest_versions, rest_only, data_types, predict=True):
         classes_datasets = []
         aggregated_classes_datasets = []
         methods_datasets = []
@@ -60,9 +60,19 @@ class Main():
                 pass
         if rest_only:
             return
-        self.extract_classes_datasets(aggregated_classes_datasets[:-1], aggregated_classes_datasets[-1]).predict()
+        try:
+            classes_dataset = self.extract_classes_datasets(aggregated_classes_datasets[:-1], aggregated_classes_datasets[-1])
+            if predict:
+                classes_dataset.predict()
+        except:
+            pass
+        try:
+            methods_datasets = self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1]).predict()
+            if predict:
+                methods_datasets.predict()
+        except:
+            pass
         # self.extract_classes_datasets(classes_datasets[:-1], classes_datasets[-1], "classes_no_aggregate").predict()
-        self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1]).predict()
 
     def create_all_but_one_dataset(self, data_types):
         alls = {}
@@ -310,14 +320,16 @@ class Main():
             self.set_version_selection(version_num=args.num_versions, algorithm='bin',
                                        version_type=VersionType[args.versions_type], strict=args.free_choose, selected_config=args.select)
             rest = args.rest
+            predict_all = True
             if args.all_rest:
+                predict_all = False
                 rest = list(map(lambda v: v._name, self.extractor.versions))
             self.extract()
             data_types = None
             if os.path.exists(args.data_types):
                 with open(args.data_types) as f:
                     data_types = set(json.loads(f.read()))
-            self.extract_metrics(rest, args.only_rest, data_types)
+            self.extract_metrics(rest, args.only_rest, data_types, predict_all)
             self.create_all_but_one_dataset(data_types)
 
 
