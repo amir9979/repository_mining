@@ -1126,13 +1126,26 @@ def get_good_projects():
     GOOD = ['kafka', 'flink', 'hadoop', 'zookeeper', 'cassandra', 'storm', 'tomcat', 'zeppelin', 'jmeter', 'beam', 'lucenesolr', 'groovy', 'ignite', 'camel', 'hive', 'shiro', 'kylin', 'curator', 'nifi', 'maven', 'calcite', 'nutch', 'commonslang', 'flume', 'mahout', 'geode', 'activemq', 'avro', 'hudi', 'drill', 'ambari', 'pdfbox', 'tinkerpop', 'tika', 'bookkeeper', 'poi', 'logginglog4j2', 'iotdb', 'opennlp', 'phoenix', 'accumulo', 'systemds', 'metron', 'commonsio', 'atlas', 'log4j', 'ofbiz', 'jena', 'cxf', 'samza', 'activemqartemis', 'pig', 'oozie', 'isis', 'wicket', 'karaf', 'commonscollections', 'ranger', 'openmeetings', 'commonsmath', 'tomee', 'commonspool', 'minasshd', 'atticapexcore', 'jackrabbitoak', 'mavensurefire', 'helix', 'commonscodec', 'ant', 'archiva', 'commonsdbutils', 'commonsdbcp', 'cayenne', 'commonscsv', 'httpcomponentscore', 'commonscli', 'commonsbeanutils', 'commonstext', 'asterixdb', 'commonscompress', 'atticstratos', 'metamodel', 'commonsbcel', 'commonsnet', 'commonsvfs', 'atticapexmalhar', 'deltaspike', 'hama', 'tajo', 'syncope', 'xmlgraphicsbatik', 'commonsvalidator', 'xmlgraphicsfop', 'commonsconfiguration', 'knox', 'qpid', 'sentry', 'crunch', 'tiles', 'mavenarchetype', 'gora', 'falcon', 'roller', 'jclouds', 'mnemonic', 'openjpa', 'joshua', 'tapestry5', 'commonsjexl', 'commonsemail', 'httpasyncclient', 'mavencompilerplugin', 'airavata', 'jspwiki', 'mavenscm', 'streams', 'directorystudio', 'shindig', 'mavenshadeplugin', 'ftpserver', 'twill', 'mavendependencyplugin', 'juneau', 'myfaces', 'lens', 'hcatalog', 'oodt', 'qpidjms', 'openwebbeans', 'openwebbeansmeecrowave', 'mavenindexer', 'antivy', 'atticode', 'mavenassemblyplugin', 'mavenwagon', 'johnzon', 'xmlbeans', 'sanselan', 'jamesmime4j', 'mavenjavadocplugin', 'jackrabbitfilevault', 'mavencheckstyleplugin', 'cxfdosgi', 'phoenixtephra', 'mavenplugintools', 'empiredb', 'xerces2j', 'mavendeployplugin', 'portalspluto', 'mavendoxia', 'mavenpmdplugin', 'mavenwarplugin', 'cxffediz', 'mavensiteplugin', 'minaftpserver', 'atticrave', 'juddi', 'myfacestobago', 'mavenprojectinforeportsplugin', 'cxfxjcutils', 'mavensourceplugin', 'maveninvokerplugin', 'geronimoxbean', 'wswss4j', 'continuum', 'mavenremoteresourcesplugin', 'mavenearplugin', 'mavenpatchplugin', 'incubatorambari', 'mavenjxr', 'geronimodevtools', 'mavenchangesplugin', 'mavendoxiasitetools', 'mavenrarplugin', 'myfacestrinidad', 'creadurwhisker', 'archivasandbox', 'wsxmlschema', 'accumuloproxy', 'minaasyncweb', 'atticonami', 'geronimoyoko', 'mavendoapplugin', 'mavenjdeprscanplugin', 'incubatortwill', 'jamespostage', 'rampart', 'mavenacrplugin', 'mavenlinkcheckplugin']
     return list(filter(lambda x: x.name in GOOD, ProjectName))
 
+def get_average_years():
+    import github3
+    gh = github3.login(token=os.environ['GITHUB_TOKEN'])
+    years = []
+    for p in ProjectName:
+        years.append(gh.repository(p.value.github_user, p.value.github_name).created_at.year)
+
+    pass
 
 if __name__ == "__main__":
+    # get_average_years()
     ans = []
     # for i in range(8):
     # ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), get_good_projects())))
+    for p in ProjectName:
+        ans.append('gh issue create -t {0} -b "-a -n 3" '.format(p.name))
+        ans.append('ping 127.0.0.1 -n 2')
+    # ans.extend(list(map(lambda x: 'gh issue create -t {0} -b "-a" '.format(x.name), ProjectName)))
     # ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), list(filter(lambda x: x.value.bz_names, ProjectName)))))
-    ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), list(filter(lambda x: x.value.github_user == 'spring-projects', ProjectName)))))
+    # ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), list(filter(lambda x: x.value.github_user == 'spring-projects', ProjectName)))))
     print("\n".join(ans))
     # print(ans)
     # print(len(ans))
