@@ -310,7 +310,7 @@ class Main():
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")
         parser.add_argument('-f', '--free_choose', dest='free_choose', action='store_true', help='the versions type to select')
         parser.add_argument('-r', '--only_rest', dest='only_rest', action='store_true', help='extract only rest versions')
-        parser.add_argument('-a', '--all_rest', dest='all_rest', action='store_true', help='extract for all versions in the projects')
+        parser.add_argument('-a', '--all_rest', dest='all_rest', action='store_false', help='extract for all versions in the projects')
         parser.add_argument('rest', nargs=argparse.REMAINDER)
         args = parser.parse_args()
         self.github_user_name = args.github_user_name
