@@ -1137,11 +1137,11 @@ def get_average_years():
 
 if __name__ == "__main__":
     # get_average_years()
-    ans = []
+    ans = ['ping 127.0.0.1 -n 5']
     # for i in range(8):
     # ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), get_good_projects())))
     for p in ProjectName:
-        ans.append('gh issue create -t {0} -b "-n 3" '.format(p.name))
+        ans.append('gh issue create -t {0} -b "skip" '.format(p.name))
         ans.append('ping 127.0.0.1 -n 5')
     # ans.extend(list(map(lambda x: 'gh issue create -t {0} -b "-a" '.format(x.name), ProjectName)))
     # ans.extend(list(map(lambda x: 'gh issue create -t {0} -b skip'.format(x.name), list(filter(lambda x: x.value.bz_names, ProjectName)))))
