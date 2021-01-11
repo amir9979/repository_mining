@@ -313,6 +313,7 @@ class Main():
         parser.add_argument('-a', '--all_rest', dest='all_rest', action='store_true', help='extract for all versions in the projects')
         parser.add_argument('rest', nargs=argparse.REMAINDER)
         args = parser.parse_args()
+        print(vars(args))
         self.github_user_name = args.github_user_name
         self.jira_url = args.jira_url
         if args.projects:
