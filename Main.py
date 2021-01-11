@@ -314,7 +314,6 @@ class Main():
         parser.add_argument('rest', nargs=argparse.REMAINDER)
         args = parser.parse_args()
         print(vars(args))
-        exit()
         self.github_user_name = args.github_user_name
         self.jira_url = args.jira_url
         if args.projects:
