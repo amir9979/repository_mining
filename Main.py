@@ -14,6 +14,7 @@ from classification_instance import ClassificationInstance
 from itertools import tee
 import time
 from functools import reduce
+import traceback
 
 class Main():
     def __init__(self):
@@ -57,7 +58,7 @@ class Main():
             try:
                 self.extract_features_to_version(version, False, data_types)
             except:
-                pass
+                traceback.print_exc()
         if rest_only:
             return
         try:
@@ -65,13 +66,13 @@ class Main():
             if predict:
                 classes_dataset.predict()
         except:
-            pass
+            traceback.print_exc()
         try:
             methods_datasets = self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1]).predict()
             if predict:
                 methods_datasets.predict()
         except:
-            pass
+            traceback.print_exc()
         # self.extract_classes_datasets(classes_datasets[:-1], classes_datasets[-1], "classes_no_aggregate").predict()
 
     def create_all_but_one_dataset(self, data_types):
