@@ -68,7 +68,7 @@ class Data(ABC):
         df = pd.read_csv(self.path, sep=';')
         id = df.columns[0]
         metrics = list(filter(lambda x: x in df.columns, [id] + values))
-        return df[metrics]
+        return df[metrics].rename(columns=column_names)
 
 
     @staticmethod
