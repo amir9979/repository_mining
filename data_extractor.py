@@ -19,8 +19,9 @@ from repo import Repo
 
 class DataExtractor(object):
 
-    def __init__(self, project):
+    def __init__(self, project, quick_mode=False):
         self.project = project
+        self.quick_mode = quick_mode
         self.github_name = self.project.github_name
         self.repo = Repo(self.project)
         self.git_repo = git.Repo(self.project.path)
@@ -78,6 +79,7 @@ class DataExtractor(object):
     def _get_bugged_files_between_versions(self, versions, analyze_methods=False):
         tags_commits = self._get_commits_between_versions(versions)
         tags = []
+        analyze_methods = analyze_methods if not self.quick_mode else False
         for tag in tags_commits:
             if tags_commits[tag]:
                 tags.append(VersionInfo(tag, tags_commits[tag], self.git_repo, analyze_methods=analyze_methods))
@@ -107,7 +109,8 @@ class DataExtractor(object):
             self._store_versions(tags, True)
             self._store_versions_infos(tags, True)
             self._store_files(tags, True)
-            self._store_methods(tags)
+            if not self.quick_mode:
+                self._store_methods(tags)
 
     def _store_issues(self):
         def clean(s):

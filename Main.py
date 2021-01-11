@@ -23,6 +23,7 @@ class Main():
         self.save_data_names()
         self.jira_url = None
         self.github_user_name = None
+        self.quick_mode = False
 
     def list_projects(self):
         print("\n".join(list(map(lambda e: "{0}: {1}".format(e.name, e.value.description), ProjectName))))
@@ -39,7 +40,7 @@ class Main():
         self.set_extractor()
 
     def set_extractor(self):
-        self.extractor = DataExtractor(self.project)
+        self.extractor = DataExtractor(self.project, self.quick_mode)
 
     def extract_metrics(self, rest_versions, rest_only, data_types, predict=True):
         classes_datasets = []
@@ -67,13 +68,13 @@ class Main():
                 classes_dataset.predict()
         except:
             traceback.print_exc()
-        try:
-            methods_datasets = self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1]).predict()
-            if predict:
-                methods_datasets.predict()
-        except:
-            traceback.print_exc()
-        # self.extract_classes_datasets(classes_datasets[:-1], classes_datasets[-1], "classes_no_aggregate").predict()
+        if not self.quick_mode:
+            try:
+                methods_datasets = self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1]).predict()
+                if predict:
+                    methods_datasets.predict()
+            except:
+                traceback.print_exc()
 
     def create_all_but_one_dataset(self, data_types):
         alls = {}
@@ -89,7 +90,12 @@ class Main():
             ones[d] = set(detailed[d])
             alls[d] = reduce(set.__or__, list(map(lambda x: set(detailed.get(x)), filter(lambda x: x != d, detailed.keys()))), set())
 
-        for sub_dir, label in [("methods", "bugged_methods_BuggedMethods"), ("classes", "bugged_Bugged")]:
+        dir_labels = []
+        if self.quick_mode:
+            dir_labels = [("classes", "bugged_Bugged")]
+        else:
+            dir_labels = [("methods", "bugged_methods_BuggedMethods"), ("classes", "bugged_Bugged")]
+        for sub_dir, label in dir_labels:
             scores = []
             for dir_name, columns in (('one', ones), ('all', alls)):
                 training_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "training.csv"), sep=';')
@@ -231,7 +237,8 @@ class Main():
         db = DataBuilder(self.project, version)
         if extract_bugs:
             data_types.add("bugged")
-            data_types.add("bugged_methods")
+            if not self.quick_mode:
+                data_types.add("bugged_methods")
         extractors_to_run = set()
         for extractor in Extractor.get_all_extractors(self.project, version):
             if not extract_bugs and "bugged" in extractor.__class__.__name__.lower():
@@ -312,8 +319,10 @@ class Main():
         parser.add_argument('-f', '--free_choose', dest='free_choose', action='store_true', help='the versions type to select')
         parser.add_argument('-r', '--only_rest', dest='only_rest', action='store_true', help='extract only rest versions')
         parser.add_argument('-a', '--all_rest', dest='all_rest', action='store_true', help='extract for all versions in the projects')
+        parser.add_argument('-q', '--quick_mode', dest='quick_mode', action='store_true', help='quick_mode')
         parser.add_argument('rest', nargs=argparse.REMAINDER)
         args = parser.parse_args()
+        self.quick_mode = args.quick_mode
         print(vars(args))
         self.github_user_name = args.github_user_name
         self.jira_url = args.jira_url

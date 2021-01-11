@@ -17,7 +17,6 @@ class VersionInfo(object):
         if self.num_commits:
             self.ratio_bugged_commits = 1.0 * self.num_bugged_commits / self.num_commits
         if analyze_methods:
-            list(map(lambda c: c.get_commit_methods(), commits))
             self.committed_methods = reduce(list.__add__, list(map(lambda c: c.get_commit_methods(), commits)), list())
             self.bugged_methods = list(filter(lambda m: m.changed, self.committed_methods))
             self.version_methods = self.version.get_version_methods(repo)
