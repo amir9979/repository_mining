@@ -89,7 +89,7 @@ class Main():
             ones[d] = set(detailed[d])
             alls[d] = reduce(set.__or__, list(map(lambda x: set(detailed.get(x)), filter(lambda x: x != d, detailed.keys()))), set())
 
-        for sub_dir, label in [("methods", "BuggedMethods"), ("classes", "Bugged")]:
+        for sub_dir, label in [("methods", "bugged_methods_BuggedMethods"), ("classes", "bugged_Bugged")]:
             scores = []
             for dir_name, columns in (('one', ones), ('all', alls)):
                 training_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "training.csv"), sep=';')
@@ -152,7 +152,7 @@ class Main():
         df.insert(0, 'File', files)
         df.insert(0, 'Class', classes)
         groupby = ['File', 'Class']
-        columns_filter = ['File', 'Class', 'BuggedMethods', 'Method', 'Method_ids']
+        columns_filter = ['File', 'Class', 'bugged_methods_BuggedMethods', 'Method', 'Method_ids']
         columns = list(
             filter(lambda x: x not in columns_filter, df.columns.values.tolist()))
         data = list()
@@ -168,10 +168,10 @@ class Main():
         return pd.DataFrame(data)
 
     def fillna(self, df, default=False):
-        if 'Bugged' in df:
-            df = df[df['Bugged'].notna()]
-        if 'BuggedMethods' in df :
-            df = df[df['BuggedMethods'].notna()]
+        if 'bugged_Bugged' in df:
+            df = df[df['bugged_Bugged'].notna()]
+        if 'bugged_methods_BuggedMethods' in df :
+            df = df[df['bugged_methods_BuggedMethods'].notna()]
         for col in df:
             dt = df[col].dtype
             if dt == int or dt == float:
@@ -271,7 +271,7 @@ class Main():
         testing = testing_dataset
         testing = self.fillna(testing)
         methods_testing_names = testing.pop("Method_ids").values.tolist()
-        return ClassificationInstance(training, testing, methods_testing_names, self.get_dataset_path("methods"), label="BuggedMethods")
+        return ClassificationInstance(training, testing, methods_testing_names, self.get_dataset_path("methods"), label="bugged_methods_BuggedMethods")
 
     def choose_versions(self, version_num=5, algorithm="bin", version_type=VersionType.Untyped, strict=True):
         self.extractor.init_jira_commits()

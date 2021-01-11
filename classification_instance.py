@@ -9,7 +9,7 @@ import sklearn.metrics as metrics
 
 class ClassificationInstance(object):
     def __init__(self, training, testing, names=None, dataset_dir=None, training_path="training.csv", testing_path="testing.csv",
-                 training_describe_path="training_describe.csv", testing_describe_path="testing_describe.csv", prediction_path="prediction.csv", label='Bugged', save_all=True, metrics_path='metrics.json', importance_path='importance.json'):
+                 training_describe_path="training_describe.csv", testing_describe_path="testing_describe.csv", prediction_path="prediction.csv", label='bugged_Bugged', save_all=True, metrics_path='metrics.json', importance_path='importance.json'):
         self.training = training
         self.testing = testing
         self.save_all = save_all
@@ -101,11 +101,11 @@ class ClassificationInstance(object):
             else:
                 testing[col].fillna(False, inplace=True)
         methods_testing_names = testing.pop("Method_ids").values.tolist()
-        ClassificationInstance(training, testing, methods_testing_names, data_dir, label="BuggedMethods", save_all=save_all).predict()
+        ClassificationInstance(training, testing, methods_testing_names, data_dir, label="bugged_methods_BuggedMethods", save_all=save_all).predict()
 
     @staticmethod
     def all_but_one_evaluation(dataset_dir):
-        for sub_dir, label in [("methods", "BuggedMethods"), ("classes_no_aggregate", "Bugged")]:
+        for sub_dir, label in [("methods", "bugged_methods_BuggedMethods"), ("classes_no_aggregate", "bugged_Bugged")]:
             scores = []
             for e_type in ('one', 'all'):
                 d_dir = os.path.join(dataset_dir, e_type, sub_dir)
