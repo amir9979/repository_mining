@@ -42,7 +42,6 @@ class DataName:
 
 
 class DataNameEnum(Enum):
-    # TODO create accessors for each enumeration
     Bugged = DataName("Bugged", DataType.BuggedDataType, "is_buggy")
     BuggedMethods = DataName("BuggedMethods", DataType.BuggedMethodsDataType, "is_method_buggy")
 
@@ -1230,3 +1229,14 @@ class DataNameEnum(Enum):
             if d.value.data_type in data_types:
                 ans.append(d)
         return ans
+
+
+if __name__ == "__main__":
+    by_types = {}
+    for d in DataNameEnum:
+        by_types.setdefault(d.value.data_type.name, []).append(d.value.name)
+    for d in by_types:
+        print(d)
+        for k in by_types[d]:
+            print('\t-' + k)
+    pass

@@ -106,11 +106,12 @@ class Main():
                 ans = self.create_sub_data_set_by_columns(columns, dataset_cols, dir_name, label, names, sub_dir,
                                                           testing_df, training_df)
                 if ans:
-                    scores.append(ans)
+                    scores.extend(ans)
             pd.DataFrame(scores).to_csv(self.get_dataset_path(sub_dir + "_metrics.csv", False), index=False, sep=';')
 
     def create_sub_data_set_by_columns(self, columns, dataset_cols, dir_name, label, names, sub_dir, testing_df,
                                        training_df):
+        scores = []
         for d in columns:
             cols = set(filter(lambda dc: any(map(lambda c: c in dc, columns[d])), dataset_cols))
             if len(cols) == 0:
@@ -125,9 +126,10 @@ class Main():
                 ci.predict()
                 ci_scores = dict(ci.scores)
                 ci_scores.update({"type": dir_name, "data_type": d})
-                return ci_scores
+                scores.append(ci_scores)
             except Exception as e:
                 print(e)
+        return scores
 
     def get_data_dirs(self):
         classes_data = Config.get_work_dir_path(os.path.join(Config().config['CACHING']['RepositoryData'],
