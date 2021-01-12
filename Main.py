@@ -201,7 +201,10 @@ class Main():
         classes_df, methods_df = db.build()
         aggregated_methods_df = self.aggrate_methods_df(methods_df)
         methods_df = self.fillna(methods_df)
-        aggregated_classes_df = self.merge_aggregated_methods_to_class(aggregated_methods_df, classes_df)
+        if self.quick_mode:
+            aggregated_classes_df = classes_df
+        else:
+            aggregated_classes_df = self.merge_aggregated_methods_to_class(aggregated_methods_df, classes_df)
         classes_df = self.fillna(classes_df)
         methods_df = methods_df.drop('File', axis=1, errors='ignore')
         methods_df = methods_df.drop('Class', axis=1, errors='ignore')
