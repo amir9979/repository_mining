@@ -128,7 +128,13 @@ class CompositeData(Data):
         for data_type, data_values in data.items():
             if self.data_collection.get(data_type) is None:
                 continue
-            df = self.data_collection.get(data_type).build(data_values, column_names)
+            try:
+                df = self.data_collection.get(data_type).build(data_values, column_names)
+            except:
+                import traceback
+                traceback.print_exc()
+                print(f"failed to build {data_type}")
+                continue
             if "Method_ids" in df.columns:
                 methods_dfs.append(df.drop(["File", "Class", "Package", "Method"], errors='ignore'))
             elif "Class" in df.columns:

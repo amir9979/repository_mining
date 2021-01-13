@@ -216,6 +216,7 @@ class Main():
                 extractor.extract()
                 print(time.time() - start, extractor.__class__.__name__)
             except:
+                traceback.print_exc()
                 print(r"extractor {0} failed".format(extractor.__class__.__name__))
         classes_df, methods_df = db.build()
         aggregated_methods_df = self.aggrate_methods_df(methods_df)
