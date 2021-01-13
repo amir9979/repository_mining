@@ -46,6 +46,9 @@ class Main():
         classes_datasets = []
         aggregated_classes_datasets = []
         methods_datasets = []
+        rest_classes_datasets = []
+        rest_aggregated_classes_datasets = []
+        rest_methods_datasets = []
         selected_versions = self.extractor.get_selected_versions()[:-1]
         if not rest_only:
             for version in selected_versions:
@@ -57,22 +60,37 @@ class Main():
             if version in selected_versions:
                 continue
             try:
-                self.extract_features_to_version(version, False, data_types)
+                classes_df, methods_df, aggregated_classes_df = self.extract_features_to_version(version, False, data_types)
+                rest_classes_datasets.append((version, classes_df))
+                rest_methods_datasets.append((version, methods_df))
+                rest_aggregated_classes_datasets.append((version, aggregated_classes_df))
             except:
                 traceback.print_exc()
         if rest_only:
             return
         try:
-            classes_dataset = self.extract_classes_datasets(aggregated_classes_datasets[:-1], aggregated_classes_datasets[-1])
+            training_datasets = aggregated_classes_datasets[:-1]
+            classes_dataset = self.extract_classes_datasets(training_datasets, aggregated_classes_datasets[-1])
             if predict:
                 classes_dataset.predict()
+                for v, df in rest_aggregated_classes_datasets:
+                    try:
+                        self.extract_classes_datasets(training_datasets, df, v).predict()
+                    except:
+                        traceback.print_exc()
         except:
             traceback.print_exc()
         if not self.quick_mode:
             try:
-                methods_datasets = self.extract_methods_datasets(methods_datasets[:-1], methods_datasets[-1]).predict()
+                training_datasets = methods_datasets[:-1]
+                methods_datasets = self.extract_methods_datasets(training_datasets, methods_datasets[-1]).predict()
                 if predict:
                     methods_datasets.predict()
+                    for v, df in rest_methods_datasets:
+                        try:
+                            self.extract_classes_datasets(training_datasets, df, v).predict()
+                        except:
+                            traceback.print_exc()
             except:
                 traceback.print_exc()
 
