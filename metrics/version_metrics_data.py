@@ -247,7 +247,6 @@ class CheckstyleData(Data):
 
 
 class DesigniteDesignSmellsData(Data):
-
     def __init__(self, project, version, data=None):
         self.data_type = DataType.DesigniteDesignSmellsDataType.value
         self.raw_data = data
