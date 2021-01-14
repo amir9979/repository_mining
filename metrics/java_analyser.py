@@ -86,7 +86,7 @@ class JavaParserFileAnalyser(FileAnalyser):
         if df.empty:
             return None
         if method_name:
-            df = df[df.apply(lambda x: x['Method'].lower() == method_name.lower(), axis=1)]
+            df = df[df.apply(lambda x: x['Method Name'].lower() == method_name.lower(), axis=1)]
             if df.empty:
                 return None
             file_path = str(df["File Path"].values[0])
