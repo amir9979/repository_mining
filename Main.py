@@ -115,6 +115,19 @@ class Main():
             dir_labels = [("methods", "bugged_methods_BuggedMethods"), ("classes", "bugged_Bugged")]
         for sub_dir, label in dir_labels:
             scores = []
+            training_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "training.csv"), sep=';')
+            testing_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "testing.csv"), sep=';')
+            names = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "prediction.csv"), sep=';')[
+                'name'].to_list()
+            ci = ClassificationInstance(training_df, testing_df, names, self.get_dataset_path(sub_dir), label=label, save_all=False)
+            try:
+                ci.predict()
+                ci_scores = dict(ci.scores)
+                ci_scores.update({"type": "all_feature", "data_type": "all_feature"})
+                scores.append(ci_scores)
+            except Exception as e:
+                print(e)
+
             for dir_name, columns in (('one', ones), ('all', alls)):
                 training_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "training.csv"), sep=';')
                 testing_df = pd.read_csv(os.path.join(self.get_dataset_path(sub_dir), "testing.csv"), sep=';')
