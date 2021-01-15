@@ -217,8 +217,7 @@ class Main():
                 df[col].fillna(0, inplace=True)
             else:
                 df[col].fillna(default, inplace=True)
-        df.dropna(axis=1, inplace=True)
-        return df
+        return df.dropna(axis=1)
 
     def extract_features_to_version(self, version, extract_bugs, data_types):
         self.extractor.checkout_version(version)
