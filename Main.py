@@ -235,6 +235,7 @@ class Main():
         methods_df = self.fillna(methods_df)
         if self.quick_mode:
             aggregated_classes_df = classes_df
+            aggregated_classes_df = self.fillna(aggregated_classes_df)
         else:
             aggregated_classes_df = self.merge_aggregated_methods_to_class(aggregated_methods_df, classes_df)
         classes_df = self.fillna(classes_df)
