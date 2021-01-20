@@ -120,7 +120,7 @@ class BinSelectVersion(AbstractSelectVersions):
     def _select_versions(self, repo, versions_by_type, tags):
         self.selected_versions = BinSelectVersion.select_bin(self.start, self.step, self.version_num, self.strict, tags)
         if len(self.selected_versions) <= self.selected_config:
-            print("no versions found")
+            print("no versions selected")
             exit(0)
         return self.selected_versions[self.selected_config]['versions']
 
