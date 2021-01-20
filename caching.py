@@ -38,7 +38,7 @@ def cached(cache_name, cache_dir=REPOSITORY_CACHING_DIR):
                     with gzip.GzipFile(gzip_cachefile, 'rb') as cachehandle:
                         print(f"read {key} from cache")
                         return pickle.load(cachehandle)
-                except:
+                except Exception as e:
                     pass
             # execute the function with all arguments passed
             if fn.__code__.co_argcount == 0:

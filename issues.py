@@ -50,6 +50,7 @@ class JiraIssue(Issue):
             return val.name.lower()
         return default
 
+
 class BZIssue(Issue):
     PRIORITY_DICT = {'P1': 'trivial', 'P2': 'minor', 'P3': 'major', 'P4': 'critical', 'P5': 'blocker'}
     def __init__(self, issue):
@@ -130,4 +131,5 @@ if __name__ == "__main__":
     import sys
     from projects import ProjectName
     p = ProjectName[sys.argv[1]]
-    get_issues_for_project(p.value)
+    iss = get_issues_for_project(p.value)
+    pass

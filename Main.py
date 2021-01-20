@@ -15,6 +15,8 @@ from itertools import tee
 import time
 from functools import reduce
 import traceback
+from issues import JiraIssue, BZIssue, Issue
+
 
 class Main():
     def __init__(self):
