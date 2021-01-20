@@ -15,6 +15,7 @@ from version_selector import ConfigurationSelectVersion, BinSelectVersion, Quadr
 from versions import Version
 from caching import cached
 from repo import Repo
+from issues import JiraIssue, BZIssue, Issue
 
 
 class DataExtractor(object):
@@ -63,47 +64,56 @@ class DataExtractor(object):
         self.git_repo.git.checkout(self.head_commit, force=True)
 
     @staticmethod
-    def _get_repo_commits(repo, jira_issues):
-        issues = dict(map(lambda x: (x.issue_id, x), jira_issues))
-        commits = DataExtractor._commits_and_issues(repo, issues)
-        return commits
-
-    @staticmethod
-    def _get_repo_versions(repo):
-        repo_tags = sorted(list(repo.tags), key=lambda t: t.commit.committed_date)
-        tags = zip(list(repo_tags)[1:], list(repo_tags))
-        versions = list(map(lambda tag: Version(tag[0], DataExtractor._version_files(tag[0], tag[1])),
-                            tags))
+    @cached('repo_versions')
+    def get_repo_versions(project, repo):
+        commits_files = DataExtractor._get_commits_files(project, repo)
+        commits_versions = DataExtractor.get_commits_between_versions(repo)
+        tags_commits = dict(map(lambda t: (t.commit, t), repo.tags))
+        versions = []
+        for v, commits in commits_versions.items():
+            files = reduce(list.__add__, list(map(lambda c: commits_files.get(c.hexsha, []), commits)), [])
+            versions.append(Version(tags_commits[v], files))
         return sorted(versions, key=lambda version: version._commit._commit_date)
 
-    def _get_bugged_files_between_versions(self, versions, analyze_methods=False):
-        tags_commits = self._get_commits_between_versions(versions)
+    def _get_bugged_files_between_versions(self, versions=None, analyze_methods=False):
+        if versions:
+            return DataExtractor.get_bugged_files_between_versions(self.commits, versions, self.quick_mode, self.git_repo, analyze_methods)
+        else:
+            return DataExtractor.get_bugged_files_all_versions(self.project, self.commits, self.versions, self.quick_mode,
+                                                                   self.git_repo, analyze_methods)
+
+    @staticmethod
+    @cached("bugged_files_all_versions")
+    def get_bugged_files_all_versions(project, commits, versions, quick_mode, git_repo, analyze_methods=False):
+        return DataExtractor.get_bugged_files_between_versions(commits, versions, quick_mode, git_repo, analyze_methods)
+
+    @staticmethod
+    def get_bugged_files_between_versions(commits, versions, quick_mode, git_repo, analyze_methods=False):
+        tags_commits = DataExtractor._get_commits_between_versions(commits, versions)
         tags = []
-        analyze_methods = analyze_methods if not self.quick_mode else False
+        analyze_methods = analyze_methods if not quick_mode else False
         for tag in tags_commits:
             if tags_commits[tag]:
-                tags.append(VersionInfo(tag, tags_commits[tag], self.git_repo, analyze_methods=analyze_methods))
+                tags.append(VersionInfo(tag, tags_commits[tag], git_repo, analyze_methods=analyze_methods))
             else:
                 print("not commits for", tag._name)
         return sorted(tags, key=lambda x: x.version._commit._commit_date)
 
     def init_jira_commits(self):
-        # self.issues = get_jira_issues(self.project.jira_name, self.jira_url)
         self.issues = get_issues_for_project(self.project)
-        self.commits = self._get_repo_commits(self.git_repo, self.issues)
-        self.versions = self._get_repo_versions(self.git_repo)
+        self.commits = self._commits_and_issues(self.project, self.git_repo, self.issues)
+        self.versions = self.get_repo_versions(self.project, self.git_repo)
         print("number of commits: ", len(self.commits))
         print("number of tags: ", len(self.versions))
-        self.bugged_files_between_versions = self._get_bugged_files_between_versions(self.versions)
+        self.bugged_files_between_versions = self._get_bugged_files_between_versions()
 
     def extract(self, selected_versions=False):
-        tags = self.bugged_files_between_versions
         self._store_issues()
         self._store_commited_files()
         self._store_commits()
-        self._store_versions(tags, False)
-        self._store_versions_infos(tags)
-        self._store_files(tags)
+        self._store_versions(self.bugged_files_between_versions)
+        self._store_versions_infos(self.bugged_files_between_versions)
+        self._store_files(self.bugged_files_between_versions)
         if selected_versions:
             tags = self._get_bugged_files_between_versions(list(filter(lambda tag: tag._name in list(map(lambda x: os.path.normpath(str(x)), self.get_selected_versions())), self.versions)), True)
             self._store_versions(tags, True)
@@ -241,11 +251,24 @@ class DataExtractor(object):
             path = os.path.join(files_dir, version_name + ".csv")
             df.to_csv(path, index=False, sep=';')
 
-    def _get_commits_between_versions(self, versions):
+    @staticmethod
+    def _get_commits_between_versions(commits, versions):
         sorted_versions = sorted(versions, key=lambda version: version._commit._commit_date)
-        sorted_commits_and_versions = sorted(versions + list(filter(lambda x: x.is_java_commit, self.commits)),
+        sorted_commits_and_versions = sorted(versions + list(filter(lambda x: x.is_java_commit, commits)),
                                              key=lambda version: version._commit._commit_date if hasattr(version,
                                                                                                          "_commit") else version._commit_date)
+        versions_indices = list(map(lambda version: (version, sorted_commits_and_versions.index(version)), sorted_versions))
+        selected_versions = list(filter(lambda vers: vers[0][1] < vers[1][1], zip(versions_indices, versions_indices[1:])))
+        return dict(
+            map(lambda vers: (vers[0][0], sorted_commits_and_versions[vers[0][1] + 1: vers[1][1]]), selected_versions))
+
+    @staticmethod
+    def get_commits_between_versions(repo, versions_commits=None):
+        repo_commits = list(repo.iter_commits())
+        if versions_commits is None:
+            versions_commits = list(map(lambda x: x.commit, repo.tags))
+        sorted_versions = sorted(versions_commits, key=lambda version: version.committed_datetime)
+        sorted_commits_and_versions = sorted(sorted_versions + repo_commits, key=lambda c: c.committed_datetime)
         versions_indices = list(map(lambda version: (version, sorted_commits_and_versions.index(version)), sorted_versions))
         selected_versions = list(filter(lambda vers: vers[0][1] < vers[1][1], zip(versions_indices, versions_indices[1:])))
         return dict(
@@ -268,10 +291,13 @@ class DataExtractor(object):
     def _clean_commit_message(commit_message):
         if "git-svn-id" in commit_message:
             return commit_message.split("git-svn-id")[0]
-        return commit_message
+        return ' '.join(commit_message.split())
 
     @staticmethod
-    def _commits_and_issues(repo, issues):
+    @cached('commits_and_issues')
+    def _commits_and_issues(project, repo, jira_issues):
+        issues = dict(map(lambda x: (x.issue_id, x), jira_issues))
+        issues_dates = sorted(list(map(lambda x: (x, issues[x].creation_time), issues)), key=lambda x: x[1], reverse=True)
         def replace(chars_to_replace, replacement, s):
             temp_s = s
             for c in chars_to_replace:
@@ -280,9 +306,8 @@ class DataExtractor(object):
 
         def get_bug_num_from_comit_text(commit_text, issues_ids):
             text = replace("[]?#,:(){}'\"", "", commit_text.lower())
-            text = replace("-_", " ", text)
-            text = replace("bug", " ", text)
-            text = replace("fix", " ", text)
+            text = replace("-_.=", " ", text)
+            text = text.replace('bug', '').replace('fix', '')
             for word in text.split():
                 if word.isdigit():
                     if word in issues_ids:
@@ -290,24 +315,33 @@ class DataExtractor(object):
             return "0"
 
         commits = []
-        java_commits = DataExtractor._get_commits_files(repo)
-        for git_commit in java_commits:
+        java_commits = DataExtractor._get_commits_files(project, repo)
+        for commit_sha in java_commits:
+            git_commit = repo.commit(commit_sha)
             bug_id = "0"
-            if all(list(map(lambda x: not x.is_java, java_commits[git_commit]))):
-                commit = Commit.init_commit_by_git_commit(git_commit, bug_id, None, java_commits[git_commit], False)
+            if all(list(map(lambda x: not x.is_java, java_commits[commit_sha]))):
+                commit = Commit.init_commit_by_git_commit(git_commit, bug_id, None, java_commits[commit_sha], False)
                 commits.append(commit)
                 continue
             try:
-                commit_text = DataExtractor._clean_commit_message(git_commit.summary)
-            except:
+                commit_text = DataExtractor._clean_commit_message(git_commit.message)
+            except Exception as e:
                 continue
-            bug_id = get_bug_num_from_comit_text(commit_text, dict(filter(lambda x: x[1].creation_time <= git_commit.committed_datetime, issues.items())))
+            for ind, (issue_id, date) in enumerate(issues_dates):
+                date_ = date
+                if date_.tzinfo:
+                    date_ = date_.replace(tzinfo=None)
+                if git_commit.committed_datetime.replace(tzinfo=None) > date_:
+                    break
+            issues_dates = issues_dates[ind:]
+            bug_id = get_bug_num_from_comit_text(commit_text, set(map(lambda x: x[0], issues_dates)))
             commits.append(
-                Commit.init_commit_by_git_commit(git_commit, bug_id, issues.get(bug_id), java_commits[git_commit]))
+                Commit.init_commit_by_git_commit(git_commit, bug_id, issues.get(bug_id), java_commits[commit_sha]))
         return commits
 
     @staticmethod
-    def _get_commits_files(repo):
+    @cached("commits_files")
+    def _get_commits_files(project, repo):
         data = repo.git.log('--numstat','--pretty=format:"sha: %H"').split("sha: ")
         comms = {}
         for d in data[1:]:
@@ -318,7 +352,7 @@ class DataExtractor(object):
                 insertions, deletions, name = x.split('\t')
                 names = Commit.fix_renamed_files([name])
                 comms[commit_sha].extend(list(map(lambda n: CommittedFile(commit_sha, n, insertions, deletions), names)))
-        return dict(map(lambda x: (repo.commit(x), comms[x]), filter(lambda x: comms[x], comms)))
+        return dict(map(lambda x: (x, comms[x]), filter(lambda x: comms[x], comms)))
 
     def choose_versions(self, repo=None, version_num=5, configurations=False,
                         algorithm="bin", version_type=VersionType.Untyped, strict=True):
@@ -382,5 +416,10 @@ class DataExtractor(object):
 
 
 if __name__ == "__main__":
+    import sys
     from projects import ProjectName
-    DataExtractor(ProjectName.CommonsLang.value).extract()
+    p = ProjectName[sys.argv[1]]
+    d = DataExtractor(p.value)
+    d.init_jira_commits()
+    d.extract()
+    d.choose_versions(version_num=5)

@@ -48,8 +48,9 @@ class AbstractSelectVersions(ABC):
         self.strict = strict
 
     def select(self):
-        self._get_versions_by_type(self.versions)
-        self.tags = list(filter(lambda x: x.version in self.versions_by_type, self.tags))
+        self.versions_by_type = AbstractSelectVersions.get_versions_by_type(self.type, self.versions)
+        versions_by_type_names = list(map(lambda v: v._name, self.versions_by_type))
+        self.tags = list(filter(lambda x: x.version._name in versions_by_type_names, self.tags))
         self.versions_selected = self._select_versions(self.repo, self.versions_by_type, self.tags)
         self._store_versions(self.repo)
         return self.versions_selected
@@ -86,9 +87,6 @@ class AbstractSelectVersions(ABC):
                     return Version(version, VersionType.Untyped)
         return Version(version, VersionType.Untyped)
 
-    def _get_versions_by_type(self, versions):
-        self.versions_by_type = AbstractSelectVersions.get_versions_by_type(self.type, versions)
-
     @staticmethod
     def get_versions_by_type(v_type, versions):
         if v_type == VersionType.Untyped:
@@ -120,36 +118,42 @@ class BinSelectVersion(AbstractSelectVersions):
         self.selected_versions = list()
 
     def _select_versions(self, repo, versions_by_type, tags):
+        self.selected_versions = BinSelectVersion.select_bin(self.start, self.step, self.version_num, self.strict, tags)
+        if len(self.selected_versions) <= self.selected_config:
+            print("no versions found")
+            exit(0)
+        return self.selected_versions[self.selected_config]['versions']
+
+    @staticmethod
+    def select_bin(start, step, version_num, strict, tags):
         relevant_tags = list(filter(lambda t: t.bugged_ratio, tags))
         version_names = list(map(lambda x: x.version._name, relevant_tags))
+        selected = []
         only_version = []
-        for start, step in product(self.start, self.step):
+        for start, step in product(start, step):
             bins = list(map(lambda x: list(), range(start, 101, step)))
             for tag in relevant_tags:
                 if 100.0 * tag.bugged_ratio < start:
                     continue
                 bins[int((100.0 * tag.bugged_ratio - start) / step)].append(tag.version._name)
             for bin_ in bins:
-                if len(bin_) < self.version_num:
+                if len(bin_) < version_num:
                     continue
                 selected_versions = list(bin_)
-                if self.strict:
-                    for i in range(len(selected_versions) - self.version_num):
-                        versions = tuple(selected_versions[i: i + self.version_num])
+                if strict:
+                    for i in range(len(selected_versions) - version_num):
+                        versions = tuple(selected_versions[i: i + version_num])
                         configuration = {'start': start, 'step': step, 'versions': versions}
                         if len(configuration['versions']) > 1 and configuration['versions'] not in only_version:
-                            self.selected_versions.append(configuration)
+                            selected.append(configuration)
                             only_version.append(configuration['versions'])
                 else:
                     configuration = {'start': start, 'step': step, 'versions': tuple(selected_versions)}
                     if len(configuration['versions']) > 1 and configuration['versions'] not in only_version:
-                        self.selected_versions.append(configuration)
+                        selected.append(configuration)
                         only_version.append(configuration['versions'])
-        self.selected_versions = sorted(self.selected_versions, key=lambda v: sum(map(version_names.index, v['versions'])), reverse=True)
-        if len(self.selected_versions) <= self.selected_config:
-            print("no versions found")
-            exit(0)
-        return self.selected_versions[self.selected_config]['versions']
+        selected = sorted(selected, key=lambda v: sum(map(version_names.index, v['versions'])), reverse=True)
+        return selected
 
     def _store_versions(self, repo):
         config = Config().config

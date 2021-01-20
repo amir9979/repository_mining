@@ -55,7 +55,7 @@ class BZIssue(Issue):
     PRIORITY_DICT = {'P1': 'trivial', 'P2': 'minor', 'P3': 'major', 'P4': 'critical', 'P5': 'blocker'}
     def __init__(self, issue):
         super().__init__(str(issue._rawdata['id']), 'bug', BZIssue.PRIORITY_DICT[issue._rawdata['priority']],
-                         issue._rawdata['resolution'].lower(), issue.weburl, issue._rawdata['creation_time'])
+                         issue._rawdata['resolution'].lower(), issue.weburl, datetime.strptime(str(issue._rawdata['creation_time']), '%Y%m%dT%H:%M:%S'))
         self.fields = {'key' : str(issue._rawdata['id'])}
         for k, v in issue._rawdata.items():
             if type(v) in [str, type(None), type(0), type(0.1)]:

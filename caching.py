@@ -1,7 +1,6 @@
 import os
 import pickle
 import gzip
-
 from config import Config
 
 
