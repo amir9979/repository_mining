@@ -104,7 +104,12 @@ class Bugged(Extractor):
         key = 'file_name'
         assert key in df.columns
         bugged = df.groupby(key).apply(lambda x: dict(zip(["is_buggy"], x.is_buggy))).to_dict()
-        self.data.set_raw_data(bugged)
+        ans = dict()
+        for name, value in bugged.items():
+            norm_name = os.path.normpath(name.lower())
+            if norm_name in self.file_analyser.relative_paths:
+                ans[self.file_analyser.relative_paths[norm_name]] = value
+        self.data.set_raw_data(ans)
 
 
 class BuggedMethods(Extractor):
@@ -387,11 +392,16 @@ class SourceMonitor(Extractor):
         files_df['full_id'] = files_df.apply(lambda x: x['File Name'], axis=1)
         files_df = files_df.dropna()
         files_df = files_df.drop(['File Name'], axis=1)
-        source_monitor_files = dict(
+        source_monitor_files_ = dict(
             map(lambda x: (
                 x[1]['full_id'],
                 dict(zip(files_cols, list(x[1].drop('full_id'))))
             ), files_df.iterrows()))
+        source_monitor_files = {}
+        for name, value in source_monitor_files_.items():
+            norm_name = os.path.normpath(name.lower())
+            if norm_name in self.file_analyser.relative_paths:
+                source_monitor_files[self.file_analyser.relative_paths[norm_name]] = value
         methods_path = os.path.join(self.out_dir, "source_monitor_methods.csv")
         methods_df = pd.read_csv(methods_path, encoding = "ISO-8859-8", error_bad_lines=False)
         for i in cols_to_drop:
@@ -400,26 +410,28 @@ class SourceMonitor(Extractor):
         source_monitor = dict(map(lambda x: (
             self._get_source_monitor_id(
                 x[1]["File Name"],
-                x[1]["Method"],
-                self.file_analyser.methods_by_path_and_name),
+                x[1]["Method"]),
             dict(zip(
                 methods_cols,
                 list(x[1].drop("File Name").drop("Method"))))),
                                   methods_df.iterrows()))
         return source_monitor_files, source_monitor
 
-    @staticmethod
-    def _get_source_monitor_id(source_file_name, source_method, methods_by_path_and_name):
-        full_key = (source_file_name.lower(), source_method.lower())
-        method_key = (source_file_name.lower(), source_method.lower().split("(")[0])
+    def _get_source_monitor_id(self, source_file_name, source_method):
+        norm_name = os.path.normpath(source_file_name).lower()
+        if not norm_name in self.file_analyser.relative_paths:
+            return
+        name = self.file_analyser.relative_paths[norm_name]
+        full_key = (name, source_method.lower())
+        method_key = (name, source_method.lower().split("(")[0])
         extend_key = (
-            source_file_name.lower(), source_method.lower().split("<")[0] + "." + source_method.lower().split(".")[1])
-        extend_key_params = (source_file_name.lower(),
+            name, source_method.lower().split("<")[0] + "." + source_method.lower().split(".")[1])
+        extend_key_params = (name,
                              source_method.lower().split("<")[0] + "." + source_method.lower().split(".")[1].split("(")[
                                  0])
         for key in [full_key, method_key, extend_key, extend_key_params]:
-            if key in methods_by_path_and_name:
-                return methods_by_path_and_name[key]
+            if key in self.file_analyser.methods_by_path_and_name:
+                return self.file_analyser.methods_by_path_and_name[key]
 
 
 class CK(Extractor):
@@ -497,7 +509,12 @@ class Halstead(Extractor):
         self.data = HalsteadData(self.project, self.version)
 
     def _extract(self):
-        self.data.set_raw_data(metrics_for_project(self.local_path))
+        classes_ = dict()
+        for name, value in metrics_for_project(self.local_path).items():
+            norm_name = os.path.normpath(name.lower())
+            if norm_name in self.file_analyser.relative_paths:
+                classes_[self.file_analyser.relative_paths[norm_name]] = value
+        self.data.set_raw_data(classes_)
 
 
 class Jasome(Extractor):
@@ -524,7 +541,6 @@ class Jasome(Extractor):
     @staticmethod
     def _execute_command(jasome_runner, local_path, out_path_to_xml):
         command = ["java", '-Xmx4096m', "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
-        print('jasome command', command)
         Popen(command).communicate()
 
     def _process_metrics(self):
@@ -595,8 +611,12 @@ class ProcessExtractor(Extractor):
         df = df[df.apply(lambda r: r['file_name'].endswith('.java') and r['file_name'] in files, axis=1)]
 
         for file_name, file_df in df.groupby('file_name', as_index=False):
-            data[file_name] = self._extract_process_features(file_df)
-            issues_data[file_name] = self._extract_issues_features(file_df, issues_df, self._get_blame_data(file_name))
+            norm_name = os.path.normpath(file_name).lower()
+            if norm_name not in self.file_analyser.relative_paths:
+                continue
+            name = self.file_analyser.relative_paths[norm_name]
+            data[name] = self._extract_process_features(file_df)
+            issues_data[name] = self._extract_issues_features(file_df, issues_df, self._get_blame_data(file_name))
         # extract the following features:
         self.data.add(ProcessData(self.project, self.version, data=data)).add(IssuesData(self.project, self.version, data=issues_data))
 

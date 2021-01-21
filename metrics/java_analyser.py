@@ -32,6 +32,7 @@ class JavaParserFileAnalyser(FileAnalyser):
             parser_df = self._parse_source_code(local_path, self.outpath)
         self.parser_df = parser_df
         self.classes_paths = self._get_classes_path()
+        self.relative_paths = dict(map(lambda x: (x.lower().replace(self.local_path.lower() + os.sep, ''), x.lower()), self.parser_df['File Path'].to_list()))
         self.methods_by_path_and_name = self._get_methods_by_path_and_name()
 
     @staticmethod
