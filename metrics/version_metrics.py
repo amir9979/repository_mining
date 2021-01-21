@@ -245,7 +245,7 @@ class Designite(Extractor):
         Config.assert_dir_exists(out_dir)
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
-        commands = ["java", "-jar", designite_runner, "-i", local_path, "-o", out_dir]
+        commands = ["java", '-Xmx4096m', "-jar", designite_runner, "-i", local_path, "-o", out_dir]
         p = Popen(commands)
         p.communicate()
         return out_dir
