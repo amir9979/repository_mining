@@ -1,7 +1,7 @@
 import os
 import json
 from abc import ABC, abstractmethod
-from subprocess import Popen
+from subprocess import run
 from xml.etree import ElementTree
 from datetime import datetime
 import pandas as pd
@@ -159,8 +159,10 @@ class Checkstyle(Extractor):
                     "-f", "xml",
                     "-o", out_path_to_xml.replace("\\\\?\\", ""),
                     local_path]
-        p = Popen(commands)
-        p.communicate()
+        try:
+            run(commands, timeout=60*60)
+        except:
+            pass
         return out_path_to_xml
 
     def _process_checkstyle_data(self, out_path_to_xml):
@@ -251,8 +253,10 @@ class Designite(Extractor):
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
         commands = ["java", '-Xmx4096m', "-jar", designite_runner, "-i", local_path, "-o", out_dir]
-        p = Popen(commands)
-        p.communicate()
+        try:
+            run(commands, timeout=60*60)
+        except:
+            pass
         return out_dir
 
     def _extract_design_code_smells(self):
@@ -377,8 +381,10 @@ class SourceMonitor(Extractor):
         xml_path = os.path.join(out_dir, "sourceMonitor.xml")
         with open(xml_path, "w") as f:
             f.write(xml)
-
-        Popen([source_monitor_runner, "/C", xml_path]).communicate()
+        try:
+            run([source_monitor_runner, "/C", xml_path], timeout=60*60)
+        except:
+            pass
         return out_dir
 
     def _process_metrics(self):
@@ -453,7 +459,10 @@ class CK(Extractor):
     def _execute_command(ck_runner, local_path, out_dir):
         project_path = os.path.join(os.getcwd(), local_path)
         command = ["java", '-Xmx4096m', "-jar", ck_runner, project_path, "True"]
-        Popen(command, cwd=out_dir).communicate()
+        try:
+            run(command, cwd=out_dir, timeout=60*60)
+        except:
+            pass
         return out_dir
 
     def _process_metrics(self):
@@ -491,7 +500,10 @@ class Mood(Extractor):
     @staticmethod
     def _execute_command(mood_runner, local_path, out_dir):
         command = ["java", '-Xmx4096m', "-jar", mood_runner, local_path, out_dir]
-        Popen(command).communicate()
+        try:
+            run(command, timeout=60*60)
+        except:
+            pass
 
     def _process_metrics(self):
         with open(os.path.join(self.out_dir, "_metrics.json")) as file:
@@ -541,7 +553,10 @@ class Jasome(Extractor):
     @staticmethod
     def _execute_command(jasome_runner, local_path, out_path_to_xml):
         command = ["java", '-Xmx4096m', "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
-        Popen(command).communicate()
+        try:
+            run(command, timeout=60*60)
+        except:
+            pass
 
     def _process_metrics(self):
         from metrics.jasome_xml_parser import parse
