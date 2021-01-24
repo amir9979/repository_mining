@@ -31,6 +31,8 @@ from .java_analyser import JavaParserFileAnalyser
 from metrics.version_metrics_name import DataType
 from typing import List
 
+TIMEOUT = 30 * 60
+
 
 class Extractor(ABC):
     def __init__(self, extractor_name, project: Project, version, data_types: List[DataType], repo=None):
@@ -160,7 +162,7 @@ class Checkstyle(Extractor):
                     "-o", out_path_to_xml.replace("\\\\?\\", ""),
                     local_path]
         try:
-            run(commands, timeout=60*60)
+            run(commands, timeout=TIMEOUT)
         except:
             pass
         return out_path_to_xml
@@ -254,7 +256,7 @@ class Designite(Extractor):
             os.makedirs(out_dir)
         commands = ["java", '-Xmx4096m', "-jar", designite_runner, "-i", local_path, "-o", out_dir]
         try:
-            run(commands, timeout=60*60)
+            run(commands, timeout=TIMEOUT)
         except:
             pass
         return out_dir
@@ -382,7 +384,7 @@ class SourceMonitor(Extractor):
         with open(xml_path, "w") as f:
             f.write(xml)
         try:
-            run([source_monitor_runner, "/C", xml_path], timeout=60*60)
+            run([source_monitor_runner, "/C", xml_path], timeout=TIMEOUT)
         except:
             pass
         return out_dir
@@ -460,7 +462,7 @@ class CK(Extractor):
         project_path = os.path.join(os.getcwd(), local_path)
         command = ["java", '-Xmx4096m', "-jar", ck_runner, project_path, "True"]
         try:
-            run(command, cwd=out_dir, timeout=60*60)
+            run(command, cwd=out_dir, timeout=TIMEOUT)
         except:
             pass
         return out_dir
@@ -501,7 +503,7 @@ class Mood(Extractor):
     def _execute_command(mood_runner, local_path, out_dir):
         command = ["java", '-Xmx4096m', "-jar", mood_runner, local_path, out_dir]
         try:
-            run(command, timeout=60*60)
+            run(command, timeout=TIMEOUT)
         except:
             pass
 
@@ -554,7 +556,7 @@ class Jasome(Extractor):
     def _execute_command(jasome_runner, local_path, out_path_to_xml):
         command = ["java", '-Xmx4096m', "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
         try:
-            run(command, timeout=60*60)
+            run(command, timeout=TIMEOUT)
         except:
             pass
 
