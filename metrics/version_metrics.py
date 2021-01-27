@@ -660,37 +660,6 @@ class ProcessExtractor(Extractor):
             values.append(d)
         return pd.DataFrame(values)
 
-    def _get_blame_for_file(self, file_name):
-        ans = {}
-        repo = git.Repo(self.local_path)
-        blame = repo.blame(self.version, file_name)
-        ans['blobs'] = len(blame)
-        blame = reduce(list.__add__, map(lambda x: list(map(lambda y: (x[0], y), x[1])), blame), [])
-        commits, source_code = list(zip(*blame))
-        ans['blame_commits'] = len(set(commits))
-        c = dict(Counter(list(map(lambda x: x.hexsha, commits))))
-        list(map(lambda x: c.update({x: c[x] / ans['blame_commits']}), c.keys()))
-        for k, v in pd.DataFrame(c.values(), columns=['col']).describe().to_dict()['col'].items():
-            ans['blame_' + k] = v
-
-        lines = CommentFilter().filterComments(source_code)[0]
-        commits_lines = list(filter(lambda x: x[1], zip(commits, lines)))
-        filtered_commits, _ = set(zip(*commits_lines))
-        c = dict(Counter(list(map(lambda x: x.hexsha, filtered_commits))))
-        ans['blame_filtered_commits'] = len(set(zip(*commits_lines)))
-        list(map(lambda x: c.update({x: c[x] / ans['blame_filtered_commits']}), c.keys()))
-        for k, v in pd.DataFrame(c.values(), columns=['col']).describe().to_dict()['col'].items():
-            ans['blame_filtered_' + k] = v
-        values = []
-        for c in set(filtered_commits):
-            l = list(map(lambda l: l[1], filter(lambda l: l[0] == c, commits_lines)))
-            h = Halstead(l).getValuesVector()
-            values.append(h)
-        for col, d in pd.DataFrame(values).describe().to_dict().items():
-            for k, v in d.items():
-                ans['blame_halstead_' + col + "_" + k] = v
-        return ans
-
     def _get_features(self, d, initial=''):
         ans = {initial + "_count": d.shape[0]}
         des = d.describe()
