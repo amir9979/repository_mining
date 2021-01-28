@@ -21,7 +21,7 @@ from metrics.version_metrics_data import (
     JasomeFilesData, JasomeMethodsData, ProcessData, IssuesData, JasomeMoodData, JasomeCKData, JasomeLKData)
 from projects import Project
 from repo import Repo
-from .commented_code_detector import metrics_for_project, Halstead, CommentFilter
+from .commented_code_detector import metrics_for_project, CommentFilter
 from metrics.rsc.designite_smells import (
     design_smells_list,
     implementation_smells_list,

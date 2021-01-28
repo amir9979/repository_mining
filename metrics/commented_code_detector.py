@@ -1,50 +1,17 @@
-#!/usr/bin/python
-
-#Copyright (c) 2013 Dominik Borowiec
-#
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
-
-#The above copyright notice and this permission notice shall be included in
-#all copies or substantial portions of the Software.
-
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-#THE SOFTWARE.
-
-#=============================================================================
-#                         *** CONFIGURATION ***
-#=============================================================================
-# THIS CONFIGURATION APLLIES FOR C++, BUT IT CAN BE TUNED FOR EACH 
-# PROGRAMMING LANGUAGE
-
-# Reserved words and operators for C++
-# Note that pure operators can interleave with reserved words
 import os
 
-RESERVED_WORDS = [
-    "alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor",
-    "bool", "break", "case", "catch", "char", "char16_t", "char32_t", "class",
-    "compl", "const", "constexpr", "const_cast", "continue", "decltype",
-    "default", "delete", "do", "double", "dynamic_cast", "else", "enum",
-    "explicit", "export", "extern", "false", "float", "for", "friend", "goto",
-    "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept",
-    "not", "not_eq", "nullptr", "operator", "or", "or_eq", "private",
-    "protected", "public", "register", "reinterpret_cast", "return", "short",
-    "signed", "sizeof", "static", "static_assert", "static_cast", "struct",
-    "switch", "template", "this", "thread_local", "throw", "true", "try",
-    "typedef", "typeid", "typename", "union", "unsigned", "using", "virtual",
-    "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
-    ]
-    
+RESERVED_WORDS = ['requires', 'try', 'dynamic_cast', 'module', 'sizeof', 'synchronized', 'delete', 'goto', 'interface',
+                  'reinterpret_cast', 'wchar_t', 'switch', 'thread_local', 'char16_t', 'struct', 'xor_eq', 'noexcept',
+                  'break', 'union', 'return', 'private', 'protected', 'using', 'volatile', 'alignas', 'const_cast',
+                  'assert', 'default', 'double', 'native', 'long', 'virtual', 'static', 'nullptr', 'bool', 'typeid',
+                  'export', 'operator', 'xor', 'unsigned', 'asm', 'import', 'explicit', 'compl', 'class', 'instanceof',
+                  'boolean', 'byte', 'var', 'auto', 'new', 'inline', 'else', 'and', 'or', 'do', 'final', 'transient',
+                  'abstract', 'short', 'register', 'finally', 'for', 'not_eq', 'exports', 'alignof', 'char', 'throw',
+                  'not', 'template', 'char32_t', 'while', 'static_assert', 'continue', 'implements', 'float', 'if',
+                  'int', 'and_eq', 'public', 'decltype', 'extern', 'true', 'typename', 'case', 'static_cast', 'bitand',
+                  'const', 'catch', 'typedef', 'package', 'super', 'void', 'mutable', 'strictfp', 'friend', 'enum',
+                  'signed', 'or_eq', 'bitor', 'false', 'extends', 'constexpr', 'namespace', 'this', 'throws']
+
 # Note that the order of the list PURE_OPERATORS is important, because
 # because matching is being done from the begining of the list to the end.
 PURE_OPERATORS = [
@@ -60,44 +27,7 @@ ONELINE_COMMENT_TOKEN = "//"
 MULTILINE_COMMENT_TOKEN_BEGIN = "/*"
 MULTILINE_COMMENT_TOKEN_END = "*/"
 
-# Detector tresholds
-# Expected differences (in %) of the metrics computed for snippet with 
-# the content of the comment joined with its context should compared with
-# the values of metrics for the context only.
-# At least given number of tresholds should be applied succesfully to
-# state that the comment may contain code. See the code of the script :)
 
-COMMENTED_CODE_MAX_TRESHOLDS = [
-    25, #Operators count
-    5,  #Distinct operators
-    25, #Operands count
-    5,  #Distinct operand
-    20, #Program length
-    5,  #Program vocabulary
-    25, #Volume
-    20, #Difficulty
-    40, #Effort     
-]
-COMMENTED_CODE_MAX_TRESHOLDS_EXPECTED_PASSES = 7
-
-COMMENTED_CODE_MIN_TRESHOLDS = [
-    5, #Operators count
-    0, #Distinct operators
-    0, #Operands count
-    0, #Distinct operand
-    0, #Program length
-    0, #Program vocabulary
-    0, #Volume
-    0, #Difficulty
-    0, #Effort     
-]
-COMMENTED_CODE_MIN_TRESHOLDS_EXPECTED_PASSES = 9
-
-#=============================================================================
-#                                *** SCRIPT ***
-#=============================================================================
-
-import argparse
 import math
 
 class Comment:
@@ -141,12 +71,6 @@ class Comment:
     def __str__(self):
         return "Comment from lines %d-%d:\n%s" %(self.getFirstLineNumber(),
             self.getLastLineNumber(), self.getContent())
-
-
-class HalsteadCommentLine:
-    def __init__(self, line, line_number):
-        self.line = line
-        self.line_number = line_number
 
 
 class HalsteadSourceLine:
@@ -382,119 +306,6 @@ class CommentFilter:
             self.currentLine.append(line)
         return ""
 
-            
-def parseArgs():
-    parser = argparse.ArgumentParser(description="Discover commented code "
-    "using Halstead code metrics. "
-    "Metrics are computed on the given number of context "
-    "lines for each comment. "
-    "If the value computed on the context lines themselves and for "
-    "the context lines merged with the content of the comment are similar, "
-    "the comment may "
-    "consist of commented code. "
-    "The script (after modifying "
-    "the dictionary of operators) may be used with every "
-    "programming language." )
-    parser.add_argument(
-        "sourcefile",
-        metavar="FILE", 
-        nargs=1, 
-        help="File to be processed."
-    )
-    parser.add_argument(
-        "-v", 
-        "--verbose", 
-        dest="verbose",
-        metavar="N",
-        type=int,
-        default=0,
-        help="How many additional information should be printed, " +
-            "accepted levels 0-3."
-    )
-    parser.add_argument(
-        "-fm", 
-        "--show-file-metrics", 
-        dest="showFileMetrics", 
-        action='store_true',  
-        help="Print metrics for the full file (comments removed)."
-    )
-    parser.add_argument(
-        "-c", 
-        "--context-multiplier",
-        default=5,
-        metavar="N",
-        dest="contextMultiplier", 
-        type=int,
-        help="How much bigger a context should be than a comment itself."
-    )
-    parser.add_argument(
-        "-m", 
-        "--min-context",
-        default=8,
-        metavar="N",
-        dest="minContext", 
-        type=int,
-        help="Minimal length of context for a comment."
-    )    
-    return vars(parser.parse_args())
-
-    
-def analyzeComment(comment, regularLines, args):
-    contextLength = max(
-        args["minContext"], 
-        args["contextMultiplier"] * comment.getLength()
-    )
-    linesBefore = regularLines[
-        max(0, comment.getFirstLineNumber() - contextLength):
-        comment.getFirstLineNumber()
-    ]
-    linesAfter = regularLines[
-        comment.getLastLineNumber():
-        comment.getLastLineNumber() + contextLength
-    ]
-    linesCnt = len(linesBefore) + len(linesAfter) + comment.getLength()
-    
-    codeNoCommentMetrics = Halstead(linesBefore + linesAfter)
-    codeWithCommentMetrics =( Halstead(linesBefore + linesAfter + 
-        [comment.getContent()]))
-    noCommentPerLineValues = [(1.00 * v) / linesCnt 
-        for v in codeNoCommentMetrics.getValuesVector()]       
-    withCommentPerLineValues = [(1.00 * v) / linesCnt 
-        for v in codeWithCommentMetrics.getValuesVector()]
-
-    diffValues = [abs(w - n) / unzero(n) * 100 for 
-        (n, w) in zip(noCommentPerLineValues, withCommentPerLineValues)
-    ]
-        
-    maxTresholdHits = [d <= t for (d, t) in 
-        zip (diffValues, COMMENTED_CODE_MAX_TRESHOLDS)]
-    totalMaxTresholdHit = (sum(x > 0 for x in maxTresholdHits) >= 
-        COMMENTED_CODE_MAX_TRESHOLDS_EXPECTED_PASSES)
-    minTresholdHits = [d >= t for (d, t) in 
-        zip (diffValues, COMMENTED_CODE_MIN_TRESHOLDS)]
-    totalMinTresholdHit = (sum(x > 0 for x in minTresholdHits) >= 
-        COMMENTED_CODE_MIN_TRESHOLDS_EXPECTED_PASSES)       
-    hit = totalMaxTresholdHit and totalMinTresholdHit
-        
-    if (args["verbose"] >= 1 and hit) or (args["verbose"] == 3):
-        print(comment)
-        if (args["verbose"] >= 2):
-            print("Analyzed context lines count: %s." % contextLength)
-            Halstead.printStatistics([
-                codeNoCommentMetrics.getValuesVector(),
-                codeWithCommentMetrics.getValuesVector(),
-                noCommentPerLineValues,
-                withCommentPerLineValues,
-                diffValues,
-                maxTresholdHits
-            ], ["-Cmt", "+Cmt", "-Cmt/l", "+Cmt/l", "diff%", "<maxT?"])
-    if hit:
-        print("Lines %s-%s seems to be commented code."
-            %(comment.getFirstLineNumber(), comment.getLastLineNumber()))
-    if (args["verbose"] >= 1 and hit) or (args["verbose"] == 3):
-        print("")
-        print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+")
-
 
 def unzero(v):
     if v == 0:
@@ -518,23 +329,3 @@ def metrics_for_project(project_path):
                 full_path = os.path.normpath(os.path.join(root, name))
                 ans[full_path[len(project_path)+1:]] = metrics_for_file(full_path)
     return ans
-
-
-def main():
-    args = parseArgs()
-    regularLines = None
-    comments = None
-    
-    with open(args["sourcefile"][0], 'r', encoding='latin-1') as f:
-        source = f.read().splitlines()
-        (regularLines, comments) = CommentFilter().filterComments(source)
-    
-    fullFileMetrics = Halstead(regularLines)
-    if args["showFileMetrics"]:
-        Halstead.printStatistics([fullFileMetrics.getValuesVector()])
-    
-    for comment in comments:
-        analyzeComment(comment, regularLines, args)
-
-if __name__ == "__main__":
-    metrics_for_project(r"C:\Temp\commons-beanutils")
