@@ -43,7 +43,10 @@ class JavaParserFileAnalyser(FileAnalyser):
         parser_dir = os.path.join(repository_data, java_parser, project_name)
         parser_dir = Config.get_work_dir_path(parser_dir)
         Config.assert_dir_exists(parser_dir)
-        path = os.path.join(parser_dir, version_name.replace(os.path.sep, '_'))
+        name = project_name
+        if version_name:
+            name = version_name.replace(os.path.sep, '_')
+        path = os.path.join(parser_dir, name)
         return path
 
     @staticmethod
@@ -58,7 +61,9 @@ class JavaParserFileAnalyser(FileAnalyser):
         runner = os.path.join(base_dir, Config().config["EXTERNALS"]["JavaParser"])
         outdir = tempfile.mkdtemp()
         outpath = os.path.join(outdir, "sourceCodeInformation.csv")
+        # commands = ["java", "-jar", runner.replace("\\\\?\\", ""), "-i", local_path, "-o", outdir]
         commands = ["java", '-Xmx4096m', "-jar", runner.replace("\\\\?\\", ""), "-i", local_path, "-o", outdir]
+
         status = run(commands)
         status.check_returncode()
         parser_df = pd.read_csv(outpath, delimiter=";")

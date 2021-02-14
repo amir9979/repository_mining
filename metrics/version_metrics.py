@@ -254,7 +254,9 @@ class Designite(Extractor):
         Config.assert_dir_exists(out_dir)
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
+        # commands = ["java", "-jar", designite_runner, "-i", local_path, "-o", out_dir]
         commands = ["java", '-Xmx4096m', "-jar", designite_runner, "-i", local_path, "-o", out_dir]
+
         try:
             run(commands, timeout=TIMEOUT)
         except:
@@ -460,6 +462,7 @@ class CK(Extractor):
     @staticmethod
     def _execute_command(ck_runner, local_path, out_dir):
         project_path = os.path.join(os.getcwd(), local_path)
+        # command = ["java", "-jar", ck_runner, project_path, "True"]
         command = ["java", '-Xmx4096m', "-jar", ck_runner, project_path, "True"]
         try:
             run(command, cwd=out_dir, timeout=TIMEOUT)
@@ -501,7 +504,9 @@ class Mood(Extractor):
 
     @staticmethod
     def _execute_command(mood_runner, local_path, out_dir):
+        # command = ["java", "-jar", mood_runner, local_path, out_dir]
         command = ["java", '-Xmx4096m', "-jar", mood_runner, local_path, out_dir]
+
         try:
             run(command, timeout=TIMEOUT)
         except:
@@ -554,7 +559,9 @@ class Jasome(Extractor):
 
     @staticmethod
     def _execute_command(jasome_runner, local_path, out_path_to_xml):
+        # command = ["java", "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
         command = ["java", '-Xmx4096m', "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
+
         try:
             run(command, timeout=TIMEOUT)
         except:
