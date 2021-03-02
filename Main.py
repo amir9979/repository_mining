@@ -348,7 +348,7 @@ class Main():
                                                                                                      '[checkstyle, designite_design, designite_implementation, '
                                                                                                      'designite_type_organic, designite_method_organic, designite_type_metrics,'
                                                                                                      'designite_method_metrics, source_monitor_files, source_monitor, ck, mood, halstead,'
-                                                                                                     'jasome_files, jasome_methods, process_files, issues_files]. You can use the files under externals\configurations', default=r"externals\configurations\all.json")
+                                                                                                     'jasome_files, jasome_methods, process_files, issues_files]. You can use the files under externals\configurations', default=r"externals\configurations\default.json")
         parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=0, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=3, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")

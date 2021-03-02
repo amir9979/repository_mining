@@ -1,1 +1,1 @@
-["source_monitor", "process_files", "checkstyle", "halstead", "source_monitor_files", "ck", "mood", "jasome_files", "jasome_methods", "issues_product", "issues_process", "jasome_mood", "jasome_ck", "jasome_lk"]
+["process_files", "checkstyle", "halstead", "jasome_files", "issues_product", "issues_process", "jasome_mood", "jasome_ck", "jasome_lk"]
