@@ -233,10 +233,13 @@ class Main():
                 traceback.print_exc()
                 print(r"extractor {0} failed".format(extractor.__class__.__name__))
         classes_df, methods_df = db.build()
-        aggregated_methods_df = self.aggrate_methods_df(methods_df)
-        methods_df = self.fillna(methods_df)
-        aggregated_classes_df = self.merge_aggregated_methods_to_class(aggregated_methods_df, classes_df)
+        try:
+            aggregated_methods_df = self.aggrate_methods_df(methods_df)
+            aggregated_classes_df = self.merge_aggregated_methods_to_class(aggregated_methods_df, classes_df)
+        except:
+            aggregated_classes_df = classes_df
         classes_df = self.fillna(classes_df)
+        methods_df = self.fillna(methods_df)
         methods_df = methods_df.drop('File', axis=1, errors='ignore')
         methods_df = methods_df.drop('Class', axis=1, errors='ignore')
         methods_df = methods_df.drop('Method', axis=1, errors='ignore')
