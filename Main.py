@@ -238,11 +238,15 @@ class Main():
             aggregated_classes_df = self.merge_aggregated_methods_to_class(aggregated_methods_df, classes_df)
         except:
             aggregated_classes_df = classes_df
+            aggregated_methods_df = methods_df
         classes_df = self.fillna(classes_df)
-        methods_df = self.fillna(methods_df)
-        methods_df = methods_df.drop('File', axis=1, errors='ignore')
-        methods_df = methods_df.drop('Class', axis=1, errors='ignore')
-        methods_df = methods_df.drop('Method', axis=1, errors='ignore')
+        try:
+            methods_df = self.fillna(methods_df)
+            methods_df = methods_df.drop('File', axis=1, errors='ignore')
+            methods_df = methods_df.drop('Class', axis=1, errors='ignore')
+            methods_df = methods_df.drop('Method', axis=1, errors='ignore')
+        except:
+            pass
         self.save_dfs(classes_df, methods_df, aggregated_classes_df, aggregated_methods_df, version)
         return classes_df, methods_df, aggregated_classes_df
 
@@ -257,7 +261,10 @@ class Main():
 
     def save_to_csv(self, df, path):
         Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
-        df.to_csv(path, index=False, sep=';')
+        try:
+            df.to_csv(path, index=False, sep=';')
+        except:
+            pass
 
     def save_dfs(self, classes_df, methods_df, aggregated_classes_df, aggregated_methods_df, version):
         classes_data, method_data, classes_intermediate_dir, methods_intermediate_dir, intermediate_dir = self.get_data_dirs()
