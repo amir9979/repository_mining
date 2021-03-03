@@ -327,6 +327,7 @@ class DataExtractor(object):
                 commit_text = DataExtractor._clean_commit_message(git_commit.message)
             except Exception as e:
                 continue
+            ind = 0
             for ind, (issue_id, date) in enumerate(issues_dates):
                 date_ = date
                 if date_.tzinfo:
