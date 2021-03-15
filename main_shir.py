@@ -64,7 +64,7 @@ class GetCommit:
 
     def __init__(self, url, start_index, end_index):
         self.URL = url
-        self.connect = Repo(self.URL)
+        self.connect = Repo(self.URL, search_parent_directories=True)
         assert not self.connect.bare
         self.list_of_commit = self.get_all_commit(start_index, end_index)
 
