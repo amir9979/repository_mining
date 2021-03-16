@@ -53,7 +53,7 @@ def write(contents, commit, file, name="after"):
     if name == "before":
         if not os.path.exists('apache_repos/' + NAME_PROJECT + '/' + str(commit)):
             os.mkdir('apache_repos/' + NAME_PROJECT + '/' + str(commit))
-         if not os.path.exists('apache_repos/' + NAME_PROJECT + '/' + str(commit) + "/" + file):
+        if not os.path.exists('apache_repos/' + NAME_PROJECT + '/' + str(commit) + "/" + file):
             os.mkdir('apache_repos/' + NAME_PROJECT + '/' + str(commit) + "/" + file)
 
     with open('apache_repos/' + NAME_PROJECT + '/' + str(
