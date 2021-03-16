@@ -11,7 +11,7 @@ NAME_PROJECT = "camel"
 
 def write_commit(list_of_commit):
     if not os.path.exists('./apache_repos/' + NAME_PROJECT):
-        os.mkdir('/apache_repos/' + NAME_PROJECT)
+        os.mkdir('./apache_repos/' + NAME_PROJECT)
     if len(list_of_commit) == 0:
         exit()
     for commit in list_of_commit:
@@ -49,11 +49,13 @@ def find_java_file(list_of_file):
 
 def write(contents, commit, file, name="after"):
     if name == "before":
-        if not os.path.exists('/apache_repos/' + NAME_PROJECT + '/' + str(commit)):
-            os.mkdir('/apache_repos/' + NAME_PROJECT + '/' + str(commit))
-        os.mkdir(str('/apache_repos/' + NAME_PROJECT + '/' + str(commit) + "/" + file)
+        if not os.path.exists('./apache_repos/' + NAME_PROJECT + '/' + str(commit)):
+            os.mkdir('./apache_repos/' + NAME_PROJECT + '/' + str(commit))
+        os.mkdir('./apache_repos/' + NAME_PROJECT + '/' + str(commit) + "/" + file)
 
-   with open('/apache_repos/' + NAME_PROJECT + '/' + str(commit) + "/" + file + "/" + name +".java", 'w') as file:
+    with open('./apache_repos/' + NAME_PROJECT + '/' + str(
+            commit) + "/" + file + "/" + name +
+              ".java", 'w') as file:
         for line in contents:
             file.write('%s' % line)
 
