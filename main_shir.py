@@ -53,9 +53,7 @@ def write(contents, commit, file, name="after"):
             os.mkdir('/apache_repos/' + NAME_PROJECT + '/' + str(commit))
         os.mkdir(str('/apache_repos/' + NAME_PROJECT + '/' + str(commit) + "/" + file)
 
-    with open('/apache_repos/' + NAME_PROJECT + '/' + str(
-            commit) + "/" + file + "/" + name +
-              ".java", 'w') as file:
+    with open('/apache_repos/' + NAME_PROJECT + '/' + str(commit) + "/" + file + "/" + name +".java", 'w') as file:
         for line in contents:
             file.write('%s' % line)
 
