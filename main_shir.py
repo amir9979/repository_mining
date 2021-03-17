@@ -13,6 +13,7 @@ def write_commit(list_of_commit):
     if not os.path.exists('apache_repos'):
         os.mkdir('apache_repos')
         os.mkdir('apache_repos/' + NAME_PROJECT)
+        Repo.init('apache_repos/' + NAME_PROJECT)
         
     if len(list_of_commit) == 0:
         exit()
