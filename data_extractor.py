@@ -26,7 +26,7 @@ class DataExtractor(object):
         self.github_name = self.project.github_name
         self.repo = Repo(self.project)
         self.git_repo = git.Repo(self.project.path)
-        self.head_commit = self.git_repo.head.commit.hexsha
+#         self.head_commit = self.git_repo.head.commit.hexsha
         # self.git_repo.git.checkout(self.head_commit, force=True)
         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
         self.issues = None
