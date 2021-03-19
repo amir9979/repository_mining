@@ -82,8 +82,8 @@ class GetCommit:
 
 if __name__ == '__main__':
 
-    commits_start = int(sys.argv[1]) * 500
-    commits_end = commits_start + 500
+    commits_start = int(sys.argv[1]) * 100
+    commits_end = commits_start + 100
     obj_git = GetCommit('my-tools', commits_start, commits_end)
     write_commit(obj_git.list_of_commit)
     version_before = 'shir_' + str(commits_start)
