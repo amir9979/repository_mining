@@ -1,5 +1,6 @@
 import os
 import pathlib
+import pickle
 import sys
 from git import Repo
 from Main import Main
@@ -60,8 +61,7 @@ def write(contents, commit, file, name="after"):
     with open('apache_repos/' + NAME_PROJECT + '/' + str(
             commit) + "/" + file + "/" + name +
               ".java", 'w') as file:
-        for line in contents:
-            file.write('%s' % line)
+        file.write('\n'.join(contents))
 
 
 class GetCommit:
@@ -85,6 +85,7 @@ if __name__ == '__main__':
     commits_start = int(sys.argv[1]) * 100
     commits_end = commits_start + 100
     obj_git = GetCommit('my-tools', commits_start, commits_end)
+    # obj_git = GetCommit('C:/Users/shir0/camel', commits_start, commits_end)
     write_commit(obj_git.list_of_commit)
     version_before = 'shir_' + str(commits_start)
     main = Main()
