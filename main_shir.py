@@ -18,8 +18,6 @@ def extract_files_commits(obj_git):
         d = d.replace('"', '').replace('\n\n', '\n').split('\n')
         sha, parent = d[0].split(" parents: ")
         commit_sha = sha
-        if len(parent.split(" ")) > 1:
-            print(f"{commit_sha}")
         comms[commit_sha] = [parent.split(" "), []]
         for x in d[1:-1]:
             try:
@@ -97,7 +95,7 @@ def write(contents, commit, file, name="after"):
     with open('apache_repos/' + NAME_PROJECT + '/' + str(
             commit) + "/" + file + "/" + name +
               ".java", 'w') as file:
-        file.write('\n'.join(contents))
+        file.write(''.join(contents))
 
 
 class GetCommit:
@@ -117,8 +115,8 @@ class GetCommit:
 
 
 if __name__ == '__main__':
-    commits_start = int(sys.argv[1]) * 500
-    commits_end = commits_start + 500
+    commits_start = int(sys.argv[1]) * 1
+    commits_end = commits_start + 1
     obj_git = GetCommit('my-tools', commits_start, commits_end)
     # obj_git = GetCommit('C:/Users/shir0/camel', commits_start, commits_end)
 
