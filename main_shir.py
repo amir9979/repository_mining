@@ -117,8 +117,8 @@ class GetCommit:
 
 
 if __name__ == '__main__':
-    commits_start = int(sys.argv[1]) * 1
-    commits_end = commits_start + 1
+    commits_start = int(sys.argv[1]) * 500
+    commits_end = commits_start + 500
     obj_git = GetCommit('my-tools', commits_start, commits_end)
     # obj_git = GetCommit('C:/Users/shir0/camel', commits_start, commits_end)
 
