@@ -36,6 +36,7 @@ TIMEOUT = 10 * 60
 
 
 def execute_timeout(commands, cwd=None):
+    print(commands)
     with Popen(commands, cwd=cwd) as proc:
         try:
             proc.communicate(timeout=TIMEOUT)
