@@ -125,7 +125,6 @@ if __name__ == '__main__':
     commits, files = extract_files_commits(obj_git)
     write_commit(commits, commits_start, commits_end)
     version_before = 'shir_' + str(commits_start)
-    exit()
     main = Main()
     main.set_project(NAME_PROJECT, "", NAME_PROJECT.upper(), "http://issues.apache.org/jira")
     data_types = ["checkstyle", "halstead", "designite_design", "ck", "designite_implementation"]
