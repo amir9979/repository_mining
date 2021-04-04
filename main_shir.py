@@ -18,8 +18,6 @@ def extract_files_commits(obj_git):
         d = d.replace('"', '').replace('\n\n', '\n').split('\n')
         sha, parent = d[0].split(" parents: ")
         commit_sha = sha
-        if len(parent.split(" ")) > 1:
-            print(f"{commit_sha}")
         comms[commit_sha] = [parent.split(" "), []]
         for x in d[1:-1]:
             try:
