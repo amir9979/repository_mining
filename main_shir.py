@@ -117,11 +117,11 @@ class GetCommit:
 
 
 if __name__ == '__main__':
-    commits_start = int(sys.argv[1]) * 100
-    commits_end = commits_start + 100
+    window_ind = int(sys.argv[1])
+    window_size = int(sys.argv[2])
+    commits_start = window_ind * window_size
+    commits_end = commits_start + window_size
     obj_git = GetCommit('my-tools', commits_start, commits_end)
-    # obj_git = GetCommit('C:/Users/shir0/camel', commits_start, commits_end)
-
     commits, files = extract_files_commits(obj_git)
     write_commit(commits, commits_start, commits_end)
     version_before = 'shir_' + str(commits_start)
