@@ -32,7 +32,7 @@ from metrics.version_metrics_name import DataType
 from typing import List
 import psutil
 
-TIMEOUT = 10 # * 60
+TIMEOUT = 30 * 60
 
 
 def execute_timeout(commands, cwd=None):
