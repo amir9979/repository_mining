@@ -18,7 +18,7 @@ from metrics.version_metrics_data import (
     CompositeData, HalsteadData, CKData, SourceMonitorFilesData, SourceMonitorData, DesigniteDesignSmellsData,
     DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData,
     DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData, BuggedMethodData, MoodData,
-    JasomeFilesData, JasomeMethodsData, ProcessData, IssuesData, JasomeMoodData, JasomeCKData, JasomeLKData)
+    JasomeFilesData, JasomeMethodsData, ProcessData, IssuesProcessData, IssuesProductData, JasomeMoodData, JasomeCKData, JasomeLKData)
 from projects import Project
 from repo import Repo
 from .commented_code_detector import metrics_for_project, CommentFilter
@@ -600,7 +600,7 @@ class Jasome(Extractor):
 
 class ProcessExtractor(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("ProcessExtractor", project, version, [DataType.ProcessFilesDataType, DataType.IssuesFilesDataType], repo)
+        super().__init__("ProcessExtractor", project, version, [DataType.ProcessFilesDataType, DataType.IssuesProcessDataType, DataType.IssuesProductDataType], repo)
 
     def _set_data(self):
         self.data = CompositeData()
@@ -642,7 +642,7 @@ class ProcessExtractor(Extractor):
             data[name] = self._extract_process_features(file_df)
             issues_data[name] = self._extract_issues_features(file_df, issues_df, self._get_blame_data(file_name))
         # extract the following features:
-        self.data.add(ProcessData(self.project, self.version, data=data)).add(IssuesData(self.project, self.version, data=issues_data))
+        self.data.add(ProcessData(self.project, self.version, data=data)).add(IssuesProductData(self.project, self.version, data=issues_data)).add(IssuesProcessData(self.project, self.version, data=issues_data))
 
     def _get_blame_data(self, file_name):
         repo = git.Repo(self.local_path)

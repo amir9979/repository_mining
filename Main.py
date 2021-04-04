@@ -234,13 +234,20 @@ class Main():
                 traceback.print_exc()
                 print(r"extractor {0} failed".format(extractor.__class__.__name__))
         classes_df, methods_df = db.build()
-        aggregated_methods_df = self.aggrate_methods_df(methods_df)
-        methods_df = self.fillna(methods_df)
-        aggregated_classes_df = self.merge_aggregated_methods_to_class(aggregated_methods_df, classes_df)
+        try:
+            aggregated_methods_df = self.aggrate_methods_df(methods_df)
+            aggregated_classes_df = self.merge_aggregated_methods_to_class(aggregated_methods_df, classes_df)
+        except:
+            aggregated_classes_df = classes_df
+            aggregated_methods_df = methods_df
         classes_df = self.fillna(classes_df)
-        methods_df = methods_df.drop('File', axis=1, errors='ignore')
-        methods_df = methods_df.drop('Class', axis=1, errors='ignore')
-        methods_df = methods_df.drop('Method', axis=1, errors='ignore')
+        try:
+            methods_df = self.fillna(methods_df)
+            methods_df = methods_df.drop('File', axis=1, errors='ignore')
+            methods_df = methods_df.drop('Class', axis=1, errors='ignore')
+            methods_df = methods_df.drop('Method', axis=1, errors='ignore')
+        except:
+            pass
         self.save_dfs(classes_df, methods_df, aggregated_classes_df, aggregated_methods_df, version)
         return classes_df, methods_df, aggregated_classes_df
 
@@ -255,7 +262,10 @@ class Main():
 
     def save_to_csv(self, df, path):
         Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
-        df.to_csv(path, index=False, sep=';')
+        try:
+            df.to_csv(path, index=False, sep=';')
+        except:
+            pass
 
     def save_dfs(self, classes_df, methods_df, aggregated_classes_df, aggregated_methods_df, version):
         classes_data, method_data, classes_intermediate_dir, methods_intermediate_dir, intermediate_dir = self.get_data_dirs()
@@ -349,7 +359,7 @@ class Main():
                                                                                                      '[checkstyle, designite_design, designite_implementation, '
                                                                                                      'designite_type_organic, designite_method_organic, designite_type_metrics,'
                                                                                                      'designite_method_metrics, source_monitor_files, source_monitor, ck, mood, halstead,'
-                                                                                                     'jasome_files, jasome_methods, process_files, issues_files]. You can use the files under externals\configurations', default=r"externals\configurations\all.json")
+                                                                                                     'jasome_files, jasome_methods, process_files, issues_files]. You can use the files under externals\configurations', default=r"externals\configurations\default.json")
         parser.add_argument('-s', '--select_verions', dest='select', action='store', help='the configuration to choose', default=0, type=int)
         parser.add_argument('-n', '--num_verions', dest='num_versions', action='store', help='the number of versions to select', default=3, type=int)
         parser.add_argument('-t', '--versions_type', dest='versions_type', action='store', help='the versions type to select', default="Untyped")

@@ -578,9 +578,20 @@ class ProcessData(Data):
         return df.rename(columns={"id": "File"})
 
 
-class IssuesData(Data):
+class IssuesProductData(Data):
     def __init__(self, project, version, data=None):
-        self.data_type = DataType.IssuesFilesDataType.value
+        self.data_type = DataType.IssuesProductDataType.value
+        self.raw_data = data
+        super().__init__(project, version)
+
+    def build(self, values, column_names):
+        df = super().build(values, column_names)
+        return df.rename(columns={"id": "File"})
+
+
+class IssuesProcessData(Data):
+    def __init__(self, project, version, data=None):
+        self.data_type = DataType.IssuesProcessDataType.value
         self.raw_data = data
         super().__init__(project, version)
 
