@@ -1,7 +1,7 @@
 import os
 import json
 from abc import ABC, abstractmethod
-from subprocess import run
+from subprocess import run, Popen
 from xml.etree import ElementTree
 from datetime import datetime
 import pandas as pd
@@ -31,7 +31,7 @@ from .java_analyser import JavaParserFileAnalyser
 from metrics.version_metrics_name import DataType
 from typing import List
 
-TIMEOUT = 30 * 60
+TIMEOUT = 10 * 60
 
 
 class Extractor(ABC):
