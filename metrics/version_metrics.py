@@ -1,7 +1,7 @@
 import os
 import json
 from abc import ABC, abstractmethod
-from subprocess import run, Popen
+from subprocess import run, Popen, TimeoutExpired
 from xml.etree import ElementTree
 from datetime import datetime
 import pandas as pd
@@ -30,8 +30,24 @@ from metrics.rsc.designite_smells import (
 from .java_analyser import JavaParserFileAnalyser
 from metrics.version_metrics_name import DataType
 from typing import List
+import psutil
 
 TIMEOUT = 10 * 60
+
+
+def execute_timeout(commands, cwd=None):
+    with Popen(commands, cwd=cwd) as proc:
+        try:
+            proc.communicate(timeout=TIMEOUT)
+        except TimeoutExpired:
+            try:
+                proc.kill()
+                proc.terminate()
+                psutil.Process(proc.pid)
+            except:
+                pass
+        except:
+            pass
 
 
 class Extractor(ABC):
@@ -161,10 +177,7 @@ class Checkstyle(Extractor):
                     "-f", "xml",
                     "-o", out_path_to_xml.replace("\\\\?\\", ""),
                     local_path]
-        try:
-            run(commands, timeout=TIMEOUT)
-        except:
-            pass
+        execute_timeout(commands)
         return out_path_to_xml
 
     def _process_checkstyle_data(self, out_path_to_xml):
@@ -256,11 +269,7 @@ class Designite(Extractor):
             os.makedirs(out_dir)
         # commands = ["java", "-jar", designite_runner, "-i", local_path, "-o", out_dir]
         commands = ["java", '-Xmx4096m', "-jar", designite_runner, "-i", local_path, "-o", out_dir]
-
-        try:
-            run(commands, timeout=TIMEOUT)
-        except:
-            pass
+        execute_timeout(commands)
         return out_dir
 
     def _extract_design_code_smells(self):
@@ -385,10 +394,7 @@ class SourceMonitor(Extractor):
         xml_path = os.path.join(out_dir, "sourceMonitor.xml")
         with open(xml_path, "w") as f:
             f.write(xml)
-        try:
-            run([source_monitor_runner, "/C", xml_path], timeout=TIMEOUT)
-        except:
-            pass
+        execute_timeout([source_monitor_runner, "/C", xml_path])
         return out_dir
 
     def _process_metrics(self):
@@ -462,12 +468,9 @@ class CK(Extractor):
     @staticmethod
     def _execute_command(ck_runner, local_path, out_dir):
         project_path = os.path.join(os.getcwd(), local_path)
-        # command = ["java", "-jar", ck_runner, project_path, "True"]
-        command = ["java", '-Xmx4096m', "-jar", ck_runner, project_path, "True"]
-        try:
-            run(command, cwd=out_dir, timeout=TIMEOUT)
-        except:
-            pass
+        # commands = ["java", "-jar", ck_runner, project_path, "True"]
+        commands = ["java", '-Xmx4096m', "-jar", ck_runner, project_path, "True"]
+        execute_timeout(commands)
         return out_dir
 
     def _process_metrics(self):
@@ -504,13 +507,9 @@ class Mood(Extractor):
 
     @staticmethod
     def _execute_command(mood_runner, local_path, out_dir):
-        # command = ["java", "-jar", mood_runner, local_path, out_dir]
-        command = ["java", '-Xmx4096m', "-jar", mood_runner, local_path, out_dir]
-
-        try:
-            run(command, timeout=TIMEOUT)
-        except:
-            pass
+        # commands = ["java", "-jar", mood_runner, local_path, out_dir]
+        commands = ["java", '-Xmx4096m', "-jar", mood_runner, local_path, out_dir]
+        execute_timeout(commands)
 
     def _process_metrics(self):
         with open(os.path.join(self.out_dir, "_metrics.json")) as file:
@@ -559,13 +558,9 @@ class Jasome(Extractor):
 
     @staticmethod
     def _execute_command(jasome_runner, local_path, out_path_to_xml):
-        # command = ["java", "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
-        command = ["java", '-Xmx4096m', "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
-
-        try:
-            run(command, timeout=TIMEOUT)
-        except:
-            pass
+        # commands = ["java", "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
+        commands = ["java", '-Xmx4096m', "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
+        execute_timeout(commands)
 
     def _process_metrics(self):
         from metrics.jasome_xml_parser import parse
