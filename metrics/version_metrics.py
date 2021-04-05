@@ -484,7 +484,7 @@ class CK(Extractor):
         project_path = os.path.join(os.getcwd(), local_path)
         # commands = ["java", "-jar", ck_runner, project_path, "True"]
         commands = ["java", '-Xmx4096m', "-jar", ck_runner, project_path, "True"]
-        execute_timeout(commands)
+        execute_timeout(commands, cwd=out_dir)
         return out_dir
 
     def _process_metrics(self):

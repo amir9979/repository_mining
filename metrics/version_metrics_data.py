@@ -236,8 +236,7 @@ class CheckstyleFileData(Data):
     def build(self, values, column_names):
         df = super().build(values, column_names)
         id = df['id'].iteritems()
-        files_id = tee(id, 1)
-        files = pd.Series(list(map(lambda x: x[1], files_id))).values
+        files = pd.Series(list(map(lambda x: x[1], id))).values
         df = df.drop(columns='id')
         df.insert(0, 'File',  files)
         df = df.rename(columns=column_names)

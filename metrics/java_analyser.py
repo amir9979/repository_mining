@@ -107,9 +107,11 @@ class JavaParserFileAnalyser(FileAnalyser):
         for _, file_path, package_name, type_name, method_name, parameters, start_line, end_line in self.parser_df[
             ["File Path", 'Package Name', "Type Name", "Method Name", "Parameters", 'Method Beginning Line', 'Method Ending Line']].itertuples():
             lower_name = file_path.lower()
+            relative = lower_name.replace(self.local_path.lower() + os.sep, '')
             id = file_path + '@' + package_name + "." + type_name + "." + method_name + parameters
             id = id.lower()
             methods_ans.setdefault(lower_name, []).append((start_line, end_line, id))
+            methods_ans.setdefault(relative, []).append((start_line, end_line, id))
         return methods_ans
 
     def get_closest_id(self, file_name, line=0):
@@ -130,9 +132,7 @@ class JavaParserFileAnalyser(FileAnalyser):
     def get_file_path_by_designite(self, file_path, package_name, type_name, method_name=None):
         if method_name is not None:
             return self.designite_closest_dict.get((file_path, package_name, type_name, method_name))
-        if file_path in self.parser_df["File Path"].to_list():
-            return file_path
-        return None
+        return file_path
 
     def _get_classes_path(self):
             classes_path = dict()
