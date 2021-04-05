@@ -5,6 +5,7 @@ import sys
 from git import Repo
 from Main import Main
 from commit import Commit
+from pathlib import Path
 
 # LOCATION_PROJECT = "C:/Users/shir0/camel"
 NAME_PROJECT = "camel"
@@ -47,10 +48,8 @@ def extract_files_commits(obj_git):
 
 
 def write_commit(list_of_commit, commits_start, commits_end):
-    if not os.path.exists('apache_repos'):
-        os.mkdir('apache_repos')
-        os.mkdir('apache_repos/' + NAME_PROJECT)
-        Repo.init('apache_repos/' + NAME_PROJECT)
+    Path('apache_repos/' + NAME_PROJECT).mkdir(parents=True, exist_ok=True)
+    Repo.init('apache_repos/' + NAME_PROJECT)
 
     if len(list_of_commit) == 0:
         exit()
