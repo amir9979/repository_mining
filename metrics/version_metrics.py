@@ -31,20 +31,29 @@ from .java_analyser import JavaParserFileAnalyser
 from metrics.version_metrics_name import DataType
 from typing import List
 import psutil
+from threading import Timer
 
 TIMEOUT = 30 * 60
+
+
+def kill_proc(proc):
+    proc.kill()
+    proc.terminate()
+    psutil.Process(proc.pid)
 
 
 def execute_timeout(commands, cwd=None):
     print(commands)
     with Popen(commands, cwd=cwd) as proc:
         try:
+            timer = Timer(TIMEOUT, lambda : kill_proc(proc))
+            timer.start()
             proc.communicate(timeout=TIMEOUT)
+            timer.cancel()
         except TimeoutExpired:
             try:
-                proc.kill()
-                proc.terminate()
-                psutil.Process(proc.pid)
+                kill_proc(proc)
+                timer.cancel()
             except:
                 pass
         except:
