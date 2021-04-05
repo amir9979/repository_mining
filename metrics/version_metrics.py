@@ -17,7 +17,7 @@ from metrics.version_metrics_data import (
     Data,
     CompositeData, HalsteadData, CKData, SourceMonitorFilesData, SourceMonitorData, DesigniteDesignSmellsData,
     DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData,
-    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData, BuggedMethodData, MoodData,
+    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleFileData, CheckstyleMethodData, BuggedData, BuggedMethodData, MoodData,
     JasomeFilesData, JasomeMethodsData, ProcessData, IssuesProcessData, IssuesProductData, JasomeMoodData, JasomeCKData, JasomeLKData)
 from projects import Project
 from repo import Repo
@@ -158,18 +158,20 @@ class BuggedMethods(Extractor):
 
 class Checkstyle(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("Checkstyle", project, version, [DataType.CheckstyleDataType], repo)
+        super().__init__("Checkstyle", project, version, [DataType.CheckstyleFileDataType, DataType.CheckstyleMethodDataType], repo)
         self.out_path_to_xml = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Checkstyle'])))
 
     def _set_data(self):
-        self.data = CheckstyleData(self.project, self.version)
+        # self.data = CheckstyleData(self.project, self.version)
+        self.data = CompositeData()
 
     def _extract(self):
         all_checks_xml = self._get_all_checks_xml(self.config)
         self._execute_command(self.runner, all_checks_xml, self.local_path, self.out_path_to_xml.replace("\\\\?\\", ""))
-        checkstyle = self._process_checkstyle_data(self.out_path_to_xml)
-        self.data.set_raw_data(checkstyle)
+        checkstyle_files, checkstyle_methods = self._process_checkstyle_data(self.out_path_to_xml)
+        self.data.add(CheckstyleFileData(self.project, self.version, data=checkstyle_files))\
+            .add(CheckstyleMethodData(self.project, self.version, data=checkstyle_methods))
 
     @staticmethod
     def _get_all_checks_xml(config):
@@ -191,9 +193,12 @@ class Checkstyle(Extractor):
         return out_path_to_xml
 
     def _process_checkstyle_data(self, out_path_to_xml):
-        files = {}
-        tmp = {}
-        keys = set()
+        checkstyle_methods = {}
+        checkstyle_files = {}
+        methods_keys = set()
+        files_keys = set()
+        methods_ = {}
+        files_ = {}
         with open(out_path_to_xml, "r", encoding="utf-8") as file:
             root = ElementTree.parse(file).getroot()
             for file_element in root:
@@ -203,16 +208,16 @@ class Checkstyle(Extractor):
                     continue
                 if not filepath.endswith(".java"):
                     continue
-                items, tmp, keys = self._get_items(file_element, os.path.realpath(filepath), tmp, keys)
-                files[filepath] = items
-        checkstyle = {}
-        for method_id in tmp:
-            checkstyle[method_id] = dict.fromkeys(keys, 0)
-            checkstyle[method_id].update(tmp[method_id])
-        return checkstyle
+                files_, files_keys, methods_, methods_keys = self._get_items(file_element, os.path.realpath(filepath), files_, files_keys, methods_, methods_keys)
+        for method_id in methods_:
+            checkstyle_methods[method_id] = dict.fromkeys(methods_keys, 0)
+            checkstyle_methods[method_id].update(methods_[method_id])
+        for file_id in files_:
+            checkstyle_files[file_id] = dict.fromkeys(files_keys, 0)
+            checkstyle_files[file_id].update(files_[file_id])
+        return checkstyle_files, checkstyle_methods
 
-    def _get_items(self, file_element, file_path, tmp, keys):
-        items = []
+    def _get_items(self, file_element, file_path, files_, files_keys, methods_, methods_keys):
         for errorElement in file_element:
             line = int(errorElement.attrib['line'])
             if "max allowed" not in errorElement.attrib['message']:
@@ -229,19 +234,16 @@ class Checkstyle(Extractor):
                         .split('(')[0] \
                         .split()[-1] \
                         .strip())
-            items.append({
-                'line': line,
-                'key': key,
-                'value': value,
-                'file': file_path[len(os.path.realpath(self.local_path))+1:],
-            })
-            keys.add(key)
             method_id = self.file_analyser.get_closest_id(file_path, line)
             if method_id:
                 if "npath" in key.lower():
                     value = min(10000, int(value))
-                tmp.setdefault(method_id, dict())[key] = value
-        return file_element, tmp, keys
+                methods_.setdefault(method_id, dict())[key] = value
+                methods_keys.add(key)
+            else:
+                files_.setdefault(file_path.lower(), dict())[key] = value
+                files_keys.add(key)
+        return files_, files_keys, methods_, methods_keys
 
 
 class Designite(Extractor):

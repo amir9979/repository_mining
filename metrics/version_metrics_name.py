@@ -3,7 +3,8 @@ from typing import List
 
 
 class DataType(Enum):
-    CheckstyleDataType = "checkstyle"
+    CheckstyleMethodDataType = "checkstyle_methods"
+    CheckstyleFileDataType = "checkstyle_files"
     DesigniteDesignSmellsDataType = "designite_design"
     DesigniteImplementationSmellsDataType = "designite_implementation"
     DesigniteOrganicTypeSmellsDataType = "designite_type_organic"
@@ -113,27 +114,27 @@ class DataNameEnum(Enum):
     CyclomaticComplexity_Designite = DataName("CyclomaticComplexity_Designite", DataType.DesigniteMethodMetricsDataType, "CC")
     NumberOfParameters_Designite = DataName("NumberOfParameters_Designite", DataType.DesigniteMethodMetricsDataType, "PC")
 
-    NCSSForThisFile = DataName("NCSSForThisFile", DataType.CheckstyleDataType, "NCSS_for_this_file")
-    NestedIfElseDepth = DataName("NestedIfElseDepth", DataType.CheckstyleDataType, "Nested_if-else_depth")
-    BooleanExpressionComplexity = DataName("BooleanExpressionComplexity", DataType.CheckstyleDataType, "Boolean_expression_complexity")
-    CyclomaticComplexity = DataName("CyclomaticComplexity", DataType.CheckstyleDataType, "Cyclomatic_Complexity")
-    NCSSForThisMethod = DataName("NCSSForThisMethod", DataType.CheckstyleDataType, "NCSS_for_this_method")
-    NPathComplexity = DataName("NPathComplexity", DataType.CheckstyleDataType, "NPath_Complexity")
-    ThrowsCount = DataName("ThrowsCount", DataType.CheckstyleDataType, "Throws_count")
-    NCSSForThisClass = DataName("NCSSForThisClass", DataType.CheckstyleDataType, "NCSS_for_this_class")
-    NumberOfProtectedMethod = DataName("NumberOfProtectedMethod", DataType.CheckstyleDataType, "Number_of_protected_methods")
-    NumberOfPackageMethod = DataName("NumberOfPackageMethod", DataType.CheckstyleDataType, "Number_of_package_methods")
-    NumberOfPrivateMethod = DataName("NumberOfPrivateMethod", DataType.CheckstyleDataType, "Number_of_private_methods")
-    ExecutableStatementCount = DataName("ExecutableStatementCount", DataType.CheckstyleDataType, "Executable_statement_count")
-    MethodLength = DataName("MethodLength", DataType.CheckstyleDataType, "Method_length")
-    FileLength = DataName("FileLength", DataType.CheckstyleDataType, "File_length")
-    AnonymousInnerClassLength = DataName("AnonymousInnerClassLength", DataType.CheckstyleDataType, "Anonymous_inner_class_length")
-    NumberOfMethods_Checkstyle = DataName("NumberOfMethods_Checkstyle", DataType.CheckstyleDataType, "Total_number_of_methods")
-    NumberOfPublicMethods_Checkstyle = DataName("NumberOfPublicMethods_Checkstyle", DataType.CheckstyleDataType, "Number_of_public_methods")
-    ClassFanOutComplexity = DataName("ClassFanOutComplexity", DataType.CheckstyleDataType, "Class_Fan-Out_Complexity")
-    NestedTryDepth = DataName("NestedTryDepth", DataType.CheckstyleDataType, "Nested_try_depth")
-    ClassDataAbstractionCoupling = DataName("ClassDataAbstractionCoupling", DataType.CheckstyleDataType, "Class_Data_Abstraction_Coupling")
-    NestedForDepth = DataName("NestedForDepth", DataType.CheckstyleDataType, "Nested_for_depth")
+    NCSSForThisFile = DataName("NCSSForThisFile", DataType.CheckstyleFileDataType, "NCSS_for_this_file")
+    NestedIfElseDepth = DataName("NestedIfElseDepth", DataType.CheckstyleMethodDataType, "Nested_if-else_depth")
+    BooleanExpressionComplexity = DataName("BooleanExpressionComplexity", DataType.CheckstyleMethodDataType, "Boolean_expression_complexity")
+    CyclomaticComplexity = DataName("CyclomaticComplexity", DataType.CheckstyleMethodDataType, "Cyclomatic_Complexity")
+    NCSSForThisMethod = DataName("NCSSForThisMethod", DataType.CheckstyleMethodDataType, "NCSS_for_this_method")
+    NPathComplexity = DataName("NPathComplexity", DataType.CheckstyleMethodDataType, "NPath_Complexity")
+    ThrowsCount = DataName("ThrowsCount", DataType.CheckstyleMethodDataType, "Throws_count")
+    NCSSForThisClass = DataName("NCSSForThisClass", DataType.CheckstyleFileDataType, "NCSS_for_this_class")
+    NumberOfProtectedMethod = DataName("NumberOfProtectedMethod", DataType.CheckstyleFileDataType, "Number_of_protected_methods")
+    NumberOfPackageMethod = DataName("NumberOfPackageMethod", DataType.CheckstyleFileDataType, "Number_of_package_methods")
+    NumberOfPrivateMethod = DataName("NumberOfPrivateMethod", DataType.CheckstyleFileDataType, "Number_of_private_methods")
+    ExecutableStatementCount = DataName("ExecutableStatementCount", DataType.CheckstyleMethodDataType, "Executable_statement_count")
+    MethodLength = DataName("MethodLength", DataType.CheckstyleMethodDataType, "Method_length")
+    FileLength = DataName("FileLength", DataType.CheckstyleFileDataType, "File_length")
+    AnonymousInnerClassLength = DataName("AnonymousInnerClassLength", DataType.CheckstyleFileDataType, "Anonymous_inner_class_length")
+    NumberOfMethods_Checkstyle = DataName("NumberOfMethods_Checkstyle", DataType.CheckstyleFileDataType, "Total_number_of_methods")
+    NumberOfPublicMethods_Checkstyle = DataName("NumberOfPublicMethods_Checkstyle", DataType.CheckstyleFileDataType, "Number_of_public_methods")
+    ClassFanOutComplexity = DataName("ClassFanOutComplexity", DataType.CheckstyleFileDataType, "Class_Fan-Out_Complexity")
+    NestedTryDepth = DataName("NestedTryDepth", DataType.CheckstyleMethodDataType, "Nested_try_depth")
+    ClassDataAbstractionCoupling = DataName("ClassDataAbstractionCoupling", DataType.CheckstyleFileDataType, "Class_Data_Abstraction_Coupling")
+    NestedForDepth = DataName("NestedForDepth", DataType.CheckstyleMethodDataType, "Nested_for_depth")
 
     SourceMonitorComplexity = DataName("SourceMonitorComplexity", DataType.SourceMonitorDataType, "Complexity")
     SourceMonitorStatements = DataName("SourceMonitorStatements", DataType.SourceMonitorDataType, "Statements")

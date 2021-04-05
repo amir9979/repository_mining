@@ -124,5 +124,5 @@ if __name__ == '__main__':
     version_before = 'shir_' + str(commits_start)
     main = Main()
     main.set_project(NAME_PROJECT, "", NAME_PROJECT.upper(), "http://issues.apache.org/jira")
-    data_types = ["checkstyle", "halstead", "designite_design", "ck", "designite_implementation", "jasome_mood", "jasome_ck", "jasome_lk", "jasome_files"]
+    data_types = ["checkstyle_files", "checkstyle_methods", "halstead", "designite_design", "ck", "designite_implementation", "jasome_mood", "jasome_ck", "jasome_lk", "jasome_files"]
     main.extract_features_to_version(version_before, False, data_types=data_types)
