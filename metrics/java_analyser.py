@@ -17,7 +17,7 @@ import psutil
 from threading import Timer
 from subprocess import run, Popen, TimeoutExpired
 
-TIMEOUT = 5 * 60
+TIMEOUT = 30 * 60
 
 
 def kill_proc(proc):
