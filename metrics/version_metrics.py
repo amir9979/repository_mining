@@ -33,7 +33,7 @@ from typing import List
 import psutil
 from threading import Timer
 
-TIMEOUT = 30 * 60
+TIMEOUT = 5 * 60
 
 
 def kill_proc(proc):

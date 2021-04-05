@@ -13,6 +13,37 @@ try:
 except:
     from javadiff.SourceFile import SourceFile
 
+import psutil
+from threading import Timer
+from subprocess import run, Popen, TimeoutExpired
+
+TIMEOUT = 5 * 60
+
+
+def kill_proc(proc):
+    proc.kill()
+    proc.terminate()
+    psutil.Process(proc.pid)
+
+
+def execute_timeout(commands, cwd=None):
+    print(commands)
+    with Popen(commands, cwd=cwd) as proc:
+        try:
+            timer = Timer(TIMEOUT, lambda : kill_proc(proc))
+            timer.start()
+            proc.communicate(timeout=TIMEOUT)
+            timer.cancel()
+        except TimeoutExpired:
+            try:
+                kill_proc(proc)
+                timer.cancel()
+            except:
+                pass
+        except:
+            pass
+
+
 
 class FileAnalyser(ABC):
     @abstractmethod
@@ -63,9 +94,7 @@ class JavaParserFileAnalyser(FileAnalyser):
         outpath = os.path.join(outdir, "sourceCodeInformation.csv")
         # commands = ["java", "-jar", runner.replace("\\\\?\\", ""), "-i", local_path, "-o", outdir]
         commands = ["java", '-Xmx4096m', "-jar", runner.replace("\\\\?\\", ""), "-i", local_path, "-o", outdir]
-
-        status = run(commands)
-        status.check_returncode()
+        execute_timeout(commands)
         parser_df = pd.read_csv(outpath, delimiter=";")
         shutil.copyfile(outpath, cache_path)
         shutil.rmtree(outdir)
