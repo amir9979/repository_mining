@@ -25,9 +25,6 @@ class DataExtractor(object):
         self.quick_mode = quick_mode
         self.github_name = self.project.github_name
         self.repo = Repo(self.project)
-        # self.git_repo = git.Repo(self.project.path)
-#         self.head_commit = self.git_repo.head.commit.hexsha
-        # self.git_repo.git.checkout(self.head_commit, force=True)
         self.issues = None
         self.commits = None
         self.versions = None
@@ -57,7 +54,10 @@ class DataExtractor(object):
             return int(json.loads(f.read())["selected_config"])
 
     def checkout_version(self, version):
-        self.git_repo.git.checkout(version.replace('\\', '/'), force=True)
+        git_repo = git.Repo(self.project.path)
+        version_names = list(map(lambda x: x.name, git_repo.tags))
+        if version.replace('\\', '/') in version_names:
+            git_repo.git.checkout(version.replace('\\', '/'), force=True)
 
     @staticmethod
     @cached('repo_versions')
@@ -72,11 +72,12 @@ class DataExtractor(object):
         return sorted(versions, key=lambda version: version._commit._commit_date)
 
     def _get_bugged_files_between_versions(self, versions=None, analyze_methods=False):
+        git_repo = git.Repo(self.project.path)
         if versions:
-            return DataExtractor.get_bugged_files_between_versions(self.commits, versions, self.quick_mode, self.git_repo, analyze_methods)
+            return DataExtractor.get_bugged_files_between_versions(self.commits, versions, self.quick_mode, git_repo, analyze_methods)
         else:
             return DataExtractor.get_bugged_files_all_versions(self.project, self.commits, self.versions, self.quick_mode,
-                                                                   self.git_repo, analyze_methods)
+                                                                   git_repo, analyze_methods)
 
     @staticmethod
     @cached("bugged_files_all_versions")
@@ -96,9 +97,10 @@ class DataExtractor(object):
         return sorted(tags, key=lambda x: x.version._commit._commit_date)
 
     def init_jira_commits(self):
+        git_repo = git.Repo(self.project.path)
         self.issues = get_issues_for_project(self.project)
-        self.commits = self._commits_and_issues(self.project, self.git_repo, self.issues)
-        self.versions = self.get_repo_versions(self.project, self.git_repo)
+        self.commits = self._commits_and_issues(self.project, git_repo, self.issues)
+        self.versions = self.get_repo_versions(self.project, git_repo)
         print("number of commits: ", len(self.commits))
         print("number of tags: ", len(self.versions))
         self.bugged_files_between_versions = self._get_bugged_files_between_versions()

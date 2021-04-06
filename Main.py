@@ -222,8 +222,7 @@ class Main():
         return df.dropna(axis=1)
 
     def extract_features_to_version(self, version, extract_bugs, data_types):
-        # TODO shir
-        # self.extractor.checkout_version(version)
+        self.extractor.checkout_version(version)
         db, extractors_to_run = self.get_extractors(data_types, extract_bugs, version)
         for extractor in extractors_to_run:
             start = time.time()
