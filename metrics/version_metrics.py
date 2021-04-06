@@ -1,7 +1,7 @@
 import os
 import json
 from abc import ABC, abstractmethod
-from subprocess import run
+from subprocess import run, Popen, TimeoutExpired
 from xml.etree import ElementTree
 from datetime import datetime
 import pandas as pd
@@ -17,7 +17,7 @@ from metrics.version_metrics_data import (
     Data,
     CompositeData, HalsteadData, CKData, SourceMonitorFilesData, SourceMonitorData, DesigniteDesignSmellsData,
     DesigniteImplementationSmellsData, DesigniteOrganicTypeSmellsData, DesigniteOrganicMethodSmellsData,
-    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleData, BuggedData, BuggedMethodData, MoodData,
+    DesigniteTypeMetricsData, DesigniteMethodMetricsData, CheckstyleFileData, CheckstyleMethodData, BuggedData, BuggedMethodData, MoodData,
     JasomeFilesData, JasomeMethodsData, ProcessData, IssuesProcessData, IssuesProductData, JasomeMoodData, JasomeCKData, JasomeLKData)
 from projects import Project
 from repo import Repo
@@ -30,8 +30,34 @@ from metrics.rsc.designite_smells import (
 from .java_analyser import JavaParserFileAnalyser
 from metrics.version_metrics_name import DataType
 from typing import List
+import psutil
+from threading import Timer
 
 TIMEOUT = 30 * 60
+
+
+def kill_proc(proc):
+    proc.kill()
+    proc.terminate()
+    psutil.Process(proc.pid)
+
+
+def execute_timeout(commands, cwd=None):
+    print(commands)
+    with Popen(commands, cwd=cwd) as proc:
+        try:
+            timer = Timer(TIMEOUT, lambda : kill_proc(proc))
+            timer.start()
+            proc.communicate(timeout=TIMEOUT)
+            timer.cancel()
+        except TimeoutExpired:
+            try:
+                kill_proc(proc)
+                timer.cancel()
+            except:
+                pass
+        except:
+            pass
 
 
 class Extractor(ABC):
@@ -44,7 +70,7 @@ class Extractor(ABC):
         self.config = Config().config
         self.runner = self._get_runner(self.config, extractor_name)
         if repo is None:
-            repo = Repo(project, version)
+            repo = Repo(project)
         self.local_path = os.path.realpath(repo.project.path)
         self.file_analyser = JavaParserFileAnalyser(self.local_path, self.project_name, self.version)
         self.data: Data = None
@@ -132,18 +158,20 @@ class BuggedMethods(Extractor):
 
 class Checkstyle(Extractor):
     def __init__(self, project: Project, version, repo=None):
-        super().__init__("Checkstyle", project, version, [DataType.CheckstyleDataType], repo)
+        super().__init__("Checkstyle", project, version, [DataType.CheckstyleFileDataType, DataType.CheckstyleMethodDataType], repo)
         self.out_path_to_xml = os.path.normpath(Config.get_work_dir_path(
             os.path.join(Config().config['CACHING']['RepositoryData'], Config().config['TEMP']['Checkstyle'])))
 
     def _set_data(self):
-        self.data = CheckstyleData(self.project, self.version)
+        # self.data = CheckstyleData(self.project, self.version)
+        self.data = CompositeData()
 
     def _extract(self):
         all_checks_xml = self._get_all_checks_xml(self.config)
         self._execute_command(self.runner, all_checks_xml, self.local_path, self.out_path_to_xml.replace("\\\\?\\", ""))
-        checkstyle = self._process_checkstyle_data(self.out_path_to_xml)
-        self.data.set_raw_data(checkstyle)
+        checkstyle_files, checkstyle_methods = self._process_checkstyle_data(self.out_path_to_xml)
+        self.data.add(CheckstyleFileData(self.project, self.version, data=checkstyle_files))\
+            .add(CheckstyleMethodData(self.project, self.version, data=checkstyle_methods))
 
     @staticmethod
     def _get_all_checks_xml(config):
@@ -161,16 +189,16 @@ class Checkstyle(Extractor):
                     "-f", "xml",
                     "-o", out_path_to_xml.replace("\\\\?\\", ""),
                     local_path]
-        try:
-            run(commands, timeout=TIMEOUT)
-        except:
-            pass
+        execute_timeout(commands)
         return out_path_to_xml
 
     def _process_checkstyle_data(self, out_path_to_xml):
-        files = {}
-        tmp = {}
-        keys = set()
+        checkstyle_methods = {}
+        checkstyle_files = {}
+        methods_keys = set()
+        files_keys = set()
+        methods_ = {}
+        files_ = {}
         with open(out_path_to_xml, "r", encoding="utf-8") as file:
             root = ElementTree.parse(file).getroot()
             for file_element in root:
@@ -180,16 +208,16 @@ class Checkstyle(Extractor):
                     continue
                 if not filepath.endswith(".java"):
                     continue
-                items, tmp, keys = self._get_items(file_element, os.path.realpath(filepath), tmp, keys)
-                files[filepath] = items
-        checkstyle = {}
-        for method_id in tmp:
-            checkstyle[method_id] = dict.fromkeys(keys, 0)
-            checkstyle[method_id].update(tmp[method_id])
-        return checkstyle
+                files_, files_keys, methods_, methods_keys = self._get_items(file_element, os.path.realpath(filepath), files_, files_keys, methods_, methods_keys)
+        for method_id in methods_:
+            checkstyle_methods[method_id] = dict.fromkeys(methods_keys, 0)
+            checkstyle_methods[method_id].update(methods_[method_id])
+        for file_id in files_:
+            checkstyle_files[file_id] = dict.fromkeys(files_keys, 0)
+            checkstyle_files[file_id].update(files_[file_id])
+        return checkstyle_files, checkstyle_methods
 
-    def _get_items(self, file_element, file_path, tmp, keys):
-        items = []
+    def _get_items(self, file_element, file_path, files_, files_keys, methods_, methods_keys):
         for errorElement in file_element:
             line = int(errorElement.attrib['line'])
             if "max allowed" not in errorElement.attrib['message']:
@@ -206,19 +234,16 @@ class Checkstyle(Extractor):
                         .split('(')[0] \
                         .split()[-1] \
                         .strip())
-            items.append({
-                'line': line,
-                'key': key,
-                'value': value,
-                'file': file_path[len(os.path.realpath(self.local_path))+1:],
-            })
-            keys.add(key)
             method_id = self.file_analyser.get_closest_id(file_path, line)
             if method_id:
                 if "npath" in key.lower():
                     value = min(10000, int(value))
-                tmp.setdefault(method_id, dict())[key] = value
-        return file_element, tmp, keys
+                methods_.setdefault(method_id, dict())[key] = value
+                methods_keys.add(key)
+            else:
+                files_.setdefault(file_path.lower(), dict())[key] = value
+                files_keys.add(key)
+        return files_, files_keys, methods_, methods_keys
 
 
 class Designite(Extractor):
@@ -254,18 +279,16 @@ class Designite(Extractor):
         Config.assert_dir_exists(out_dir)
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
+        # commands = ["java", "-jar", designite_runner, "-i", local_path, "-o", out_dir]
         commands = ["java", '-Xmx4096m', "-jar", designite_runner, "-i", local_path, "-o", out_dir]
-        try:
-            run(commands, timeout=TIMEOUT)
-        except:
-            pass
+        execute_timeout(commands)
         return out_dir
 
     def _extract_design_code_smells(self):
         path = os.path.join(self.out_dir, r"designCodeSmells.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["Package Name", "Type Name"]
+        keys_columns = ["File Path", "Package Name", "Type Name"]
         smells_columns = design_smells_list
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns)
@@ -276,7 +299,7 @@ class Designite(Extractor):
         path = os.path.join(self.out_dir, r"implementationCodeSmells.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["Package Name", "Type Name", "Method Name"]
+        keys_columns = ["File Path", "Package Name", "Type Name", "Method Name"]
         smells_columns = implementation_smells_list
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns)
@@ -287,7 +310,7 @@ class Designite(Extractor):
         path = os.path.join(self.out_dir, r"organicTypeCodeSmells.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["Package Name", "Type Name"]
+        keys_columns = ["File Path", "Package Name", "Type Name"]
         smells_columns = organic_type_smells_list
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns)
@@ -298,7 +321,7 @@ class Designite(Extractor):
         path = os.path.join(self.out_dir, r"organicMethodCodeSmells.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["Package Name", "Type Name", "Method Name"]
+        keys_columns = ["File Path", "Package Name", "Type Name", "Method Name"]
         smells_columns = organic_method_smells_list
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns)
@@ -309,7 +332,7 @@ class Designite(Extractor):
         path = os.path.join(self.out_dir, r"typeMetrics.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["Package Name", "Type Name"]
+        keys_columns = ["File Path", "Package Name", "Type Name"]
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns)
         type_metrics = self._get_metrics_dict(df)
@@ -319,7 +342,7 @@ class Designite(Extractor):
         path = os.path.join(self.out_dir, r"methodMetrics.csv")
         if not os.path.exists(path):
             return {}
-        keys_columns = ["Package Name", "Type Name", "MethodName"]
+        keys_columns = ["File Path", "Package Name", "Type Name", "MethodName"]
         df = pd.read_csv(path)
         df = self._process_keys(df, keys_columns)
         type_metrics = self._get_metrics_dict(df)
@@ -328,6 +351,8 @@ class Designite(Extractor):
     def _process_keys(self,df, keys_columns):
         df = df.drop(r"Project Name", axis=1)
         df = df.dropna()
+        for k in keys_columns:
+            df[k] = df[k].apply(lambda x: os.path.normpath(x).lower())
         df["id"] = df.apply(lambda x: self.file_analyser.get_file_path_by_designite(*list(map(lambda y: x[y], keys_columns))), axis=1)
         for i in keys_columns:
             df = df.drop(i, axis=1)
@@ -383,10 +408,7 @@ class SourceMonitor(Extractor):
         xml_path = os.path.join(out_dir, "sourceMonitor.xml")
         with open(xml_path, "w") as f:
             f.write(xml)
-        try:
-            run([source_monitor_runner, "/C", xml_path], timeout=TIMEOUT)
-        except:
-            pass
+        execute_timeout([source_monitor_runner, "/C", xml_path])
         return out_dir
 
     def _process_metrics(self):
@@ -460,11 +482,9 @@ class CK(Extractor):
     @staticmethod
     def _execute_command(ck_runner, local_path, out_dir):
         project_path = os.path.join(os.getcwd(), local_path)
-        command = ["java", '-Xmx4096m', "-jar", ck_runner, project_path, "True"]
-        try:
-            run(command, cwd=out_dir, timeout=TIMEOUT)
-        except:
-            pass
+        # commands = ["java", "-jar", ck_runner, project_path, "True"]
+        commands = ["java", '-Xmx4096m', "-jar", ck_runner, project_path, "True"]
+        execute_timeout(commands, cwd=out_dir)
         return out_dir
 
     def _process_metrics(self):
@@ -501,11 +521,9 @@ class Mood(Extractor):
 
     @staticmethod
     def _execute_command(mood_runner, local_path, out_dir):
-        command = ["java", '-Xmx4096m', "-jar", mood_runner, local_path, out_dir]
-        try:
-            run(command, timeout=TIMEOUT)
-        except:
-            pass
+        # commands = ["java", "-jar", mood_runner, local_path, out_dir]
+        commands = ["java", '-Xmx4096m', "-jar", mood_runner, local_path, out_dir]
+        execute_timeout(commands)
 
     def _process_metrics(self):
         with open(os.path.join(self.out_dir, "_metrics.json")) as file:
@@ -554,11 +572,9 @@ class Jasome(Extractor):
 
     @staticmethod
     def _execute_command(jasome_runner, local_path, out_path_to_xml):
-        command = ["java", '-Xmx4096m', "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
-        try:
-            run(command, timeout=TIMEOUT)
-        except:
-            pass
+        # commands = ["java", "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
+        commands = ["java", '-Xmx4096m', "-cp", jasome_runner, "org.jasome.executive.CommandLineExecutive", '-xt', local_path, '-o', out_path_to_xml]
+        execute_timeout(commands)
 
     def _process_metrics(self):
         from metrics.jasome_xml_parser import parse

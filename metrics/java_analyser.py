@@ -13,6 +13,37 @@ try:
 except:
     from javadiff.SourceFile import SourceFile
 
+import psutil
+from threading import Timer
+from subprocess import run, Popen, TimeoutExpired
+
+TIMEOUT = 30 * 60
+
+
+def kill_proc(proc):
+    proc.kill()
+    proc.terminate()
+    psutil.Process(proc.pid)
+
+
+def execute_timeout(commands, cwd=None):
+    print(commands)
+    with Popen(commands, cwd=cwd) as proc:
+        try:
+            timer = Timer(TIMEOUT, lambda : kill_proc(proc))
+            timer.start()
+            proc.communicate(timeout=TIMEOUT)
+            timer.cancel()
+        except TimeoutExpired:
+            try:
+                kill_proc(proc)
+                timer.cancel()
+            except:
+                pass
+        except:
+            pass
+
+
 
 class FileAnalyser(ABC):
     @abstractmethod
@@ -34,6 +65,8 @@ class JavaParserFileAnalyser(FileAnalyser):
         self.classes_paths = self._get_classes_path()
         self.relative_paths = dict(map(lambda x: (x.lower().replace(self.local_path.lower() + os.sep, ''), x.lower()), self.parser_df['File Path'].to_list()))
         self.methods_by_path_and_name = self._get_methods_by_path_and_name()
+        self.designite_closest_dict = self.get_designite_closest_dict()
+        self.closest_id_dict = self.get_closest_id_dict()
 
     @staticmethod
     def _get_outpath(project_name, version_name):
@@ -43,7 +76,10 @@ class JavaParserFileAnalyser(FileAnalyser):
         parser_dir = os.path.join(repository_data, java_parser, project_name)
         parser_dir = Config.get_work_dir_path(parser_dir)
         Config.assert_dir_exists(parser_dir)
-        path = os.path.join(parser_dir, version_name.replace(os.path.sep, '_'))
+        name = project_name
+        if version_name:
+            name = version_name.replace(os.path.sep, '_')
+        path = os.path.join(parser_dir, name)
         return path
 
     @staticmethod
@@ -58,51 +94,45 @@ class JavaParserFileAnalyser(FileAnalyser):
         runner = os.path.join(base_dir, Config().config["EXTERNALS"]["JavaParser"])
         outdir = tempfile.mkdtemp()
         outpath = os.path.join(outdir, "sourceCodeInformation.csv")
+        # commands = ["java", "-jar", runner.replace("\\\\?\\", ""), "-i", local_path, "-o", outdir]
         commands = ["java", '-Xmx4096m', "-jar", runner.replace("\\\\?\\", ""), "-i", local_path, "-o", outdir]
-        status = run(commands)
-        status.check_returncode()
+        execute_timeout(commands)
         parser_df = pd.read_csv(outpath, delimiter=";")
         shutil.copyfile(outpath, cache_path)
         shutil.rmtree(outdir)
         return parser_df
 
+    def get_closest_id_dict(self):
+        methods_ans = {}
+        for _, file_path, package_name, type_name, method_name, parameters, start_line, end_line in self.parser_df[
+            ["File Path", 'Package Name', "Type Name", "Method Name", "Parameters", 'Method Beginning Line', 'Method Ending Line']].itertuples():
+            lower_name = file_path.lower()
+            relative = lower_name.replace(self.local_path.lower() + os.sep, '')
+            id = file_path + '@' + package_name + "." + type_name + "." + method_name + parameters
+            id = id.lower()
+            methods_ans.setdefault(lower_name, []).append((start_line, end_line, id))
+            methods_ans.setdefault(relative, []).append((start_line, end_line, id))
+        return methods_ans
+
     def get_closest_id(self, file_name, line=0):
         file_name = os.path.normpath(file_name).lower()
-        relative_file_name = file_name.replace(os.path.join(os.path.normpath(self.local_path).lower(), ""), "")
-        cond = self.parser_df['File Path'].str.contains(relative_file_name , case=False, regex=False)
-        df = self.parser_df.loc[cond]
-        closest_df = df.iloc[(df["Method Beginning Line"] - line).abs().argsort()[:1]]
-        if closest_df.empty:
+        if file_name not in self.closest_id_dict:
             return None
-        file_path = str(closest_df["File Path"].values[0])
-        package_name = str(closest_df["Package Name"].values[0])
-        type_name = str(closest_df["Type Name"].values[0])
-        method_name = str(closest_df["Method Name"].values[0])
-        parameters = str(closest_df["Parameters"].values[0])
-        closest_id = file_path + '@' + package_name + "." + type_name + "." + method_name + parameters
-        return closest_id.lower()
+        for start_line, end_line, id in self.closest_id_dict[file_name]:
+            if start_line  - 1 <= line <= end_line + 1:
+                return id
+        return None
 
-    def get_file_path_by_designite(self, package_name, type_name, method_name=None):
-        df = self.parser_df[self.parser_df.apply(lambda x: x['Package Name'].lower() == package_name.lower() and x['Type Name'].lower() == type_name.lower(), axis=1)]
-        if df.empty:
-            return None
-        if method_name:
-            df = df[df.apply(lambda x: x['Method Name'].lower() == method_name.lower(), axis=1)]
-            if df.empty:
-                return None
-            file_path = str(df["File Path"].values[0])
-            package_name = str(df["Package Name"].values[0])
-            type_name = str(df["Type Name"].values[0])
-            method_name = str(df["Method Name"].values[0])
-            parameters = str(df["Parameters"].values[0])
-            closest_id = file_path + '@' + package_name + "." + type_name + "." + method_name + parameters
-            return closest_id
-        else:
-            ans = set(df['File Path'].values.tolist())
-            if len(ans)> 1:
-                return None
-            assert len(ans) == 1, (ans, package_name, type_name, method_name)
-            return list(ans)[0]
+    def get_designite_closest_dict(self):
+        methods_ans = {}
+        for _, file_path, package_name, type_name, method_name, parameters in self.parser_df[["File Path", 'Package Name', "Type Name", "Method Name", "Parameters"]].itertuples():
+            methods_ans[(file_path, package_name, type_name, method_name)] = file_path + '@' + package_name + "." + type_name + "." + method_name + parameters
+        return methods_ans
+
+    def get_file_path_by_designite(self, file_path, package_name, type_name, method_name=None):
+        if method_name is not None:
+            return self.designite_closest_dict.get((file_path, package_name, type_name, method_name))
+        return file_path
 
     def _get_classes_path(self):
             classes_path = dict()
