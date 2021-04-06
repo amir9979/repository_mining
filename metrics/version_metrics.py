@@ -70,7 +70,8 @@ class Extractor(ABC):
         self.config = Config().config
         self.runner = self._get_runner(self.config, extractor_name)
         if repo is None:
-            repo = Repo(project, version)
+            repo = Repo(project)
+            repo.checkout_version(self.version)
         self.local_path = os.path.realpath(repo.project.path)
         self.file_analyser = JavaParserFileAnalyser(self.local_path, self.project_name, self.version)
         self.data: Data = None
