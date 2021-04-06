@@ -28,7 +28,6 @@ class DataExtractor(object):
         # self.git_repo = git.Repo(self.project.path)
 #         self.head_commit = self.git_repo.head.commit.hexsha
         # self.git_repo.git.checkout(self.head_commit, force=True)
-#         self.git_url = os.path.join(list(self.git_repo.remotes[0].urls)[0].replace(".git", ""), "tree")
         self.issues = None
         self.commits = None
         self.versions = None
@@ -59,9 +58,6 @@ class DataExtractor(object):
 
     def checkout_version(self, version):
         self.git_repo.git.checkout(version.replace('\\', '/'), force=True)
-
-    def checkout_master(self):
-        self.git_repo.git.checkout(self.head_commit, force=True)
 
     @staticmethod
     @cached('repo_versions')
@@ -198,7 +194,8 @@ class DataExtractor(object):
             df[df['version_type'].apply(lambda x: x.lower() in ['minor', 'major'])].to_csv(path, index=False, sep=';')
 
     def get_commit_url(self, commit_sha):
-        return os.path.normpath(os.path.join(self.git_url, commit_sha))
+        git_url = os.path.join(list(git.Repo(self.project.path).remotes[0].urls)[0].replace(".git", ""), "tree")
+        return os.path.normpath(os.path.join(git_url, commit_sha))
 
     def get_versions_by_type(self, v_types=(VersionType.Minor, VersionType.Major)):
         versions = []
