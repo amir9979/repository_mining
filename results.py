@@ -64,10 +64,14 @@ def results_analysis():
 
     product_compare = Compare("product_compare", "traditional_product", "issues_product", ["halstead", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk"], ["issues_product"])
     process_compare = Compare("process_compare", "traditional_process", "issues_process", ["process_files"], ["issues_process"])
+    product_compare2 = Compare("product_compare2", "traditional_product", "traditional_issues_product", ["halstead", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk"], ["halstead", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk", "issues_product"])
+    process_compare2 = Compare("process_compare2", "traditional_process", "traditional_issues_process", ["process_files"], ["process_files", "issues_process"])
+    compares = [product_compare, process_compare, product_compare2, process_compare2]
     for d in dirs:
         classes_dir = os.path.join(d[1], os.listdir(d[1])[0], 'classes')
-        product_compare.create_compare_datasets(classes_dir)
-        process_compare.create_compare_datasets(classes_dir)
+        print(d)
+        for c in compares:
+            c.create_compare_datasets(classes_dir)
 
 if __name__ == "__main__":
 
