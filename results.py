@@ -31,6 +31,11 @@ class Compare:
                                                   testing_df, training_df, origin_dataset)
         pd.DataFrame(ans).to_csv(os.path.join(os.path.dirname(origin_dataset), self.name + ".csv"), index=False, sep=';')
 
+    def collect_score(self, origin_dataset):
+        df = pd.read_csv(os.path.join(os.path.dirname(origin_dataset), self.name + ".csv"), sep=';')
+        df['proj_name'] = os.path.basename(os.path.dirname(origin_dataset))
+        df['dir_name'] = os.path.basename(os.path.dirname(os.path.dirname(origin_dataset)))
+        return df
 
     def create_sub_data_set_by_columns(self, columns, dataset_cols, dir_name, label, names, sub_dir, testing_df,
                                        training_df, origin_dataset):
@@ -62,17 +67,33 @@ def results_analysis():
     dirs = list(
         filter(lambda x: os.path.isdir(x[1]), map(lambda x: (x, os.path.join(base, x, 'dataset')), os.listdir(base))))
 
-    product_compare = Compare("product_compare", "traditional_product", "issues_product", ["halstead", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk"], ["issues_product"])
-    process_compare = Compare("process_compare", "traditional_process", "issues_process", ["process_files"], ["issues_process"])
-    product_compare2 = Compare("product_compare2", "traditional_product", "traditional_issues_product", ["halstead", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk"], ["halstead", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk", "issues_product"])
-    process_compare2 = Compare("process_compare2", "traditional_process", "traditional_issues_process", ["process_files"], ["process_files", "issues_process"])
-    compares = [product_compare, process_compare, product_compare2, process_compare2]
-    for d in dirs:
-        classes_dir = os.path.join(d[1], os.listdir(d[1])[0], 'classes')
-        print(d)
-        for c in compares:
-            c.create_compare_datasets(classes_dir)
+    product_compare = Compare("product_compare_noh", "traditional_product", "issues_product", ["jasome_files", "jasome_mood", "jasome_ck", "jasome_lk"], ["issues_product"])
+    product_compare2 = Compare("product_compare2_noh", "traditional_product", "traditional_issues_product", ["jasome_files", "jasome_mood", "jasome_ck", "jasome_lk"], ["jasome_files", "jasome_mood", "jasome_ck", "jasome_lk", "issues_product"])
+    # product_compare = Compare("product_compare", "traditional_product", "issues_product", ["halstead", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk"], ["issues_product"])
+    # product_compare2 = Compare("product_compare2", "traditional_product", "traditional_issues_product", ["halstead", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk"], ["halstead", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk", "issues_product"])
+    # process_compare = Compare("process_compare", "traditional_process", "issues_process", ["process_files"], ["issues_process"])
+    # process_compare2 = Compare("process_compare2", "traditional_process", "traditional_issues_process", ["process_files"], ["process_files", "issues_process"])
+    # compares = [product_compare, process_compare, product_compare2, process_compare2]
+    compares = [product_compare,product_compare2]
+    # for d in dirs:
+    #     classes_dir = os.path.join(d[1], os.listdir(d[1])[0], 'classes')
+    #     print(d)
+    #     for c in compares:
+    #         c.create_compare_datasets(classes_dir)
+    for c in compares:
+        data = []
+        for d in dirs:
+            try:
+                classes_dir = os.path.join(d[1], os.listdir(d[1])[0], 'classes')
+                data.append(c.collect_score(classes_dir))
+            except:
+                pass
+        dfs = data
+        ans = dfs.pop()
+        for d in dfs:
+            ans = ans.append(d)
+        ans.to_csv(os.path.join(r"c:\temp", c.name + ".csv"), index=False)
+
 
 if __name__ == "__main__":
-
     results_analysis()
