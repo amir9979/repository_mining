@@ -124,6 +124,7 @@ if __name__ == '__main__':
     version_before = 'shir_' + str(commits_start)
     main = Main()
     main.set_project(NAME_PROJECT, "", NAME_PROJECT.upper(), "http://issues.apache.org/jira")
-    data_types = ["checkstyle_files", "checkstyle_methods", "ck","mood", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk", "jasome_methods"]
+    data_types = ["checkstyle_files", "checkstyle_methods", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk", "jasome_methods"]
     classes_df, methods_df, aggregated_classes_df = main.extract_features_to_version(version_before, False, data_types=data_types)
     classes_df.to_csv("repository_data/" + version_before + ".csv", index=False, sep=';')
+    aggregated_classes_df.to_csv("repository_data/aggregated_classes_df_" + version_before + ".csv", index=False, sep=';')
