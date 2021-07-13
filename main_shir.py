@@ -66,11 +66,11 @@ def write_commit(list_of_commit, commits_start, commits_end):
                     if type(file_change) is list:
                         file_before_rename = file_change[0]
                         file_after_rename = file_change[1]
-                        file = file_after_rename[file_after_rename.rfind('/') + 1:-5]
+                        file = file_after_rename.repalce('/', '.')[:-5]
                         after_contents = obj_git.connect.git.show('{}:{}'.format(commit, file_after_rename))
                         before_contents = obj_git.connect.git.show('{}:{}'.format(parent, file_before_rename))
                     else:
-                        file = file_change[file_change.rfind('/') + 1:-5]
+                        file = file_change.repalce('/', '.')[:-5]
                         after_contents = obj_git.connect.git.show('{}:{}'.format(commit, file_change))
                         before_contents = obj_git.connect.git.show('{}:{}'.format(parent, file_change))
                     write(before_contents, commit, file, "before")
