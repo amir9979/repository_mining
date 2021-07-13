@@ -125,4 +125,4 @@ if __name__ == '__main__':
     main = Main()
     main.set_project(NAME_PROJECT, "", NAME_PROJECT.upper(), "http://issues.apache.org/jira")
     data_types = ["checkstyle_files", "checkstyle_methods", "ck","mood", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk", "jasome_methods"]
-    main.extract_features_to_version(version_before, False, data_types=data_types)
+    classes_df, methods_df, aggregated_classes_df = main.extract_features_to_version(version_before, False, data_types=data_types)
