@@ -119,8 +119,8 @@ if __name__ == '__main__':
     window_size = int(sys.argv[2])
     commits_start = window_ind * window_size
     commits_end = commits_start + window_size
-    # obj_git = GetCommit('my-tools', commits_start, commits_end)
-    obj_git = GetCommit(r'C:\Users\shir0\commons-math', commits_start, commits_end)
+    obj_git = GetCommit('my-tools', commits_start, commits_end)
+    # obj_git = GetCommit(r'C:\Users\shir0\commons-math', commits_start, commits_end)
 
     commits, files = extract_files_commits(obj_git)
     write_commit(commits, commits_start, commits_end)
@@ -133,15 +133,22 @@ if __name__ == '__main__':
                                                                                        data_types=data_types)
     import pandas as pd
 
-    data_file_commit = classes_df['File'].str.split(NAME_PROJECT, n=1, expand=True)[1].str.split("\\", n=2, expand=True)[[1, 2]]
-    file_before_of_after = data_file_commit[2].str.split("\\", n=-1, expand=True).rename(columns={0:'file', 1:"before-after"})
-    classes_df = pd.concat([file_before_of_after, data_file_commit[1],  classes_df], axis=1)
-    classes_df.to_csv("repository_data/classes_df_" + version_before + ".csv", index=False, sep=';')
+    try:
+        data_file_commit = classes_df['File'].str.split(NAME_PROJECT, n=1, expand=True)[1].str.split("\\", n=2, expand=True)[[1, 2]]
+        file_before_of_after = data_file_commit[2].str.split("\\", n=-1, expand=True).rename(columns={0:'file', 1:"before-after"})
+        classes_df = pd.concat([file_before_of_after, data_file_commit[1],  classes_df], axis=1)
+        classes_df.to_csv("repository_data/classes_df_" + version_before + ".csv", index=False, sep=';')
+    except:
+        classes_df.to_csv("repository_data/classes_df_" + version_before + ".csv", index=False, sep=';')
 
-    data_file_commit = \
-    aggregated_classes_df['File'].str.split(NAME_PROJECT, n=1, expand=True)[1].str.split("\\", n=2, expand=True)[[1, 2]]
-    file_before_of_after = data_file_commit[2].str.split("\\", n=-1, expand=True).rename(
-        columns={0: 'file', 1: "before-after"})
-    aggregated_classes_df = pd.concat([file_before_of_after, data_file_commit[1], aggregated_classes_df], axis=1)
-    aggregated_classes_df.to_csv("repository_data/aggregated_classes_df_" + version_before + ".csv", index=False,
-                                 sep=';')
+    try:
+        data_file_commit = \
+        aggregated_classes_df['File'].str.split(NAME_PROJECT, n=1, expand=True)[1].str.split("\\", n=2, expand=True)[[1, 2]]
+        file_before_of_after = data_file_commit[2].str.split("\\", n=-1, expand=True).rename(
+            columns={0: 'file', 1: "before-after"})
+        aggregated_classes_df = pd.concat([file_before_of_after, data_file_commit[1], aggregated_classes_df], axis=1)
+        aggregated_classes_df.to_csv("repository_data/aggregated_classes_df_" + version_before + ".csv", index=False,
+                                     sep=';')
+    except:
+        aggregated_classes_df.to_csv("repository_data/aggregated_classes_df_" + version_before + ".csv", index=False,
+                                     sep=';')
