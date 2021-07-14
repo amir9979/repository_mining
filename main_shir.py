@@ -119,8 +119,8 @@ if __name__ == '__main__':
     window_size = int(sys.argv[2])
     commits_start = window_ind * window_size
     commits_end = commits_start + window_size
-    # obj_git = GetCommit('my-tools', commits_start, commits_end)
-    obj_git = GetCommit(r'C:\Users\shir0\commons-math', commits_start, commits_end)
+    obj_git = GetCommit('my-tools', commits_start, commits_end)
+#     obj_git = GetCommit(r'C:\Users\shir0\commons-math', commits_start, commits_end)
 
     commits, files = extract_files_commits(obj_git)
     write_commit(commits, commits_start, commits_end)
