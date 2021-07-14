@@ -8,7 +8,7 @@ from commit import Commit
 from pathlib import Path
 
 # LOCATION_PROJECT = "C:/Users/shir0/camel"
-NAME_PROJECT = "camel"
+NAME_PROJECT = "commons-math"
 
 
 def extract_files_commits(obj_git):
@@ -66,15 +66,17 @@ def write_commit(list_of_commit, commits_start, commits_end):
                     if type(file_change) is list:
                         file_before_rename = file_change[0]
                         file_after_rename = file_change[1]
-                        file = file_after_rename.repalce('/', '.')[:-5]
+                        # file = file_after_rename.repalce('/', '.')[:-5]
                         after_contents = obj_git.connect.git.show('{}:{}'.format(commit, file_after_rename))
                         before_contents = obj_git.connect.git.show('{}:{}'.format(parent, file_before_rename))
+                        write(before_contents, commit, file_after_rename, "before")
+                        write(after_contents, commit, file_after_rename)
                     else:
-                        file = file_change.repalce('/', '.')[:-5]
+                        # file = file_change.repalce('/', '.')[:-5]
                         after_contents = obj_git.connect.git.show('{}:{}'.format(commit, file_change))
                         before_contents = obj_git.connect.git.show('{}:{}'.format(parent, file_change))
-                    write(before_contents, commit, file, "before")
-                    write(after_contents, commit, file)
+                        write(before_contents, commit, file_change, "before")
+                        write(after_contents, commit, file_change)
                 except Exception as e:
                     print("commit ", commit)
                     print("parent ", parent)
@@ -88,12 +90,11 @@ def write(contents, commit, file, name="after"):
     if name == "before":
         if not os.path.exists('apache_repos/' + NAME_PROJECT + '/' + str(commit)):
             os.mkdir('apache_repos/' + NAME_PROJECT + '/' + str(commit))
-        if not os.path.exists('apache_repos/' + NAME_PROJECT + '/' + str(commit) + "/" + file):
-            os.mkdir('apache_repos/' + NAME_PROJECT + '/' + str(commit) + "/" + file)
+        if not os.path.exists(os.path.join('apache_repos', NAME_PROJECT, str(commit), str(file).replace("/", "$"))):
+            os.mkdir(os.path.join('apache_repos', NAME_PROJECT, str(commit), str(file).replace("/", "$")))
 
-    with open('apache_repos/' + NAME_PROJECT + '/' + str(
-            commit) + "/" + file + "/" + name +
-              ".java", 'w') as file:
+    with open(os.path.join('apache_repos', NAME_PROJECT, str(commit), str(file).replace("/", "$"), name+ ".java"),
+              'w') as file:
         file.write(''.join(contents))
 
 
@@ -119,12 +120,28 @@ if __name__ == '__main__':
     commits_start = window_ind * window_size
     commits_end = commits_start + window_size
     obj_git = GetCommit('my-tools', commits_start, commits_end)
+    # obj_git = GetCommit(r'C:\Users\shir0\commons-math', commits_start, commits_end)
+
     commits, files = extract_files_commits(obj_git)
     write_commit(commits, commits_start, commits_end)
     version_before = 'shir_' + str(commits_start)
     main = Main()
     main.set_project(NAME_PROJECT, "", NAME_PROJECT.upper(), "http://issues.apache.org/jira")
-    data_types = ["checkstyle_files", "checkstyle_methods", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk", "jasome_methods"]
-    classes_df, methods_df, aggregated_classes_df = main.extract_features_to_version(version_before, False, data_types=data_types)
-    classes_df.to_csv("repository_data/" + version_before + ".csv", index=False, sep=';')
-    aggregated_classes_df.to_csv("repository_data/aggregated_classes_df_" + version_before + ".csv", index=False, sep=';')
+    data_types = ["checkstyle_files", "checkstyle_methods", "jasome_files", "jasome_mood", "jasome_ck", "jasome_lk",
+                  "jasome_methods"]
+    classes_df, methods_df, aggregated_classes_df = main.extract_features_to_version(version_before, False,
+                                                                                       data_types=data_types)
+    import pandas as pd
+
+    data_file_commit = classes_df['File'].str.split(NAME_PROJECT, n=1, expand=True)[1].str.split("\\", n=2, expand=True)[[1, 2]]
+    file_before_of_after = data_file_commit[2].str.split("\\", n=-1, expand=True).rename(columns={0:'File', 1:"before-after"})
+    classes_df = pd.concat([file_before_of_after, data_file_commit[1],  classes_df], axis=1)
+    classes_df.to_csv("repository_data/classes_df_" + version_before + ".csv", index=False, sep=';')
+
+    data_file_commit = \
+    aggregated_classes_df['file'].str.split(NAME_PROJECT, n=1, expand=True)[1].str.split("\\", n=2, expand=True)[[1, 2]]
+    file_before_of_after = data_file_commit[2].str.split("\\", n=-1, expand=True).rename(
+        columns={0: 'file', 1: "before-after"})
+    aggregated_classes_df = pd.concat([file_before_of_after, data_file_commit[1], aggregated_classes_df], axis=1)
+    aggregated_classes_df.to_csv("repository_data/aggregated_classes_df_" + version_before + ".csv", index=False,
+                                 sep=';')
